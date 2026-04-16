@@ -100,8 +100,8 @@ model Rabbi {
   isBlocked    Boolean      @default(false)
   profileCompleted Boolean  @default(false)
 
-  calendarSync Json?
-  mediaLinks   Json?
+  calendarSync String?
+  mediaLinks   String?
 
   liveMode     LiveMode     @default(OWN)
   streamKey    String?      @unique
@@ -167,7 +167,7 @@ model Lesson {
   broadcastType   String    @default("LESSON")
 
   isRecurring     Boolean   @default(false)
-  recurringRule   Json?
+  recurringRule   String?
   recurringGroupId String?
 
   youtubeUrl      String?
