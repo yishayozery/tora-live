@@ -1,0 +1,337 @@
+// TORA_LIVE — Prisma schema (PostgreSQL / Supabase)
+// סנכרון מלא עם schema.prisma הנוכחי (SQLite) — לשימוש ב-production.
+// כדי להחליף: cp prisma/schema.postgres.prisma prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Enums ----------
+enum UserRole {
+  ADMIN
+  RABBI
+  STUDENT
+}
+
+enum RabbiStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ContactStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REPLIED
+}
+
+enum ReportCategory {
+  INAPPROPRIATE
+  SPAM
+  TECHNICAL
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+}
+
+enum DedicationType {
+  LEZECHER
+  LIZCHUT
+}
+
+enum NotifyChannel {
+  NONE
+  EMAIL
+  WHATSAPP
+  BOTH
+}
+
+enum NotificationKind {
+  LESSON_REMINDER
+  NEW_LESSON_FROM_RABBI
+  CONTACT_REPLY
+  ACCOUNT_STATUS
+}
+
+enum LiveMode {
+  OWN
+  PLATFORM
+}
+
+enum LiveMethod {
+  BROWSER
+  YOUTUBE
+  EXTERNAL
+}
+
+// ---------- משתמש בסיסי (auth) ----------
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime   @default(now())
+
+  rabbi        Rabbi?
+  student      Student?
+}
+
+// ---------- רב ----------
+model Rabbi {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug         String       @unique
+  name         String
+  bio          String       @default("") @db.Text
+  photoUrl     String?
+  phone        String?
+  status       RabbiStatus  @default(PENDING)
+  isBlocked    Boolean      @default(false)
+  profileCompleted Boolean  @default(false)
+
+  calendarSync Json?
+  mediaLinks   Json?
+
+  liveMode     LiveMode     @default(OWN)
+  streamKey    String?      @unique
+
+  autoReplyEnabled Boolean  @default(false)
+  autoReplyMessage String?  @db.Text
+
+  categories   Category[]
+  lessons      Lesson[]
+  requests     ContactRequest[]
+  followers    Follow[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+// ---------- תלמיד ----------
+model Student {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String
+  isBlocked     Boolean        @default(false)
+  blockedReason String?
+
+  notifyChannel NotifyChannel  @default(EMAIL)
+  phoneE164     String?
+
+  createdAt     DateTime       @default(now())
+
+  chatMessages    ChatMessage[]
+  requests        ContactRequest[]
+  follows         Follow[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
+}
+
+// ---------- קטגוריה ----------
+model Category {
+  id       String   @id @default(cuid())
+  rabbiId  String
+  rabbi    Rabbi    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  name     String
+  order    Int      @default(0)
+  lessons  Lesson[]
+
+  @@unique([rabbiId, name])
+}
+
+// ---------- שיעור ----------
+model Lesson {
+  id              String    @id @default(cuid())
+  rabbiId         String
+  rabbi           Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+
+  title           String
+  description     String    @db.Text
+  scheduledAt     DateTime
+  durationMin     Int?
+  language        String    @default("he")
+  broadcastType   String    @default("LESSON")
+
+  isRecurring     Boolean   @default(false)
+  recurringRule   Json?
+  recurringGroupId String?
+
+  youtubeUrl      String?
+  spotifyUrl      String?
+  applePodcastUrl String?
+  soundcloudUrl   String?
+  otherUrl        String?
+
+  sourcesPdfUrl   String?
+  transcriptText  String?   @db.Text
+
+  isLive          Boolean   @default(false)
+  liveMethod      LiveMethod?
+  streamId        String?
+  playbackUrl     String?
+  recordingUrl    String?
+  recordingExpiry DateTime?
+  liveEmbedUrl    String?
+
+  viewCount       Int       @default(0)
+  syncToCalendar  Boolean   @default(false)
+  calendarEventId String?
+
+  chatMessages    ChatMessage[]
+  reports         Report[]
+  bookmarks       Bookmark[]
+  sources         LessonSource[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([rabbiId, scheduledAt])
+  @@index([recurringGroupId])
+}
+
+// ---------- מקור PDF (Live Follow) ----------
+model LessonSource {
+  id            String   @id @default(cuid())
+  lessonId      String
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileUrl       String
+  fileName      String?
+  currentPage   Int      @default(1)
+  totalPages    Int?
+  isLiveFollow  Boolean  @default(false)
+  lastTouchedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+
+  @@index([lessonId])
+}
+
+// ---------- עקיבה ----------
+model Follow {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  rabbiId     String
+  rabbi       Rabbi    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  notifyOnNew Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@unique([studentId, rabbiId])
+  @@index([rabbiId])
+}
+
+// ---------- סימון שיעור ללוח ----------
+model Bookmark {
+  id              String    @id @default(cuid())
+  studentId       String
+  student         Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonId        String
+  lesson          Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  remindBeforeMin Int       @default(30)
+  reminderSentAt  DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@unique([studentId, lessonId])
+  @@index([reminderSentAt])
+}
+
+// ---------- התראות ----------
+model Notification {
+  id         String           @id @default(cuid())
+  studentId  String
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  kind       NotificationKind
+  title      String
+  body       String           @db.Text
+  link       String
+  readAt     DateTime?
+  sentEmail  Boolean          @default(false)
+  sentWa     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+
+  @@index([studentId, readAt])
+}
+
+// ---------- צ'אט שאלות ----------
+model ChatMessage {
+  id         String   @id @default(cuid())
+  lessonId   String
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId  String
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  isAnswered Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([lessonId, createdAt])
+}
+
+// ---------- צור קשר עם הרב ----------
+model ContactRequest {
+  id            String        @id @default(cuid())
+  rabbiId       String
+  rabbi         Rabbi         @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  studentId     String
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  message       String        @db.Text
+  reply         String?       @db.Text
+  requestType   String?
+  topic         String?
+  requestedDate DateTime?
+  requestedTime String?
+  status        ContactStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+  repliedAt     DateTime?
+}
+
+// ---------- חסות יומית ----------
+model Sponsor {
+  id             String         @id @default(cuid())
+  date           DateTime       @db.Date
+  name           String
+  dedicationType DedicationType
+  donorName      String?
+  donorEmail     String?
+  donationId     String?
+  createdAt      DateTime       @default(now())
+
+  @@index([date])
+}
+
+// ---------- תרומה ----------
+model Donation {
+  id              String          @id @default(cuid())
+  amount          Int
+  donorName       String
+  donorEmail      String
+  dedicationName  String?
+  dedicationType  DedicationType?
+  showPublicly    Boolean         @default(false)
+  receiptSent     Boolean         @default(false)
+  paymentRef      String?
+  createdAt       DateTime        @default(now())
+}
+
+// ---------- דיווח ----------
+model Report {
+  id             String         @id @default(cuid())
+  lessonId       String?
+  lesson         Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  reporterEmail  String?
+  category       ReportCategory
+  description    String         @db.Text
+  status         ReportStatus   @default(OPEN)
+  createdAt      DateTime       @default(now())
+}
