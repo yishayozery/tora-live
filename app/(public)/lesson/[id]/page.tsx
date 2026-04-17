@@ -66,6 +66,22 @@ export default async function LessonPage({ params }: { params: { id: string } })
         )}
       </div>
 
+      {/* מיקום פיזי */}
+      {(lesson as any).locationName && (
+        <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn">
+          📍 <span>{(lesson as any).locationName}</span>
+          {(lesson as any).locationUrl && (
+            <a
+              href={(lesson as any).locationUrl}
+              target="_blank" rel="noreferrer"
+              className="text-primary text-xs hover:underline"
+            >
+              במפה ←
+            </a>
+          )}
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap gap-3">
         <BookmarkButton
           lessonId={lesson.id}

@@ -32,6 +32,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       broadcastType: d.broadcastType ?? "LESSON",
       isLive: d.isLive ?? false,
       liveEmbedUrl: d.liveEmbedUrl || null,
+      locationName: d.locationName || null,
+      locationUrl: d.locationUrl || null,
       youtubeUrl: d.youtubeUrl || null,
       spotifyUrl: d.spotifyUrl || null,
       applePodcastUrl: d.applePodcastUrl || null,

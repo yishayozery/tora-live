@@ -63,6 +63,8 @@ export const lessonSchema = z.object({
   syncToCalendar: z.boolean().optional(),
   isLive: z.boolean().optional(),
   liveEmbedUrl: z.string().url().optional().or(z.literal("")),
+  locationName: z.string().max(200).optional().or(z.literal("")),
+  locationUrl: z.string().url().optional().or(z.literal("")),
   isRecurring: z.boolean().optional(),
   recurringRule: z
     .object({

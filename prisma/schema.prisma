@@ -103,6 +103,8 @@ model Lesson {
   description     String
   scheduledAt     DateTime
   durationMin     Int?
+  locationName    String?   // שם מקום (אם פיזי) — "בית הכנסת המרכזי, רחוב..."
+  locationUrl     String?   // קישור ל-Google Maps (אופציונלי)
   language        String    @default("he")  // he, en, yi, fr, es, ru, ladino, other
   broadcastType   String    @default("LESSON") // LESSON, PRAYER, SELICHOT, EVENT, TEHILLIM
 

@@ -1,5 +1,6 @@
 import { requireRabbi } from "@/lib/session";
 import { RabbiProfileForm } from "@/components/RabbiProfileForm";
+import { CategoriesManager } from "@/components/CategoriesManager";
 
 export default async function SettingsPage() {
   const { rabbi } = await requireRabbi();
@@ -33,6 +34,10 @@ export default async function SettingsPage() {
           autoReplyMessage: (rabbi as any).autoReplyMessage ?? "",
         }}
       />
+
+      <div className="mt-8">
+        <CategoriesManager />
+      </div>
     </div>
   );
 }

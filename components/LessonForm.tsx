@@ -10,7 +10,7 @@ import { broadcastIcon, ACCENT_BORDER, ACCENT_TEXT } from "@/components/Broadcas
 type Category = { id: string; name: string };
 
 export function LessonForm({
-  categories,
+  categories: initialCategories,
   initial,
   lessonId,
 }: {
@@ -19,6 +19,28 @@ export function LessonForm({
   lessonId?: string;
 }) {
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
+
+  async function createCategory() {
+    if (!newCategoryName.trim()) return;
+    setCreatingCategory(true);
+    const res = await fetch("/api/me/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newCategoryName.trim() }),
+    });
+    setCreatingCategory(false);
+    if (res.ok) {
+      const cat = await res.json();
+      setCategories((prev) => [...prev, cat]);
+      setForm((f) => ({ ...f, categoryId: cat.id }));
+      setNewCategoryName("");
+      setShowNewCategory(false);
+    }
+  }
   const [form, setForm] = useState({
     title: initial?.title ?? "",
     description: initial?.description ?? "",
@@ -35,6 +57,8 @@ export function LessonForm({
     syncToCalendar: initial?.syncToCalendar ?? false,
     isLive: initial?.isLive ?? false,
     liveEmbedUrl: initial?.liveEmbedUrl ?? "",
+    locationName: initial?.locationName ?? "",
+    locationUrl: initial?.locationUrl ?? "",
     isRecurring: initial?.isRecurring ?? false,
     recurringFreq: "WEEKLY" as "DAILY" | "WEEKLY",
     recurringDay: new Date().getDay(),
@@ -126,10 +150,35 @@ export function LessonForm({
         </F>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <F label="קטגוריה">
-            <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="input">
-              <option value="">— ללא —</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            {showNewCategory ? (
+              <div className="flex gap-1">
+                <input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), createCategory())}
+                  placeholder="שם חדש..."
+                  className="input flex-1"
+                  autoFocus
+                />
+                <button type="button" onClick={createCategory} disabled={creatingCategory} className="px-3 bg-primary text-white rounded-btn text-sm disabled:opacity-50">
+                  ✓
+                </button>
+                <button type="button" onClick={() => { setShowNewCategory(false); setNewCategoryName(""); }} className="px-3 bg-paper-soft rounded-btn text-sm">✕</button>
+              </div>
+            ) : (
+              <div className="flex gap-1">
+                <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="input flex-1">
+                  <option value="">— ללא —</option>
+                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                <button type="button" onClick={() => setShowNewCategory(true)} className="px-3 bg-paper-soft border border-border rounded-btn text-sm hover:bg-primary-soft" title="הוסף קטגוריה חדשה">
+                  +
+                </button>
+              </div>
+            )}
+            {categories.length === 0 && !showNewCategory && (
+              <p className="text-xs text-ink-muted mt-1">אין עדיין קטגוריות. לחץ + ליצירה מהירה.</p>
+            )}
           </F>
           <F label="שפת השיעור">
             <select
@@ -193,6 +242,28 @@ export function LessonForm({
             <input type="datetime-local" required={!form.isRecurring} value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} className="input" />
           </F>
         )}
+
+        {/* מיקום פיזי (אופציונלי) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <F label="מיקום פיזי (אופציונלי)">
+            <input
+              type="text"
+              value={form.locationName}
+              onChange={(e) => setForm({ ...form, locationName: e.target.value })}
+              className="input"
+              placeholder="לדוגמה: ביה״כ אור החיים, רחוב..."
+            />
+          </F>
+          <F label="קישור ל-Google Maps (אופציונלי)">
+            <input
+              type="url"
+              value={form.locationUrl}
+              onChange={(e) => setForm({ ...form, locationUrl: e.target.value })}
+              className="input" dir="ltr"
+              placeholder="https://maps.google.com/..."
+            />
+          </F>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <F label="YouTube"><input type="url" value={form.youtubeUrl} onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })} className="input" dir="ltr" /></F>
           <F label="Spotify"><input type="url" value={form.spotifyUrl} onChange={(e) => setForm({ ...form, spotifyUrl: e.target.value })} className="input" dir="ltr" /></F>

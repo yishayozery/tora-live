@@ -103,6 +103,8 @@ model Lesson {
   description     String    @db.Text
   scheduledAt     DateTime
   durationMin     Int?
+  locationName    String?
+  locationUrl     String?
   language        String    @default("he")
   broadcastType   String    @default("LESSON")
 

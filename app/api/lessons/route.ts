@@ -31,6 +31,8 @@ export async function POST(req: Request) {
     broadcastType: data.broadcastType ?? "LESSON",
     isLive: data.isLive ?? false,
     liveEmbedUrl: data.liveEmbedUrl || null,
+    locationName: data.locationName || null,
+    locationUrl: data.locationUrl || null,
     youtubeUrl: data.youtubeUrl || null,
     spotifyUrl: data.spotifyUrl || null,
     applePodcastUrl: data.applePodcastUrl || null,
