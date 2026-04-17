@@ -5,25 +5,41 @@ import {
   ACCENT_SOFT,
   ACCENT_TEXT,
 } from "@/components/BroadcastTypeBadge";
+import { db } from "@/lib/db";
 
-// Mock — כמות שיעורים עתידיים (3 הימים הקרובים) לכל סוג שידור שאינו LESSON.
-// TODO phase1: להחליף בסכימת SELECT מ-DB על פי broadcastType.
-const MOCK_COUNTS: Record<string, number> = {
-  PRAYER: 24,
-  SELICHOT: 6,
-  TEHILLIM: 18,
-  HESPED: 2,
-  WEDDING: 4,
-  BAR_MITZVAH: 3,
-  NIGGUN: 5,
-  CHAZANUT: 7,
-  EVENT: 9,
-  KOL_NIDREI: 1,
-  SHIUR_KLALI: 11,
-};
-
-export function PrayersEventsNow() {
+export async function PrayersEventsNow() {
+  // רק PRAYER + OTHER (כבר אחרי הצמצום ל-3 סוגים)
   const items = BROADCAST_TYPES.filter((b) => b.value !== "LESSON");
+
+  // ספירה אמיתית מה-DB לשיעורים עתידיים (3 ימים) לכל סוג
+  const now = new Date();
+  const in3days = new Date(now.getTime() + 3 * 86400000);
+  const counts: Record<string, number> = {};
+  await Promise.all(
+    items.map(async (b) => {
+      counts[b.value] = await db.lesson.count({
+        where: {
+          broadcastType: b.value,
+          isPublic: true,
+          scheduledAt: { gte: now, lte: in3days },
+          rabbi: { status: "APPROVED", isBlocked: false },
+        },
+      });
+    })
+  );
+
+  // תאימות legacy — ספירות של סוגים ישנים עוד בDB, נכלל תחת OTHER
+  const legacyOther = await db.lesson.count({
+    where: {
+      broadcastType: {
+        notIn: ["LESSON", "PRAYER", "OTHER"],
+      },
+      isPublic: true,
+      scheduledAt: { gte: now, lte: in3days },
+      rabbi: { status: "APPROVED", isBlocked: false },
+    },
+  });
+  if (counts["OTHER"] !== undefined) counts["OTHER"] += legacyOther;
 
   return (
     <section className="max-w-6xl mx-auto px-4 mt-14">
@@ -32,35 +48,37 @@ export function PrayersEventsNow() {
           תפילות ואירועים <span className="text-primary">עכשיו</span>
         </h2>
         <p className="mt-2 text-ink-soft">
-          לא רק שיעורים — סליחות, תפילות, הספדים, שמחות וניגונים בשידור חי מכל
-          הארץ.
+          לא רק שיעורים — תפילות, סליחות, אירועים, חופות וניגונים בשידור חי מכל הארץ.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      {/* 2 אייטמים בגודל בולט — grid 1 בממוד מובייל, 2 בדסקטופ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
         {items.map((b) => {
           const Icon = broadcastIcon(b.icon);
-          const count = MOCK_COUNTS[b.value] ?? 0;
+          const count = counts[b.value] ?? 0;
           return (
             <Link
               key={b.value}
               href={`/lessons?type=${b.value}`}
               aria-label={`${b.label} — ${count} שיעורים עתידיים`}
-              className="group flex flex-col items-start gap-2 rounded-card border border-border bg-white p-4 transition hover:shadow-soft hover:border-primary/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+              className="group flex items-start gap-4 rounded-card border border-border bg-white p-5 transition hover:shadow-soft hover:border-primary/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
             >
               <span
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${ACCENT_SOFT[b.accent]}`}
+                className={`inline-flex h-14 w-14 items-center justify-center rounded-full shrink-0 ${ACCENT_SOFT[b.accent]}`}
               >
-                <Icon className="h-5 w-5" aria-hidden="true" />
+                <Icon className="h-7 w-7" aria-hidden="true" />
               </span>
-              <div className="font-bold text-ink">{b.label}</div>
-              <div className="text-xs text-ink-muted leading-snug">
-                {b.description}
-              </div>
-              <div
-                className={`mt-auto text-xs font-semibold ${ACCENT_TEXT[b.accent]}`}
-              >
-                {count} ב-3 הימים הקרובים ←
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-ink text-lg">{b.label}</div>
+                <p className="text-sm text-ink-muted leading-snug mt-1">
+                  {b.description}
+                </p>
+                <div
+                  className={`mt-3 text-sm font-semibold ${ACCENT_TEXT[b.accent]}`}
+                >
+                  {count > 0 ? `${count} ב-3 הימים הקרובים` : "צפה במה שיש ←"}
+                </div>
               </div>
             </Link>
           );

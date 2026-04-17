@@ -42,10 +42,10 @@ export default function StudentRegisterPage() {
           <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="input" />
         </Field>
         <Field label="מייל">
-          <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input" />
+          <input type="email" required dir="ltr" placeholder="email@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input" />
         </Field>
         <Field label="סיסמה">
-          <input type="password" required minLength={6} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input" />
+          <input type="password" required minLength={6} dir="ltr" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="input" />
         </Field>
         {err && <div className="text-sm text-danger">{err}</div>}
         <Button type="submit" disabled={loading} className="w-full">

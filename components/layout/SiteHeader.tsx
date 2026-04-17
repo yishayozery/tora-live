@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { BookOpen, UserPlus } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserMenu } from "@/components/UserMenu";
+import { PublicMobileNav } from "@/components/layout/PublicMobileNav";
 
 export async function SiteHeader() {
   const session = await getServerSession(authOptions);
@@ -27,10 +28,13 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 text-ink shrink-0">
-          <BookOpen className="w-7 h-7 text-primary" />
-          <span className="hebrew-serif text-2xl font-bold">TORA_LIVE</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <PublicMobileNav isLoggedIn={isLoggedIn} isRabbi={userRole === "RABBI"} />
+          <Link href="/" className="flex items-center gap-2 text-ink shrink-0">
+            <BookOpen className="w-7 h-7 text-primary" />
+            <span className="hebrew-serif text-2xl font-bold">TORA_LIVE</span>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center gap-5 text-sm">
           <Link href="/rabbis" className="text-ink-soft hover:text-ink transition">רבנים</Link>

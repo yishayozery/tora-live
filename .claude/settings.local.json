@@ -83,7 +83,17 @@
       "Bash(curl -sI \"https://torah-live-rho.vercel.app/\" --max-time 20)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"https://torah-live-gpvd05kp4-yishayozerys-projects.vercel.app/\" --max-time 30)",
       "Bash(curl -s \"https://torah-live-gpvd05kp4-yishayozerys-projects.vercel.app/\" --max-time 20)",
-      "Bash(curl -sI \"https://torah-live-gpvd05kp4-yishayozerys-projects.vercel.app/\" --max-time 20)"
+      "Bash(curl -sI \"https://torah-live-gpvd05kp4-yishayozerys-projects.vercel.app/\" --max-time 20)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/lessons)",
+      "Bash(curl -s http://localhost:3000/rabbi/yosef-cohen)",
+      "Bash(curl -s \"http://localhost:3000/\" -o /tmp/home.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:3000/donate)",
+      "Bash(curl -s http://localhost:3000/about)",
+      "Bash(curl -s http://localhost:3000/rabbis)",
+      "Bash(grep -oE '<h[12][^>]*>[^<]{1,80}</h[12]>')"
     ]
   }
 }
