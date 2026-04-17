@@ -52,7 +52,12 @@ export default async function LessonsPage({
   const rawLessons = await db.lesson.findMany({
     where: {
       isPublic: true,
-      rabbi: { status: "APPROVED", isBlocked: false },
+      approvalStatus: "APPROVED",
+      isSuspended: false,
+      OR: [
+        { rabbi: { status: "APPROVED", isBlocked: false } },
+        { rabbiId: null },
+      ],
       scheduledAt: { gte: new Date(now.getTime() - 2 * 3600 * 1000) }, // מ-2 שעות אחורה (כדי לראות שידורים עכשיו)
     },
     include: {
@@ -91,7 +96,7 @@ export default async function LessonsPage({
       const q = searchParams.q.toLowerCase();
       if (!`${l.title} ${l.description}`.toLowerCase().includes(q)) return false;
     }
-    if (searchParams.rabbi && l.rabbi.slug !== searchParams.rabbi) return false;
+    if (searchParams.rabbi && l.rabbi?.slug !== searchParams.rabbi) return false;
     if (searchParams.type && l.broadcastType !== searchParams.type) return false;
     if (searchParams.lang && l.language !== searchParams.lang) return false;
     if (searchParams.date) {
@@ -187,7 +192,7 @@ export default async function LessonsPage({
               <h3 className="font-bold text-ink line-clamp-2 mb-2">{l.title}</h3>
               <p className="text-xs text-ink-muted line-clamp-2 mb-3">{l.description}</p>
               <div className="flex items-center gap-3 text-xs text-ink-muted">
-                <span className="font-medium text-ink-soft">{l.rabbi.name}</span>
+                <span className="font-medium text-ink-soft">{l.rabbi?.name ?? l.organizerName ?? "אירוע"}</span>
                 <span className="flex items-center gap-1">
                   <CalIcon className="w-3 h-3" />
                   {new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}

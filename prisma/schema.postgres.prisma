@@ -23,6 +23,7 @@ model User {
 
   rabbi        Rabbi?
   student      Student?
+  organizedLessons Lesson[] @relation("LessonOrganizer")
 }
 
 // ---------- רב ----------
@@ -94,8 +95,11 @@ model Category {
 // ---------- שיעור ----------
 model Lesson {
   id              String    @id @default(cuid())
-  rabbiId         String
-  rabbi           Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  rabbiId         String?
+  rabbi           Rabbi?    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  organizerUserId String?
+  organizer       User?     @relation("LessonOrganizer", fields: [organizerUserId], references: [id], onDelete: SetNull)
+  organizerName   String?
   categoryId      String?
   category        Category? @relation(fields: [categoryId], references: [id])
 
@@ -106,6 +110,10 @@ model Lesson {
   locationName    String?
   locationUrl     String?
   isPublic        Boolean   @default(true)
+  posterUrl       String?
+  approvalStatus  String    @default("APPROVED")
+  reportCount     Int       @default(0)
+  isSuspended     Boolean   @default(false)
   language        String    @default("he")
   broadcastType   String    @default("LESSON")
 

@@ -21,6 +21,8 @@ async function getHomeData() {
     where: {
       isLive: true,
       isPublic: true,
+      approvalStatus: "APPROVED",
+      isSuspended: false,
       rabbi: { status: "APPROVED", isBlocked: false },
     },
     include: { rabbi: { select: { name: true, slug: true } } },
@@ -65,7 +67,12 @@ async function getHomeData() {
     where: {
       scheduledAt: { gte: now, lte: weekAhead },
       isPublic: true,
-      rabbi: { status: "APPROVED", isBlocked: false },
+      approvalStatus: "APPROVED",
+      isSuspended: false,
+      OR: [
+        { rabbi: { status: "APPROVED", isBlocked: false } },
+        { rabbiId: null }, // אירועים ללא רב (הצעות משתמשים)
+      ],
     },
     include: {
       rabbi: { select: { name: true, slug: true } },
@@ -78,8 +85,8 @@ async function getHomeData() {
   const calendarLessons = dbCalendarLessons.map((l) => ({
     id: l.id,
     title: l.title,
-    rabbiName: l.rabbi.name,
-    rabbiSlug: l.rabbi.slug,
+    rabbiName: l.rabbi?.name ?? (l as any).organizerName ?? "אירוע",
+    rabbiSlug: l.rabbi?.slug ?? "",
     scheduledAt: l.scheduledAt.toISOString(),
     durationMin: l.durationMin ?? undefined,
     category: l.category?.name,

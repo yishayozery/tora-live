@@ -10,7 +10,8 @@ import { LivePdfViewer } from "@/components/LivePdfViewer";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LessonChat } from "@/components/LessonChat";
 import { VideoEmbed } from "@/components/VideoEmbed";
-import { Radio, FileText } from "lucide-react";
+import { ReportLessonButton } from "@/components/ReportLessonButton";
+import { Radio, FileText, AlertTriangle } from "lucide-react";
 
 export default async function LessonPage({ params }: { params: { id: string } }) {
   const lesson = await db.lesson.findUnique({
@@ -21,17 +22,30 @@ export default async function LessonPage({ params }: { params: { id: string } })
       sources: { orderBy: { createdAt: "asc" } },
     },
   });
-  if (!lesson || lesson.rabbi.status !== "APPROVED" || lesson.rabbi.isBlocked) notFound();
-
-  // אירוע פרטי — מוצג רק לרב הבעלים
-  if (!(lesson as any).isPublic) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) notFound();
-    const ownerRabbi = await db.rabbi.findUnique({ where: { userId: session.user.id } });
-    if (!ownerRabbi || ownerRabbi.id !== lesson.rabbiId) notFound();
-  }
+  if (!lesson) notFound();
+  // אם יש רב — חייב להיות APPROVED ולא חסום. אירועים ללא רב מותרים.
+  if (lesson.rabbi && (lesson.rabbi.status !== "APPROVED" || lesson.rabbi.isBlocked)) notFound();
 
   const session = await getServerSession(authOptions);
+
+  // האם המשתמש הנוכחי הוא הבעלים (רב או מארגן)
+  let isOwner = false;
+  if (session?.user?.id) {
+    if (lesson.organizerUserId === session.user.id) isOwner = true;
+    if (!isOwner && lesson.rabbiId) {
+      const ownerRabbi = await db.rabbi.findUnique({ where: { userId: session.user.id } });
+      if (ownerRabbi && ownerRabbi.id === lesson.rabbiId) isOwner = true;
+    }
+  }
+
+  // אירוע פרטי — מוצג רק לבעלים
+  if (!(lesson as any).isPublic && !isOwner) notFound();
+
+  // אירוע ממתין לאישור / נדחה — מוצג רק לבעלים
+  if (lesson.approvalStatus !== "APPROVED" && !isOwner) notFound();
+
+  // שיעור מושהה — מוצג לבעלים, לציבור מוצגת הודעה
+  const isSuspendedForViewer = lesson.isSuspended && !isOwner;
   let canBookmark = false;
   let canSendChat = false;
   let isChatBlocked = false;
@@ -54,14 +68,51 @@ export default async function LessonPage({ params }: { params: { id: string } })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+      {lesson.approvalStatus === "PENDING" && isOwner && (
+        <div className="mb-4 rounded-btn bg-gold-soft border border-gold/30 text-gold px-4 py-2 text-sm flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" />
+          האירוע ממתין לאישור האדמין. רק אתה רואה אותו כרגע.
+        </div>
+      )}
+      {lesson.isSuspended && isOwner && (
+        <div className="mb-4 rounded-btn bg-danger/10 border border-danger/30 text-danger px-4 py-2 text-sm flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" />
+          שיעור זה הושהה עקב דיווחים. הציבור לא רואה אותו.
+        </div>
+      )}
+      {isSuspendedForViewer ? (
+        <Card className="mt-6 border-danger/30 bg-danger/5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-6 h-6 text-danger shrink-0 mt-0.5" />
+            <div>
+              <h1 className="hebrew-serif text-2xl font-bold text-ink mb-2">
+                שיעור זה הושהה זמנית
+              </h1>
+              <p className="text-ink-soft">
+                השיעור הושהה זמנית עקב דיווחים. האדמין יבדוק את הנושא בהקדם.
+              </p>
+            </div>
+          </div>
+        </Card>
+      ) : (
+      <>
       <div className="mb-2 text-sm">
-        <Link href={`/rabbi/${lesson.rabbi.slug}`} className="text-primary">
-          {lesson.rabbi.name}
-        </Link>
+        {lesson.rabbi ? (
+          <Link href={`/rabbi/${lesson.rabbi.slug}`} className="text-primary">
+            {lesson.rabbi.name}
+          </Link>
+        ) : (
+          <span className="text-ink-muted">
+            מארגן: <span className="text-ink">{lesson.organizerName ?? "—"}</span>
+          </span>
+        )}
         {lesson.category && <span className="text-ink-muted"> · {lesson.category.name}</span>}
       </div>
-      <div className="mt-1 mb-2">
+      <div className="mt-1 mb-2 flex items-center gap-2">
         <BroadcastTypeBadge value={(lesson as any).broadcastType} />
+        {session?.user?.id && !isOwner && (
+          <ReportLessonButton lessonId={lesson.id} />
+        )}
       </div>
       <h1 className="hebrew-serif text-4xl font-bold text-ink">{lesson.title}</h1>
       <div className="mt-2 text-ink-muted flex items-center gap-3 flex-wrap">
@@ -190,6 +241,8 @@ export default async function LessonPage({ params }: { params: { id: string } })
           <h2 className="hebrew-serif text-xl font-bold mb-3">תמלול</h2>
           <div className="whitespace-pre-line text-ink-soft">{lesson.transcriptText}</div>
         </Card>
+      )}
+      </>
       )}
     </div>
   );

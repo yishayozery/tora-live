@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription } from "@/components/ui/Card";
 import { ReportActions } from "@/components/admin/ReportActions";
+import { SuspendedLessonActions } from "@/components/admin/SuspendedLessonActions";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ function categoryLabel(c: string) {
 export default async function AdminReportsPage() {
   await requireAdmin();
 
-  const [open, resolved] = await Promise.all([
+  const [open, resolved, suspended] = await Promise.all([
     db.report.findMany({
       where: { status: "OPEN" },
       include: {
@@ -48,6 +49,17 @@ export default async function AdminReportsPage() {
       },
       orderBy: { createdAt: "desc" },
       take: 50,
+    }),
+    db.lesson.findMany({
+      where: { isSuspended: true },
+      select: {
+        id: true,
+        title: true,
+        reportCount: true,
+        rabbi: { select: { name: true, slug: true } },
+        organizerName: true,
+      },
+      orderBy: { updatedAt: "desc" },
     }),
   ]);
 
@@ -100,6 +112,36 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="space-y-8">
+      {suspended.length > 0 && (
+        <section>
+          <h2 className="hebrew-serif text-2xl font-bold mb-4">
+            שיעורים מושהים{" "}
+            <span className="text-ink-muted text-base">({suspended.length})</span>
+          </h2>
+          <div className="space-y-3">
+            {suspended.map((l) => (
+              <Card key={l.id}>
+                <div className="flex items-start justify-between gap-4 flex-col sm:flex-row">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/lesson/${l.id}`}
+                      className="font-bold text-ink hover:text-primary"
+                    >
+                      {l.title}
+                    </Link>
+                    <div className="text-xs text-ink-muted mt-1">
+                      {l.rabbi?.name ?? l.organizerName ?? "—"} ·{" "}
+                      {l.reportCount} דיווחים
+                    </div>
+                  </div>
+                  <SuspendedLessonActions id={l.id} />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section>
         <h1 className="hebrew-serif text-3xl font-bold mb-4">
           דיווחים פתוחים{" "}

@@ -43,7 +43,7 @@ export default async function RabbiPage({
     include: {
       categories: { orderBy: { order: "asc" } },
       lessons: {
-        where: { isPublic: true },
+        where: { isPublic: true, approvalStatus: "APPROVED", isSuspended: false },
         orderBy: { scheduledAt: "desc" },
         include: {
           category: true,

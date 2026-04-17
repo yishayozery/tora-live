@@ -21,8 +21,13 @@ export async function PrayersEventsNow() {
         where: {
           broadcastType: b.value,
           isPublic: true,
+          approvalStatus: "APPROVED",
+          isSuspended: false,
           scheduledAt: { gte: now, lte: in3days },
-          rabbi: { status: "APPROVED", isBlocked: false },
+          OR: [
+            { rabbi: { status: "APPROVED", isBlocked: false } },
+            { rabbiId: null },
+          ],
         },
       });
     })
@@ -35,6 +40,8 @@ export async function PrayersEventsNow() {
         notIn: ["LESSON", "PRAYER", "OTHER"],
       },
       isPublic: true,
+      approvalStatus: "APPROVED",
+      isSuspended: false,
       scheduledAt: { gte: now, lte: in3days },
       rabbi: { status: "APPROVED", isBlocked: false },
     },

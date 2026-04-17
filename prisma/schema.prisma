@@ -20,6 +20,7 @@ model User {
 
   rabbi        Rabbi?
   student      Student?
+  organizedLessons Lesson[] @relation("LessonOrganizer")
 }
 
 // ---------- רב ----------
@@ -94,8 +95,11 @@ model Category {
 // ---------- שיעור ----------
 model Lesson {
   id              String    @id @default(cuid())
-  rabbiId         String
-  rabbi           Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  rabbiId         String?   // nullable — יום עיון יכול להיות מאורגן ע"י תלמיד/משתמש
+  rabbi           Rabbi?    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  organizerUserId String?
+  organizer       User?     @relation("LessonOrganizer", fields: [organizerUserId], references: [id], onDelete: SetNull)
+  organizerName   String?
   categoryId      String?
   category        Category? @relation(fields: [categoryId], references: [id])
 
@@ -103,9 +107,13 @@ model Lesson {
   description     String
   scheduledAt     DateTime
   durationMin     Int?
-  locationName    String?   // שם מקום (אם פיזי) — "בית הכנסת המרכזי, רחוב..."
-  locationUrl     String?   // קישור ל-Google Maps (אופציונלי)
-  isPublic        Boolean   @default(true)  // false = אירוע סגור — מופיע רק ביומן הרב, לא בפרסום ציבורי
+  locationName    String?
+  locationUrl     String?
+  isPublic        Boolean   @default(true)
+  posterUrl       String?   // PDF/תמונה — לאירועים וימי עיון
+  approvalStatus  String    @default("APPROVED")  // APPROVED | PENDING | REJECTED
+  reportCount     Int       @default(0)
+  isSuspended     Boolean   @default(false)
   language        String    @default("he")  // he, en, yi, fr, es, ru, ladino, other
   broadcastType   String    @default("LESSON") // LESSON, PRAYER, SELICHOT, EVENT, TEHILLIM
 
