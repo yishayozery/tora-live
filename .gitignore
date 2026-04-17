@@ -2,9 +2,11 @@ node_modules
 .next
 out
 .env
-.env.local
+.env.*
+!.env.example
 *.log
 .DS_Store
 .vercel
 next-env.d.ts
 prisma/migrations/dev.db*
+seed-prod.js

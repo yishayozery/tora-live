@@ -13,72 +13,12 @@ datasource db {
 }
 
 // ---------- Enums ----------
-enum UserRole {
-  ADMIN
-  RABBI
-  STUDENT
-}
-
-enum RabbiStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum ContactStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  REPLIED
-}
-
-enum ReportCategory {
-  INAPPROPRIATE
-  SPAM
-  TECHNICAL
-}
-
-enum ReportStatus {
-  OPEN
-  RESOLVED
-}
-
-enum DedicationType {
-  LEZECHER
-  LIZCHUT
-}
-
-enum NotifyChannel {
-  NONE
-  EMAIL
-  WHATSAPP
-  BOTH
-}
-
-enum NotificationKind {
-  LESSON_REMINDER
-  NEW_LESSON_FROM_RABBI
-  CONTACT_REPLY
-  ACCOUNT_STATUS
-}
-
-enum LiveMode {
-  OWN
-  PLATFORM
-}
-
-enum LiveMethod {
-  BROWSER
-  YOUTUBE
-  EXTERNAL
-}
-
 // ---------- משתמש בסיסי (auth) ----------
 model User {
   id           String     @id @default(cuid())
   email        String     @unique
   passwordHash String
-  role         UserRole
+  role         String
   createdAt    DateTime   @default(now())
 
   rabbi        Rabbi?
@@ -96,14 +36,14 @@ model Rabbi {
   bio          String       @default("") @db.Text
   photoUrl     String?
   phone        String?
-  status       RabbiStatus  @default(PENDING)
+  status       String  @default("PENDING")
   isBlocked    Boolean      @default(false)
   profileCompleted Boolean  @default(false)
 
   calendarSync String?
   mediaLinks   String?
 
-  liveMode     LiveMode     @default(OWN)
+  liveMode     String     @default("OWN")
   streamKey    String?      @unique
 
   autoReplyEnabled Boolean  @default(false)
@@ -127,7 +67,7 @@ model Student {
   isBlocked     Boolean        @default(false)
   blockedReason String?
 
-  notifyChannel NotifyChannel  @default(EMAIL)
+  notifyChannel String  @default("EMAIL")
   phoneE164     String?
 
   createdAt     DateTime       @default(now())
@@ -180,7 +120,7 @@ model Lesson {
   transcriptText  String?   @db.Text
 
   isLive          Boolean   @default(false)
-  liveMethod      LiveMethod?
+  liveMethod      String?
   streamId        String?
   playbackUrl     String?
   recordingUrl    String?
@@ -252,7 +192,7 @@ model Notification {
   id         String           @id @default(cuid())
   studentId  String
   student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  kind       NotificationKind
+  kind       String
   title      String
   body       String           @db.Text
   link       String
@@ -291,7 +231,7 @@ model ContactRequest {
   topic         String?
   requestedDate DateTime?
   requestedTime String?
-  status        ContactStatus @default(PENDING)
+  status        String @default("PENDING")
   createdAt     DateTime      @default(now())
   repliedAt     DateTime?
 }
@@ -301,7 +241,7 @@ model Sponsor {
   id             String         @id @default(cuid())
   date           DateTime       @db.Date
   name           String
-  dedicationType DedicationType
+  dedicationType String
   donorName      String?
   donorEmail     String?
   donationId     String?
@@ -317,7 +257,7 @@ model Donation {
   donorName       String
   donorEmail      String
   dedicationName  String?
-  dedicationType  DedicationType?
+  dedicationType  String?
   showPublicly    Boolean         @default(false)
   receiptSent     Boolean         @default(false)
   paymentRef      String?
@@ -330,8 +270,8 @@ model Report {
   lessonId       String?
   lesson         Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   reporterEmail  String?
-  category       ReportCategory
+  category       String
   description    String         @db.Text
-  status         ReportStatus   @default(OPEN)
+  status         String   @default("OPEN")
   createdAt      DateTime       @default(now())
 }
