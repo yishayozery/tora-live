@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     where: { id: session.user.id },
     select: {
       id: true,
-      rabbi: { select: { id: true, name: true } },
+      rabbi: { select: { id: true, name: true, status: true, isBlocked: true } },
       student: { select: { name: true } },
     },
   });
@@ -40,10 +40,12 @@ export async function POST(req: Request) {
 
   const organizerName = user.rabbi?.name ?? user.student?.name ?? session.user.name ?? "משתמש";
 
+  // רק רב מאושר ולא חסום יקושר כ-rabbiId — אחרת יתויג כמארגן בלבד
+  const isApprovedRabbi = user.rabbi && user.rabbi.status === "APPROVED" && !user.rabbi.isBlocked;
+
   const lesson = await db.lesson.create({
     data: {
-      // אם המציע הוא רב — נשמור גם rabbiId
-      rabbiId: user.rabbi?.id ?? null,
+      rabbiId: isApprovedRabbi ? (user.rabbi!.id) : null,
       organizerUserId: user.id,
       organizerName,
       title: data.title,

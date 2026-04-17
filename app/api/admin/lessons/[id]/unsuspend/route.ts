@@ -22,10 +22,18 @@ export async function POST(
   }
 
   if (action === "resetCount") {
-    await db.lesson.update({
-      where: { id: params.id },
-      data: { reportCount: 0, isSuspended: false },
-    });
+    // איפוס מלא — גם ה-Report records מסומנים כ-RESOLVED
+    // כדי שהמדווחים יוכלו לדווח שוב אם יש צורך
+    await db.$transaction([
+      db.lesson.update({
+        where: { id: params.id },
+        data: { reportCount: 0, isSuspended: false },
+      }),
+      db.report.updateMany({
+        where: { lessonId: params.id, status: "OPEN" },
+        data: { status: "RESOLVED" },
+      }),
+    ]);
   } else {
     await db.lesson.update({
       where: { id: params.id },

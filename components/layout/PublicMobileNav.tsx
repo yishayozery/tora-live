@@ -26,7 +26,7 @@ export function PublicMobileNav({ isLoggedIn, isRabbi }: Props) {
     { href: "/rabbis", icon: Users, label: "רבנים" },
     { href: "/lessons", icon: BookOpen, label: "שיעורים" },
     ...(isLoggedIn && !isRabbi ? [{ href: "/my/schedule", icon: Calendar, label: "הלוח שלי" }] : []),
-    ...(isLoggedIn ? [{ href: "/propose-event", icon: Sparkles, label: "הציעי יום עיון" }] : []),
+    ...(isLoggedIn ? [{ href: "/propose-event", icon: Sparkles, label: "הצעת יום עיון" }] : []),
     { href: "/donate", icon: HandHeart, label: "תרומה" },
     { href: "/contact", icon: Phone, label: "צור קשר" },
   ];

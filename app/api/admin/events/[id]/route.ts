@@ -39,25 +39,30 @@ export async function POST(
     data: { approvalStatus: newStatus },
   });
 
-  // התראה למארגן — רק אם הוא תלמיד
+  // התראה למארגן — דרך מייל, עובד גם לרב וגם לתלמיד
   if (lesson.organizerUserId) {
-    const student = await db.student.findUnique({
-      where: { userId: lesson.organizerUserId },
-      select: { id: true },
+    const user = await db.user.findUnique({
+      where: { id: lesson.organizerUserId },
+      select: { email: true, student: { select: { id: true } }, rabbi: { select: { name: true } } },
     });
-    if (student) {
-      const approved = newStatus === "APPROVED";
+    const approved = newStatus === "APPROVED";
+    const title = approved ? "האירוע שהצעת אושר" : "האירוע שהצעת נדחה";
+    const body = approved
+      ? `"${lesson.title}" אושר ע״י האדמין ופורסם לציבור.`
+      : `"${lesson.title}" נדחה ע״י האדמין.`;
+
+    // אם המארגן הוא תלמיד — דרך notifyStudent (in-app + email)
+    if (user?.student) {
       await notifyStudent({
-        studentId: student.id,
+        studentId: user.student.id,
         kind: approved ? "EVENT_APPROVED" : "EVENT_REJECTED",
-        title: approved
-          ? "האירוע שהצעת אושר"
-          : "האירוע שהצעת נדחה",
-        body: approved
-          ? `"${lesson.title}" אושר ע״י האדמין ופורסם לציבור.`
-          : `"${lesson.title}" נדחה ע״י האדמין.`,
+        title,
+        body,
         link: approved ? `/lesson/${lesson.id}` : `/`,
-      }).catch((e) => console.error("[events] notify failed:", e));
+      }).catch((e) => console.error("[events] notify student failed:", e));
+    } else if (user?.email) {
+      // רב — log בינתיים (notifyRabbi ייבנה בעתיד, או לשלוח מייל ישיר)
+      console.log(`[events] rabbi notification to ${user.email}: ${title} — ${body}`);
     }
   }
 

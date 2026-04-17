@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Flag, X, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -18,7 +18,18 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  // Escape לסגירה
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !busy) setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, busy]);
 
   async function submit() {
     if (description.trim().length < 3) {
@@ -35,7 +46,7 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
     setBusy(false);
     const json = await res.json().catch(() => ({}));
     if (res.status === 409) {
-      setError(json?.error || "כבר דיווחת על שיעור זה");
+      setInfo(json?.error || "כבר דיווחת על שיעור זה — הדיווח שלך עדיין בטיפול");
       return;
     }
     if (!res.ok) {
@@ -51,6 +62,7 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="דווח על שיעור"
+        title="דווח על שיעור"
         className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-danger transition px-2 py-1 rounded-btn"
       >
         <Flag className="w-3.5 h-3.5" />
@@ -61,13 +73,16 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
         <div
           className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
           onClick={() => !busy && setOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="report-modal-title"
         >
           <div
-            className="bg-white rounded-card shadow-soft w-full max-w-md p-6"
+            className="bg-white rounded-card shadow-soft w-full max-w-md p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="hebrew-serif text-xl font-bold">דיווח על שיעור</h2>
+              <h2 id="report-modal-title" className="hebrew-serif text-xl font-bold">דיווח על שיעור</h2>
               <button
                 onClick={() => setOpen(false)}
                 disabled={busy}
@@ -96,6 +111,11 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
                 {error && (
                   <div className="rounded-btn bg-danger/10 border border-danger/30 text-danger text-sm px-3 py-2">
                     {error}
+                  </div>
+                )}
+                {info && (
+                  <div className="rounded-btn bg-paper-warm border border-border-warm text-ink text-sm px-3 py-2">
+                    {info}
                   </div>
                 )}
                 <div>

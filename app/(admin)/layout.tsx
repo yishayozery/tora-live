@@ -39,7 +39,7 @@ function A({ href, icon: Icon, badge, children }: { href: string; icon: any; bad
       <Icon className="w-4 h-4" />
       <span className="flex-1">{children}</span>
       {badge && badge > 0 ? (
-        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-white text-[11px] font-bold">
+        <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-danger text-white text-[11px] font-bold">
           {badge}
         </span>
       ) : null}

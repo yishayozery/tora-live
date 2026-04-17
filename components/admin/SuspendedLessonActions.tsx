@@ -32,7 +32,7 @@ export function SuspendedLessonActions({ id }: { id: string }) {
         disabled={busy}
         onClick={() => act("unsuspend")}
       >
-        בטל השפיה
+        בטל השהיה
       </Button>
       <Button
         size="sm"

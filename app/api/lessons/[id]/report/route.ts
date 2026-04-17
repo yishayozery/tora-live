@@ -41,10 +41,10 @@ export async function POST(
 
   const reporterEmail = session.user.email ?? "";
 
-  // בדיקת כפילות — אותו משתמש דיווח כבר
+  // בדיקת כפילות — אותו משתמש דיווח על אותו שיעור וה-דיווח עדיין OPEN
   if (reporterEmail) {
     const existing = await db.report.findFirst({
-      where: { lessonId: lesson.id, reporterEmail },
+      where: { lessonId: lesson.id, reporterEmail, status: "OPEN" },
       select: { id: true },
     });
     if (existing) {

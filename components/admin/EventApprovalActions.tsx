@@ -10,7 +10,10 @@ export function EventApprovalActions({ id }: { id: string }) {
   const [busy, setBusy] = useState(false);
 
   async function act(action: "approve" | "reject") {
-    if (action === "reject" && !window.confirm("לדחות את האירוע?")) return;
+    const msg = action === "approve"
+      ? "לאשר את האירוע? הוא יופיע לציבור."
+      : "לדחות את האירוע?";
+    if (!window.confirm(msg)) return;
     setBusy(true);
     await fetch(`/api/admin/events/${id}`, {
       method: "POST",

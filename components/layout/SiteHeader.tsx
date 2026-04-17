@@ -43,7 +43,7 @@ export async function SiteHeader() {
             <Link href="/my/schedule" className="text-ink-soft hover:text-ink transition">הלוח שלי</Link>
           )}
           {isLoggedIn && (
-            <Link href="/propose-event" className="text-gold hover:text-gold/80 transition font-medium">הציעי יום עיון</Link>
+            <Link href="/propose-event" className="text-gold hover:text-gold/80 transition font-medium">הצעת יום עיון</Link>
           )}
           <Link href="/donate" className="text-ink-soft hover:text-ink transition">תרומה</Link>
           <Link href="/contact" className="text-ink-soft hover:text-ink transition">צור קשר</Link>
