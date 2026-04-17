@@ -179,7 +179,9 @@ export function WeeklyCalendar({
                         ? "bg-gold-soft text-gold border border-gold/30"
                         : variant === "approvedRequest"
                           ? "bg-purple-100 text-purple-700 border border-purple-300"
-                          : "bg-primary-soft text-primary border border-primary/20 hover:bg-primary-soft/70";
+                          : variant === "private"
+                            ? "bg-paper-soft text-ink-muted border border-border border-dashed"
+                            : "bg-primary-soft text-primary border border-primary/20 hover:bg-primary-soft/70";
                   return (
                     <Link
                       key={l.id}

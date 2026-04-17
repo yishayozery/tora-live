@@ -77,6 +77,8 @@ export async function POST(
         description: contactRequest.message || "",
         scheduledAt,
         broadcastType: "LESSON",
+        // אירוע שנוצר מבקשה — ברירת מחדל פרטי. הרב יוכל לפרסם אם ירצה
+        isPublic: false,
       },
     });
   }

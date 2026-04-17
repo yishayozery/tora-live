@@ -105,6 +105,7 @@ model Lesson {
   durationMin     Int?
   locationName    String?
   locationUrl     String?
+  isPublic        Boolean   @default(true)
   language        String    @default("he")
   broadcastType   String    @default("LESSON")
 

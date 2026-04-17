@@ -105,6 +105,7 @@ model Lesson {
   durationMin     Int?
   locationName    String?   // שם מקום (אם פיזי) — "בית הכנסת המרכזי, רחוב..."
   locationUrl     String?   // קישור ל-Google Maps (אופציונלי)
+  isPublic        Boolean   @default(true)  // false = אירוע סגור — מופיע רק ביומן הרב, לא בפרסום ציבורי
   language        String    @default("he")  // he, en, yi, fr, es, ru, ladino, other
   broadcastType   String    @default("LESSON") // LESSON, PRAYER, SELICHOT, EVENT, TEHILLIM
 

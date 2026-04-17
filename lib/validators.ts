@@ -65,6 +65,7 @@ export const lessonSchema = z.object({
   liveEmbedUrl: z.string().url().optional().or(z.literal("")),
   locationName: z.string().max(200).optional().or(z.literal("")),
   locationUrl: z.string().url().optional().or(z.literal("")),
+  isPublic: z.boolean().optional(),
   isRecurring: z.boolean().optional(),
   recurringRule: z
     .object({

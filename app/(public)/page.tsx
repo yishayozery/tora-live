@@ -20,6 +20,7 @@ async function getHomeData() {
   const liveLessons = await db.lesson.findMany({
     where: {
       isLive: true,
+      isPublic: true,
       rabbi: { status: "APPROVED", isBlocked: false },
     },
     include: { rabbi: { select: { name: true, slug: true } } },
@@ -63,6 +64,7 @@ async function getHomeData() {
   const dbCalendarLessons = await db.lesson.findMany({
     where: {
       scheduledAt: { gte: now, lte: weekAhead },
+      isPublic: true,
       rabbi: { status: "APPROVED", isBlocked: false },
     },
     include: {

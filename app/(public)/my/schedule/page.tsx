@@ -36,6 +36,7 @@ export default async function SchedulePage() {
           rabbiId: { in: followedIds },
           scheduledAt: { gte: now },
           id: { notIn: Array.from(bookmarkedIds) },
+          isPublic: true,
         },
         include: { rabbi: true },
         orderBy: { scheduledAt: "asc" },
@@ -92,6 +93,7 @@ export default async function SchedulePage() {
       scheduledAt: { gte: now },
       rabbiId: { notIn: followedIds },
       id: { notIn: Array.from(bookmarkedIds) },
+      isPublic: true,
       rabbi: { status: "APPROVED", isBlocked: false },
     },
     include: {

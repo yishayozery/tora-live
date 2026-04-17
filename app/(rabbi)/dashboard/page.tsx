@@ -102,14 +102,17 @@ export default async function RabbiDashboardPage() {
   const calendarItems = [
     ...calendarLessons.map((l) => {
       const isEvent = EVENT_BROADCAST_TYPES.has((l as any).broadcastType ?? "LESSON");
-      const variant: "live" | "event" | "lesson" = l.isLive
+      const isPrivate = (l as any).isPublic === false;
+      const variant: "live" | "event" | "lesson" | "private" = l.isLive
         ? "live"
-        : isEvent
-          ? "event"
-          : "lesson";
+        : isPrivate
+          ? "private"
+          : isEvent
+            ? "event"
+            : "lesson";
       return {
         id: l.id,
-        title: l.title,
+        title: (isPrivate ? "🔒 " : "") + l.title,
         rabbiName: rabbi.name,
         rabbiSlug: rabbi.slug,
         scheduledAt: l.scheduledAt.toISOString(),

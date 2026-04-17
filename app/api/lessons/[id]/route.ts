@@ -34,6 +34,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       liveEmbedUrl: d.liveEmbedUrl || null,
       locationName: d.locationName || null,
       locationUrl: d.locationUrl || null,
+      isPublic: d.isPublic ?? true,
       youtubeUrl: d.youtubeUrl || null,
       spotifyUrl: d.spotifyUrl || null,
       applePodcastUrl: d.applePodcastUrl || null,

@@ -60,6 +60,7 @@ export function LessonForm({
     liveEmbedUrl: initial?.liveEmbedUrl ?? "",
     locationName: initial?.locationName ?? "",
     locationUrl: initial?.locationUrl ?? "",
+    isPublic: initial?.isPublic ?? true,
     isRecurring: initial?.isRecurring ?? false,
     recurringFreq: "WEEKLY" as "DAILY" | "WEEKLY",
     recurringDay: new Date().getDay(),
@@ -265,6 +266,28 @@ export function LessonForm({
               placeholder="https://maps.google.com/..."
             />
           </F>
+        </div>
+
+        {/* פרסום ציבורי / אירוע סגור */}
+        <div className={`rounded-card border p-4 transition ${form.isPublic ? "border-border" : "border-gold/30 bg-gold-soft/30"}`}>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.isPublic}
+              onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
+              className="w-5 h-5 mt-0.5 accent-primary"
+            />
+            <div className="flex-1">
+              <div className="font-semibold text-ink">
+                {form.isPublic ? "🌐 שיעור ציבורי" : "🔒 אירוע סגור"}
+              </div>
+              <div className="text-xs text-ink-muted mt-1">
+                {form.isPublic
+                  ? "השיעור יופיע בלוח הציבורי של האתר, בדף הרב, וברשימת השיעורים."
+                  : "האירוע יופיע רק ביומן שלך — לא יוצג לציבור. שימושי לישיבות פרטיות, אירועים משפחתיים, וכו'."}
+              </div>
+            </div>
+          </label>
         </div>
         {/* קישור לשיעור — או embed או הפלטפורמה של האתר.
             רשתות חברתיות (YouTube/Spotify/וכו') מוגדרות בפרופיל הרב פעם אחת. */}

@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     liveEmbedUrl: data.liveEmbedUrl || null,
     locationName: data.locationName || null,
     locationUrl: data.locationUrl || null,
+    isPublic: data.isPublic ?? true,
     youtubeUrl: data.youtubeUrl || null,
     spotifyUrl: data.spotifyUrl || null,
     applePodcastUrl: data.applePodcastUrl || null,
@@ -65,8 +66,10 @@ export async function POST(req: Request) {
       )
     );
 
-    // הודעה לעוקבים רק על הראשון
-    notifyFollowers(created[0].id, rabbi.id, data.title, dates[0]).catch(console.error);
+    // הודעה לעוקבים — רק אם השיעור ציבורי
+    if (data.isPublic !== false) {
+      notifyFollowers(created[0].id, rabbi.id, data.title, dates[0]).catch(console.error);
+    }
     return NextResponse.json({ ok: true, id: created[0].id, count: created.length, groupId });
   }
 
@@ -75,7 +78,10 @@ export async function POST(req: Request) {
     data: { ...baseData, scheduledAt: new Date(data.scheduledAt) },
   });
 
-  notifyFollowers(lesson.id, rabbi.id, data.title, new Date(data.scheduledAt)).catch(console.error);
+  // הודעה לעוקבים — רק אם השיעור ציבורי
+  if (data.isPublic !== false) {
+    notifyFollowers(lesson.id, rabbi.id, data.title, new Date(data.scheduledAt)).catch(console.error);
+  }
   return NextResponse.json({ ok: true, id: lesson.id });
 }
 

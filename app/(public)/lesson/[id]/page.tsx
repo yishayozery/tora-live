@@ -23,6 +23,14 @@ export default async function LessonPage({ params }: { params: { id: string } })
   });
   if (!lesson || lesson.rabbi.status !== "APPROVED" || lesson.rabbi.isBlocked) notFound();
 
+  // אירוע פרטי — מוצג רק לרב הבעלים
+  if (!(lesson as any).isPublic) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) notFound();
+    const ownerRabbi = await db.rabbi.findUnique({ where: { userId: session.user.id } });
+    if (!ownerRabbi || ownerRabbi.id !== lesson.rabbiId) notFound();
+  }
+
   const session = await getServerSession(authOptions);
   let canBookmark = false;
   let canSendChat = false;
