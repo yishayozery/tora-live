@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { broadcastIcon, ACCENT_BORDER, ACCENT_TEXT } from "@/components/BroadcastTypeBadge";
+import { HebrewDateHint } from "@/components/HebrewDateHint";
 
 type Category = { id: string; name: string };
 
@@ -240,6 +241,7 @@ export function LessonForm({
         {!form.isRecurring && (
           <F label="תאריך ושעה">
             <input type="datetime-local" required={!form.isRecurring} value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} className="input" />
+            <HebrewDateHint value={form.scheduledAt} />
           </F>
         )}
 
@@ -264,12 +266,20 @@ export function LessonForm({
             />
           </F>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <F label="YouTube"><input type="url" value={form.youtubeUrl} onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })} className="input" dir="ltr" /></F>
-          <F label="Spotify"><input type="url" value={form.spotifyUrl} onChange={(e) => setForm({ ...form, spotifyUrl: e.target.value })} className="input" dir="ltr" /></F>
-          <F label="Apple Podcasts"><input type="url" value={form.applePodcastUrl} onChange={(e) => setForm({ ...form, applePodcastUrl: e.target.value })} className="input" dir="ltr" /></F>
-          <F label="קישור נוסף"><input type="url" value={form.otherUrl} onChange={(e) => setForm({ ...form, otherUrl: e.target.value })} className="input" dir="ltr" /></F>
-        </div>
+        {/* קישור לשיעור — או embed או הפלטפורמה של האתר.
+            רשתות חברתיות (YouTube/Spotify/וכו') מוגדרות בפרופיל הרב פעם אחת. */}
+        <F label="קישור לשיעור (אופציונלי)">
+          <input
+            type="url"
+            value={form.otherUrl}
+            onChange={(e) => setForm({ ...form, otherUrl: e.target.value })}
+            className="input" dir="ltr"
+            placeholder="https://youtube.com/... או כל קישור אחר לתוכן השיעור"
+          />
+          <p className="text-xs text-ink-muted mt-1">
+            אם השיעור מוקלט/משודר במקום אחר. לשידור חי ב-real-time השתמש ב״התחל שידור״ מדף השיעור.
+          </p>
+        </F>
         <F label="קישור ל-PDF מקורות">
           <input type="url" value={form.sourcesPdfUrl} onChange={(e) => setForm({ ...form, sourcesPdfUrl: e.target.value })} className="input" dir="ltr" />
         </F>

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { requireRabbi } from "@/lib/session";
 import { BookOpen, LayoutDashboard, MessageSquare, Settings, LogOut, Radio } from "lucide-react";
+import { RabbiMobileNav } from "@/components/RabbiMobileNav";
 
 export default async function RabbiLayout({ children }: { children: React.ReactNode }) {
   const { rabbi } = await requireRabbi();
 
   return (
-    <div className="min-h-screen bg-paper-soft flex">
+    <div className="min-h-screen bg-paper-soft md:flex">
+      <RabbiMobileNav rabbiName={rabbi.name} />
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
         <div className="h-16 px-5 border-b border-border flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-primary" />
@@ -26,7 +28,7 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
           </Link>
         </div>
       </aside>
-      <main className="flex-1 p-6 md:p-10">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 md:p-10">{children}</main>
     </div>
   );
 }

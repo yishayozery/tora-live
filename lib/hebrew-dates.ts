@@ -170,3 +170,37 @@ export function formatHebrewCalendarDate(date: Date): string {
     return "";
   }
 }
+
+/**
+ * פורמט תאריך עברי מלא — יום בשבוע + תאריך + שנה.
+ * לדוגמה: "יום שלישי, י״ג ניסן תשפ״ו"
+ */
+export function formatHebrewDateFull(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  try {
+    const day = new Intl.DateTimeFormat("he-IL", { weekday: "long" }).format(d);
+    const hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(d);
+    return `יום ${day}, ${hebrew}`;
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * פורמט תאריך עברי תמציתי עם שעה.
+ * לדוגמה: "ג' ניסן · 20:00"
+ */
+export function formatHebrewDateTime(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  try {
+    const hebrew = formatHebrewCalendarDate(d);
+    const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
+    return `${hebrew} · ${time}`;
+  } catch {
+    return "";
+  }
+}

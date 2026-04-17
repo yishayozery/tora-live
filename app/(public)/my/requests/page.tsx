@@ -269,6 +269,11 @@ export default function MyRequestsPage() {
                   onChange={(e) => setRequestedDate(e.target.value)}
                   className={inputCls}
                 />
+                {requestedDate && (
+                  <p className="text-xs text-primary mt-1 font-medium">
+                    📅 {new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(requestedDate))}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm text-ink-soft mb-1">שעה מבוקשת</label>

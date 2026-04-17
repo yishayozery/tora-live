@@ -25,17 +25,13 @@ type CalendarLesson = {
 };
 
 const DAY_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-const MONTH_NAMES = [
-  "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-  "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
-];
 const timeFmt = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" });
 
-/** ראשון של השבוע שמכיל את ה-1 בחודש */
-function getMonthGridStart(year: number, month: number): Date {
-  const first = new Date(year, month, 1);
-  const dayOfWeek = first.getDay(); // 0=Sun
-  const start = new Date(first);
+/** ראשון של השבוע הנוכחי */
+function getCurrentWeekStart(): Date {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun
+  const start = new Date(now);
   start.setDate(start.getDate() - dayOfWeek);
   start.setHours(0, 0, 0, 0);
   return start;
@@ -50,23 +46,27 @@ export function WeeklyCalendar({
   title?: string;
   compact?: boolean;
 }) {
-  const [monthOffset, setMonthOffset] = useState(0);
+  const [weekOffset, setWeekOffset] = useState(0);
 
-  const { year, month } = useMemo(() => {
-    const now = new Date();
-    const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-    return { year: d.getFullYear(), month: d.getMonth() };
-  }, [monthOffset]);
-
-  /** 4 שבועות = 28 ימים מתחילת הגריד */
+  /** 4 שבועות מתחילת השבוע הנוכחי + offset */
   const gridDays = useMemo(() => {
-    const start = getMonthGridStart(year, month);
+    const start = getCurrentWeekStart();
+    start.setDate(start.getDate() + weekOffset * 7);
     return Array.from({ length: 28 }, (_, i) => {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       return d;
     });
-  }, [year, month]);
+  }, [weekOffset]);
+
+  // טווח התצוגה לכותרת
+  const rangeLabel = useMemo(() => {
+    if (gridDays.length === 0) return "";
+    const first = gridDays[0];
+    const last = gridDays[gridDays.length - 1];
+    const fmt = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short" });
+    return `${fmt.format(first)} – ${fmt.format(last)}`;
+  }, [gridDays]);
 
   /** מיפוי dateString -> שיעורים */
   const lessonsByDate = useMemo(() => {
@@ -87,38 +87,37 @@ export function WeeklyCalendar({
 
   return (
     <section className={cn(compact ? "" : "max-w-6xl mx-auto px-4 mt-12")}>
-      {/* כותרת + ניווט חודשי */}
-      <div className="flex items-center justify-between mb-4">
+      {/* כותרת + ניווט שבועי (4 שבועות קדימה מהיום) */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h2 className="hebrew-serif text-2xl font-bold text-ink">{title}</h2>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setMonthOffset((o) => o - 1)}
-            className="w-9 h-9 flex items-center justify-center rounded-btn border border-border bg-white hover:bg-paper-soft"
-            aria-label="חודש קודם"
+            onClick={() => setWeekOffset((o) => Math.max(0, o - 1))}
+            disabled={weekOffset === 0}
+            className="w-9 h-9 flex items-center justify-center rounded-btn border border-border bg-white hover:bg-paper-soft disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="קודם"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
           <button
-            onClick={() => setMonthOffset(0)}
+            onClick={() => setWeekOffset(0)}
             className={cn(
               "h-9 px-3 text-sm rounded-btn border transition",
-              monthOffset === 0
+              weekOffset === 0
                 ? "bg-primary text-white border-primary"
                 : "border-border bg-white hover:bg-paper-soft"
             )}
           >
-            החודש
+            השבוע
           </button>
           <button
-            onClick={() => setMonthOffset((o) => o + 1)}
+            onClick={() => setWeekOffset((o) => o + 1)}
             className="w-9 h-9 flex items-center justify-center rounded-btn border border-border bg-white hover:bg-paper-soft"
-            aria-label="חודש הבא"
+            aria-label="קדימה"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-sm font-medium text-ink mr-2">
-            {MONTH_NAMES[month]} {year}
-          </span>
+          <span className="text-sm font-medium text-ink mr-2">{rangeLabel}</span>
         </div>
       </div>
 
@@ -135,7 +134,6 @@ export function WeeklyCalendar({
       <div className="grid grid-cols-1 sm:grid-cols-7 gap-1 sm:gap-2">
         {gridDays.map((day, i) => {
           const isToday = day.toDateString() === todayStr;
-          const isCurrentMonth = day.getMonth() === month;
           const isSabbath = day.getDay() === 6;
           const holiday = getHebrewHoliday(day);
           const hebrewDate = formatHebrewCalendarDate(day);
@@ -153,8 +151,7 @@ export function WeeklyCalendar({
                     ? "bg-paper-warm/40 border-border"
                     : isToday
                       ? "border-primary bg-primary-soft/20"
-                      : "border-border bg-white",
-                !isCurrentMonth && "opacity-50"
+                      : "border-border bg-white"
               )}
             >
               {/* כותרת יום — מובייל מציג שם יום, דסקטופ לא (כבר בכותרת) */}

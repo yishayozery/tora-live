@@ -30,106 +30,45 @@ export type BroadcastTypeMeta = {
   examples?: string;
 };
 
-// רשימת סוגי השידור — משמשת לטפסים, סינון, badges ורצועת "תפילות ואירועים עכשיו".
+// רשימת סוגי השידור — מצומצמת ל-3 בלבד לפי דרישת הלקוח.
 // הערכים נשמרים כמחרוזות ב-DB; אין לשנות את ה-value של רשומה קיימת.
 export const BROADCAST_TYPES = [
   {
     value: "LESSON",
-    label: "שיעור",
+    label: "שיעור תורה",
     icon: "BookOpen",
     accent: "primary",
-    description: "שיעור תורה רגיל — גמרא, הלכה, מחשבה",
-    examples: "דף יומי, הלכה יומית, פרשת שבוע",
+    description: "שיעור תורה — גמרא, הלכה, מחשבה, פרשת שבוע, דף יומי וכו'",
   },
   {
     value: "PRAYER",
     label: "תפילה",
     icon: "Heart",
     accent: "live",
-    description: "תפילה יומית או מיוחדת",
-    examples: "שחרית, מנחה, ערבית",
+    description: "תפילות, סליחות, תהילים, ועוד",
   },
   {
-    value: "SELICHOT",
-    label: "סליחות",
-    icon: "Moon",
-    accent: "purple",
-    description: "אמירת סליחות בחבורה",
-    examples: "אלול, עשרת ימי תשובה, תעניות",
-  },
-  {
-    value: "TEHILLIM",
-    label: "תהילים",
-    icon: "Scroll",
-    accent: "gold",
-    description: "אמירת תהילים בציבור",
-    examples: "לרפואה, לעת צרה, אמירה יומית",
-  },
-  {
-    value: "HESPED",
-    label: "הספד",
-    icon: "Flame",
-    accent: "danger",
-    description: "הספד ומעמד פרידה",
-    examples: "לוויה, שבעה, שלושים",
-  },
-  {
-    value: "WEDDING",
-    label: "חופה / שבע ברכות",
-    icon: "HandHeart",
-    accent: "gold",
-    description: "חופה או שבע ברכות בשידור חי",
-    examples: "חופה, שבע ברכות, ברכת חתנים",
-  },
-  {
-    value: "BAR_MITZVAH",
-    label: "בר/בת מצוה",
-    icon: "Cake",
-    accent: "primary",
-    description: "שמחת בר או בת מצוה",
-    examples: "דרשה, עלייה לתורה, סעודת מצוה",
-  },
-  {
-    value: "NIGGUN",
-    label: "מפגש ניגונים",
-    icon: "Music",
-    accent: "emerald",
-    description: "מפגש שירה וניגונים",
-    examples: "ניגוני חסידות, התעוררות, שירה בציבור",
-  },
-  {
-    value: "CHAZANUT",
-    label: "חזנות",
+    value: "OTHER",
+    label: "אחר",
     icon: "Sparkles",
     accent: "gold",
-    description: "חזנות ופיוט",
-    examples: "נוסח תפילה, פיוטים, קונצרט חזנות",
-  },
-  {
-    value: "EVENT",
-    label: "אירוע מיוחד",
-    icon: "Users",
-    accent: "purple",
-    description: "אירוע מיוחד או התכנסות",
-    examples: "הילולא, הכנסת ספר תורה, יום השנה",
-  },
-  {
-    value: "KOL_NIDREI",
-    label: "לילי יום כיפור",
-    icon: "Moon",
-    accent: "primary",
-    description: "כל נדרי ותפילות יום הכיפורים",
-    examples: "כל נדרי, ערבית, נעילה",
-  },
-  {
-    value: "SHIUR_KLALI",
-    label: "שיעור כללי",
-    icon: "Sunrise",
-    accent: "emerald",
-    description: "פורמט נפרד — ראשי ישיבה, שיעורי עומק",
-    examples: "שיעור כללי ישיבתי, עיון ראשי ישיבה",
+    description: "אירוע מיוחד, חופה, ניגונים, חזנות, הספד, וכו'",
   },
 ] as const satisfies readonly BroadcastTypeMeta[];
+
+// תאימות לאחור — אם יש בDB ערך ישן (NIGGUN, HESPED וכו'), נציג אותו ככה
+const LEGACY_TYPE_LABELS: Record<string, string> = {
+  SELICHOT: "סליחות",
+  TEHILLIM: "תהילים",
+  HESPED: "הספד",
+  WEDDING: "חופה / שבע ברכות",
+  BAR_MITZVAH: "בר/בת מצוה",
+  NIGGUN: "מפגש ניגונים",
+  CHAZANUT: "חזנות",
+  EVENT: "אירוע מיוחד",
+  KOL_NIDREI: "לילי יום כיפור",
+  SHIUR_KLALI: "שיעור כללי",
+};
 
 export type BroadcastType = (typeof BROADCAST_TYPES)[number]["value"];
 
@@ -153,5 +92,7 @@ export function languageLabel(code: string | null | undefined): string {
 }
 
 export function broadcastTypeLabel(t: string | null | undefined): string {
+  if (!t) return broadcastTypeMeta(t).label;
+  if (LEGACY_TYPE_LABELS[t]) return LEGACY_TYPE_LABELS[t];
   return broadcastTypeMeta(t).label;
 }
