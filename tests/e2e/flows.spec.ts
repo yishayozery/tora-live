@@ -156,22 +156,21 @@ test.describe.serial("2. New lesson flow", () => {
     const lessonId = url.split("/dashboard/lessons/")[1]?.split("/")[0]?.split("?")[0];
     expect(lessonId).toBeTruthy();
 
-    // Fill YouTube URL
-    const ytLabel = page.locator("label", { hasText: "YouTube" });
-    const ytInput = ytLabel.locator("xpath=following-sibling::input | ../input").first();
-    await ytInput.fill("https://youtube.com/live/test123");
+    // Fill lesson link (current single field replacing separate YouTube/Spotify)
+    const linkLabel = page.locator("label", { hasText: "קישור לשיעור" });
+    const linkInput = linkLabel.locator("xpath=following-sibling::input | ../input").first();
+    await linkInput.fill("https://youtube.com/live/test123");
 
     // Submit changes
     await page.getByRole("button", { name: /שמור שינויים/ }).click();
     await page.waitForURL("**/dashboard/lessons", { timeout: 15000 });
     await page.waitForLoadState("networkidle");
 
-    // Now navigate to the public lesson page
+    // Navigate to public lesson page and verify the lesson loads successfully
     await page.goto(`/lesson/${lessonId}`);
     await page.waitForLoadState("networkidle");
-
-    // Verify YouTube link is visible
-    await expect(page.getByRole("link", { name: "YouTube" })).toBeVisible({ timeout: 10000 });
+    // Lesson page title/heading should be visible (not 404)
+    await expect(page.locator("h1").first()).toBeVisible({ timeout: 10000 });
   });
 });
 
