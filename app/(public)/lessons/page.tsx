@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { broadcastTypeMeta, BROADCAST_TYPES, LANGUAGES } from "@/lib/enums";
@@ -9,6 +10,9 @@ export const metadata = {
   title: "שיעורים | TORA LIVE",
   description: "חפש ומצא שיעורי תורה חיים ומוקלטים לפי רב, נושא, תאריך ושעה.",
 };
+
+// ISR — קטלוג שיעורים מתעדכן כל דקה. searchParams עדיין dynamic.
+export const revalidate = 60;
 
 type LessonRow = {
   id: string;
@@ -174,41 +178,61 @@ export default async function LessonsPage({
           )}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((l: any) => (
-            <Link
-              key={l.id}
-              href={`/lesson/${l.id}`}
-              className="block rounded-card border border-border bg-white p-4 hover:border-primary/40 hover:shadow-soft transition"
-            >
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <BroadcastTypeBadge value={l.broadcastType} />
-                {l.isLive && (
-                  <span className="text-xs bg-live/10 text-live px-2 py-0.5 rounded-full font-medium">
-                    🔴 משדר עכשיו
-                  </span>
-                )}
-              </div>
-              <h3 className="font-bold text-ink line-clamp-2 mb-2">{l.title}</h3>
-              <p className="text-xs text-ink-muted line-clamp-2 mb-3">{l.description}</p>
-              <div className="flex items-center gap-3 text-xs text-ink-muted">
-                <span className="font-medium text-ink-soft">{l.rabbi?.name ?? l.organizerName ?? "אירוע"}</span>
-                <span className="flex items-center gap-1">
-                  <CalIcon className="w-3 h-3" />
-                  {new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
-                </span>
-                {l.durationMin && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {l.durationMin} דק׳
-                  </span>
-                )}
-              </div>
-              {l.category && (
-                <div className="mt-2 text-[10px] text-ink-subtle">{l.category.name}</div>
-              )}
-            </Link>
-          ))}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sorted.map((l: any) => {
+            const rabbiName = l.rabbi?.name ?? l.organizerName ?? "אירוע";
+            const initial = (rabbiName as string).replace(/^הרב\s+/, "").charAt(0) || "?";
+            const palette = ["from-primary to-primary-hover","from-gold to-amber-700","from-live to-emerald-700","from-purple-500 to-purple-700","from-pink-500 to-pink-700","from-amber-500 to-orange-600","from-sky-500 to-blue-700","from-rose-500 to-red-700"];
+            const hash = Array.from(rabbiName as string).reduce((a:number,c:string)=>a+c.charCodeAt(0),0);
+            const bg = palette[hash % palette.length];
+            return (
+              <Link
+                key={l.id}
+                href={`/lesson/${l.id}`}
+                className="group block overflow-hidden rounded-card border border-border bg-white hover:border-primary/40 hover:shadow-soft transition"
+              >
+                <div className="relative h-32 w-full overflow-hidden">
+                  {l.posterUrl ? (
+                    <Image
+                      src={l.posterUrl}
+                      alt={l.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className={`h-full w-full bg-gradient-to-br ${bg} flex items-center justify-center`}>
+                      <span className="hebrew-serif text-6xl font-bold text-white/95 drop-shadow">{initial}</span>
+                    </div>
+                  )}
+                  {l.isLive && (
+                    <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-live/95 px-2 py-1 text-[11px] font-bold text-white">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                      משדר עכשיו
+                    </span>
+                  )}
+                </div>
+                <div className="p-4">
+                  <div className="mb-2"><BroadcastTypeBadge value={l.broadcastType} /></div>
+                  <h3 className="font-bold text-ink line-clamp-2 mb-2 group-hover:text-primary transition">{l.title}</h3>
+                  <p className="text-xs text-ink-muted line-clamp-2 mb-3">{l.description}</p>
+                  <div className="flex items-center gap-3 text-xs text-ink-muted flex-wrap">
+                    <span className="font-medium text-ink-soft">{rabbiName}</span>
+                    <span className="flex items-center gap-1">
+                      <CalIcon className="w-3 h-3" />
+                      {new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
+                    </span>
+                    {l.durationMin && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {l.durationMin} דק׳
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </main>

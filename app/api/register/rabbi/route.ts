@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
-  const { email, password, name, phone } = parsed.data;
+  const { email, password, name, phone, photoUrl } = parsed.data;
 
   const existingUser = await db.user.findUnique({ where: { email: email.toLowerCase() } });
   if (existingUser) {
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
           name,
           slug,
           phone: phone || null,
+          photoUrl: photoUrl || null,
           bio: "",
           status: "PENDING",
           profileCompleted: false,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Radio, Users } from "lucide-react";
+import { pluralize } from "@/lib/utils";
 
 export type LiveLesson = {
   id: string;
@@ -18,7 +19,9 @@ export function LiveNowStrip({ lessons }: { lessons: LiveLesson[] }) {
           <span className="relative inline-flex rounded-full h-3 w-3 bg-live"></span>
         </span>
         <h2 className="hebrew-serif text-2xl font-bold text-ink">משדרים עכשיו</h2>
-        <span className="text-sm text-ink-muted">{lessons.length} שיעורים חיים</span>
+        <span className="text-sm text-ink-muted">
+          {lessons.length === 0 ? "אין שיעורים חיים כרגע" : `${pluralize(lessons.length, "שיעור חי", "שיעורים חיים")}`}
+        </span>
       </div>
 
       {lessons.length === 0 ? (

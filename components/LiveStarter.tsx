@@ -100,10 +100,11 @@ export function LiveStarter({
           <div className="grid gap-3">
             <BigChoiceButton
               icon={<Video className="w-6 h-6" />}
-              title="שדר מהדפדפן"
-              desc="בלי התקנות. המצלמה שלך ישירות באתר."
-              variant="primary"
-              onClick={() => setStep("preview")}
+              title="שדר מהדפדפן (בקרוב)"
+              desc="בלי התקנות. המצלמה שלך ישירות באתר. — בבנייה, יושק בקרוב."
+              variant="secondary"
+              disabled
+              onClick={() => {}}
             />
             <BigChoiceButton
               icon={<LinkIcon className="w-6 h-6" />}
@@ -324,21 +325,23 @@ function BigChoiceButton({
   desc,
   variant,
   onClick,
+  disabled,
 }: {
   icon: React.ReactNode;
   title: string;
   desc: string;
   variant: "primary" | "secondary";
   onClick: () => void;
+  disabled?: boolean;
 }) {
   const base =
-    "w-full text-start p-4 rounded-card border transition-colors flex items-center gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
+    "w-full text-start p-4 rounded-card border transition-colors flex items-center gap-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed";
   const variants =
     variant === "primary"
       ? "bg-primary text-white border-primary hover:bg-primary-hover shadow-soft"
       : "bg-white text-ink border-border hover:bg-paper-soft";
   return (
-    <button type="button" onClick={onClick} className={`${base} ${variants}`}>
+    <button type="button" onClick={onClick} disabled={disabled} className={`${base} ${variants}`}>
       <span
         className={
           "shrink-0 w-12 h-12 rounded-full flex items-center justify-center " +

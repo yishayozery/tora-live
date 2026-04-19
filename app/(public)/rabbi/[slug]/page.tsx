@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -31,12 +32,20 @@ const MEDIA_META: Record<string, { label: string; icon: typeof Youtube }> = {
   other: { label: "קישור נוסף", icon: LinkIcon },
 };
 
+const PAGE_SIZE = 12;
+
+// ISR — דף רב מתעדכן כל 5 דקות (תוכן יציב יחסית)
+export const revalidate = 300;
+
 export default async function RabbiPage({
   params,
+  searchParams,
 }: {
   params: { slug: string };
+  searchParams?: { page?: string };
 }) {
   const now = new Date();
+  const currentPage = Math.max(1, parseInt(searchParams?.page || "1", 10));
 
   const rabbi = await db.rabbi.findUnique({
     where: { slug: params.slug },
@@ -125,12 +134,20 @@ export default async function RabbiPage({
       {/* ===== Header ===== */}
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
         {rabbi.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={rabbi.photoUrl}
-            alt={rabbi.name}
-            className="w-32 h-32 rounded-full object-cover border-4 border-gold-soft"
-          />
+          rabbi.photoUrl.startsWith("data:") ? (
+            // base64 — next/image לא תומך, נשאיר native
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={rabbi.photoUrl} alt={rabbi.name} className="w-32 h-32 rounded-full object-cover border-4 border-gold-soft" />
+          ) : (
+            <Image
+              src={rabbi.photoUrl}
+              alt={rabbi.name}
+              width={128}
+              height={128}
+              className="w-32 h-32 rounded-full object-cover border-4 border-gold-soft"
+              priority
+            />
+          )
         ) : (
           <div className="w-32 h-32 rounded-full bg-primary-soft flex items-center justify-center hebrew-serif text-4xl text-primary">
             {rabbi.name.charAt(0)}
@@ -262,39 +279,98 @@ export default async function RabbiPage({
           <Card>
             <CardDescription>עדיין אין שיעורים שהתקיימו.</CardDescription>
           </Card>
-        ) : (
-          <>
-            {/* Categorized */}
-            {categoriesWithPast.map((cat) => (
-              <div key={cat.id} className="mb-8">
-                <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">
-                  {cat.name}
-                </h3>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {cat.lessons.map((l) => (
-                    <PastLessonCard key={l.id} lesson={l} />
-                  ))}
-                </div>
-              </div>
-            ))}
+        ) : (() => {
+          // Pagination על pastLessons (כולם — categorized + uncategorized יחד)
+          const totalPages = Math.ceil(pastLessons.length / PAGE_SIZE);
+          const safePage = Math.min(currentPage, totalPages);
+          const startIdx = (safePage - 1) * PAGE_SIZE;
+          const pageLessons = pastLessons.slice(startIdx, startIdx + PAGE_SIZE);
+          const pageLessonIds = new Set(pageLessons.map(l => l.id));
 
-            {/* Uncategorized */}
-            {uncategorizedPast.length > 0 && (
-              <div className="mb-8">
-                {categoriesWithPast.length > 0 && (
-                  <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">
-                    כללי
-                  </h3>
-                )}
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {uncategorizedPast.map((l) => (
-                    <PastLessonCard key={l.id} lesson={l} />
-                  ))}
-                </div>
+          // קטגוריות בעמוד הזה
+          const catsInPage = categoriesWithPast
+            .map(cat => ({ ...cat, lessons: cat.lessons.filter(l => pageLessonIds.has(l.id)) }))
+            .filter(c => c.lessons.length > 0);
+          const uncatInPage = uncategorizedPast.filter(l => pageLessonIds.has(l.id));
+
+          return (
+            <>
+              <div className="mb-3 text-sm text-ink-muted">
+                מציג {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, pastLessons.length)} מתוך {pastLessons.length} שיעורים
               </div>
-            )}
-          </>
-        )}
+
+              {catsInPage.map((cat) => (
+                <div key={cat.id} className="mb-8">
+                  <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">{cat.name}</h3>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {cat.lessons.map((l) => (
+                      <PastLessonCard key={l.id} lesson={l} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {uncatInPage.length > 0 && (
+                <div className="mb-8">
+                  {catsInPage.length > 0 && (
+                    <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">כללי</h3>
+                  )}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {uncatInPage.map((l) => (
+                      <PastLessonCard key={l.id} lesson={l} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <nav className="flex items-center justify-center gap-2 mt-8" aria-label="ניווט בין עמודים">
+                  <Link
+                    href={safePage > 1 ? `?page=${safePage - 1}` : "#"}
+                    aria-disabled={safePage === 1}
+                    className={`min-w-[44px] h-11 px-4 inline-flex items-center justify-center rounded-btn border text-sm font-medium ${
+                      safePage === 1
+                        ? "border-border text-ink-muted bg-paper-soft cursor-not-allowed pointer-events-none"
+                        : "border-border bg-white text-ink hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    הבא →
+                  </Link>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                    .map((p, idx, arr) => (
+                      <span key={p} className="flex items-center gap-1">
+                        {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-ink-muted px-1">…</span>}
+                        <Link
+                          href={`?page=${p}`}
+                          className={`min-w-[44px] h-11 px-3 inline-flex items-center justify-center rounded-btn border text-sm font-medium transition ${
+                            p === safePage
+                              ? "border-primary bg-primary text-white"
+                              : "border-border bg-white text-ink hover:border-primary hover:text-primary"
+                          }`}
+                          aria-current={p === safePage ? "page" : undefined}
+                        >
+                          {p}
+                        </Link>
+                      </span>
+                    ))}
+                  <Link
+                    href={safePage < totalPages ? `?page=${safePage + 1}` : "#"}
+                    aria-disabled={safePage === totalPages}
+                    className={`min-w-[44px] h-11 px-4 inline-flex items-center justify-center rounded-btn border text-sm font-medium ${
+                      safePage === totalPages
+                        ? "border-border text-ink-muted bg-paper-soft cursor-not-allowed pointer-events-none"
+                        : "border-border bg-white text-ink hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    ← הקודם
+                  </Link>
+                </nav>
+              )}
+            </>
+          );
+        })()}
       </section>
 
       {/* ===== Contact / request ===== */}
@@ -328,6 +404,7 @@ type PastLesson = {
   sourcesPdfUrl: string | null;
   sources: { id: string }[];
   description: string;
+  posterUrl?: string | null;
 };
 
 function PastLessonCard({ lesson: l }: { lesson: PastLesson }) {
@@ -354,8 +431,21 @@ function PastLessonCard({ lesson: l }: { lesson: PastLesson }) {
   if (l.otherUrl)
     mediaLinks.push({ href: l.otherUrl, label: "קישור", Icon: LinkIcon });
 
+  const poster = (l as any).posterUrl as string | null | undefined;
   return (
-    <Card>
+    <Card className="overflow-hidden p-0">
+      {poster && (
+        <Link href={`/lesson/${l.id}`} className="block relative h-32 w-full overflow-hidden bg-paper-soft">
+          <Image
+            src={poster}
+            alt={l.title}
+            fill
+            sizes="(max-width: 640px) 100vw, 50vw"
+            className="object-cover hover:scale-105 transition"
+          />
+        </Link>
+      )}
+      <div className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <Link href={`/lesson/${l.id}`} className="hover:text-primary transition">
@@ -397,6 +487,7 @@ function PastLessonCard({ lesson: l }: { lesson: PastLesson }) {
           )}
         </div>
       )}
+      </div>
     </Card>
   );
 }

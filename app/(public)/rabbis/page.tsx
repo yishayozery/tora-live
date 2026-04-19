@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Search, Users, BookOpen } from "lucide-react";
 import { db } from "@/lib/db";
 
@@ -7,6 +8,9 @@ export const metadata = {
   description:
     "גלה רבנים מכל גווני הקשת — שיעורי תורה חיים ומוקלטים ישירות מהאולפן של הרבנים המובילים בישראל.",
 };
+
+// ISR — רשימת רבנים מתעדכנת כל 5 דקות
+export const revalidate = 300;
 
 export default async function RabbisPage({
   searchParams,
@@ -135,12 +139,18 @@ function RabbiGalleryCard({ rabbi }: { rabbi: RabbiCardData }) {
     <article className="card group flex flex-col p-6 transition hover:border-primary/40 hover:shadow-card">
       <div className="flex items-center gap-4">
         {rabbi.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={rabbi.photoUrl}
-            alt={rabbi.name}
-            className="h-16 w-16 shrink-0 rounded-full object-cover"
-          />
+          rabbi.photoUrl.startsWith("data:") ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={rabbi.photoUrl} alt={rabbi.name} className="h-16 w-16 shrink-0 rounded-full object-cover" />
+          ) : (
+            <Image
+              src={rabbi.photoUrl}
+              alt={rabbi.name}
+              width={64}
+              height={64}
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+            />
+          )
         ) : (
           <div
             className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gold-soft font-serif text-2xl font-bold text-gold"

@@ -39,7 +39,7 @@ export async function GET(req: Request) {
       studentId: bm.studentId,
       kind: "LESSON_REMINDER",
       title: `השיעור מתחיל בעוד ${minutesUntil} דקות`,
-      body: `${bm.lesson.title} · ${bm.lesson.rabbi.name} · ${formatHebrewTime(bm.lesson.scheduledAt)}`,
+      body: `${bm.lesson.title} · ${bm.lesson.rabbi?.name ?? (bm.lesson as any).organizerName ?? "אירוע"} · ${formatHebrewTime(bm.lesson.scheduledAt)}`,
       link: `/lesson/${bm.lesson.id}`,
     });
     await db.bookmark.update({ where: { id: bm.id }, data: { reminderSentAt: new Date() } });

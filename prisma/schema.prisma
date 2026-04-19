@@ -143,6 +143,13 @@ model Lesson {
   syncToCalendar  Boolean   @default(false)
   calendarEventId String?
 
+  // --- Auto-discovery (lesson-scout) ---
+  externalId      String?   @unique   // youtubeVideoId / spotifyEpisodeId
+  autoDiscovered  Boolean   @default(false)
+  discoveredAt    DateTime?
+  sourceId        String?
+  source          RabbiSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
   chatMessages    ChatMessage[]
   reports         Report[]
   bookmarks       Bookmark[]
@@ -273,6 +280,29 @@ model Donation {
   receiptSent     Boolean        @default(false)
   paymentRef      String?
   createdAt       DateTime       @default(now())
+}
+
+// ---------- מקור שיעורים חיצוני (לסורק) ----------
+model RabbiSource {
+  id            String    @id @default(cuid())
+  rabbiId       String?   // אם מקושר לרב קיים במערכת
+  platform      String    // "YOUTUBE" | "SPOTIFY"
+  channelId     String    // UC... ב-YouTube
+  channelTitle  String
+  channelUrl    String
+  rabbiName     String?   // שם הרב (לתצוגה — גם ללא rabbiId)
+  notes         String?
+  lastCheckedAt DateTime?
+  lastFoundAt   DateTime?
+  totalDiscovered Int     @default(0)
+  enabled       Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  lessons       Lesson[]
+
+  @@unique([platform, channelId])
+  @@index([enabled, lastCheckedAt])
 }
 
 // ---------- דיווח ----------

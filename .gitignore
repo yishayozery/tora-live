@@ -10,3 +10,10 @@ out
 next-env.d.ts
 prisma/migrations/dev.db*
 seed-prod.js
+
+# Local artifacts
+screenshots/
+upcoming.json
+upcoming.err
+data/posts/
+data/outreach/

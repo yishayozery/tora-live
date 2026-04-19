@@ -16,8 +16,8 @@ type CalendarLesson = {
   category?: string;
   isLive?: boolean;
   broadcastType?: string;
-  /** סוג ויזואלי: lesson (כחול), live (ירוק), event (זהב), approvedRequest (סגול) */
-  variant?: "lesson" | "live" | "event" | "approvedRequest";
+  /** סוג ויזואלי: lesson (כחול), live (ירוק), event (זהב), approvedRequest (סגול), private (מקווקו) */
+  variant?: "lesson" | "live" | "event" | "approvedRequest" | "private";
   /** קישור יעד. אם חסר — /lesson/{id} */
   href?: string;
   /** האם להראות כפתור "התחל שידור" (חלון של ±30 דק' מ-now). רלוונטי לדשבורד רב בלבד */
@@ -48,11 +48,11 @@ export function WeeklyCalendar({
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
 
-  /** 4 שבועות מתחילת השבוע הנוכחי + offset */
+  /** שבוע אחד מתחילת השבוע הנוכחי + offset */
   const gridDays = useMemo(() => {
     const start = getCurrentWeekStart();
     start.setDate(start.getDate() + weekOffset * 7);
-    return Array.from({ length: 28 }, (_, i) => {
+    return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       return d;
@@ -121,7 +121,75 @@ export function WeeklyCalendar({
         </div>
       </div>
 
-      {/* כותרות ימים — desktop */}
+      {/* === MOBILE: Agenda mode === מציג רק ימים שיש בהם שיעורים */}
+      <div className="sm:hidden space-y-3">
+        {(() => {
+          const daysWithLessons = gridDays.filter((day) => (lessonsByDate.get(day.toDateString()) ?? []).length > 0);
+          if (daysWithLessons.length === 0) {
+            return (
+              <div className="rounded-card border border-border bg-paper-soft p-6 text-center text-sm text-ink-muted">
+                אין שיעורים מתוזמנים בשבוע הזה
+              </div>
+            );
+          }
+          return daysWithLessons.map((day, i) => {
+            const isToday = day.toDateString() === todayStr;
+            const isSabbath = day.getDay() === 6;
+            const holiday = getHebrewHoliday(day);
+            const dayLessons = lessonsByDate.get(day.toDateString()) ?? [];
+            return (
+              <div key={i} className={cn(
+                "rounded-card border overflow-hidden",
+                holiday ? "border-gold/30" : isSabbath ? "border-border" : isToday ? "border-primary" : "border-border"
+              )}>
+                <div className={cn(
+                  "px-3 py-2 flex items-center justify-between gap-2",
+                  holiday ? "bg-gold/10" : isSabbath ? "bg-paper-warm/50" : isToday ? "bg-primary text-white" : "bg-paper-soft"
+                )}>
+                  <div className="flex items-center gap-2 text-sm font-bold">
+                    <span>{DAY_NAMES[day.getDay()]}</span>
+                    <span className="opacity-75">·</span>
+                    <span>{day.getDate()}/{day.getMonth() + 1}</span>
+                    {holiday && <span className="text-xs font-medium opacity-90">· {holiday}</span>}
+                  </div>
+                  <span className={cn("text-xs", isToday ? "text-white/80" : "text-ink-muted")}>
+                    {dayLessons.length} שיעורים
+                  </span>
+                </div>
+                <div className="p-2 space-y-1.5 bg-white">
+                  {dayLessons.map((l) => {
+                    const variant = l.variant ?? (l.isLive ? "live" : "lesson");
+                    const cls = variant === "live"
+                      ? "bg-live/10 text-live border-live/20"
+                      : variant === "event"
+                        ? "bg-gold-soft text-gold border-gold/30"
+                        : "bg-primary-soft text-primary border-primary/20";
+                    return (
+                      <Link key={l.id} href={l.href ?? `/lesson/${l.id}`} className={cn(
+                        "block rounded-btn border p-2 text-sm leading-tight transition active:scale-[0.98]",
+                        cls
+                      )}>
+                        <div className="flex items-center justify-between gap-2 mb-0.5">
+                          <span className="font-semibold flex items-center gap-1">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {timeFmt.format(new Date(l.scheduledAt))}
+                          </span>
+                          {l.isLive && <span className="text-[10px] font-bold inline-flex items-center gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
+                        </div>
+                        <div className="font-medium line-clamp-2 mb-0.5">{l.title}</div>
+                        <div className="text-xs opacity-75 truncate">{l.rabbiName}</div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          });
+        })()}
+      </div>
+
+      {/* === DESKTOP: Grid mode === */}
+      {/* כותרות ימים */}
       <div className="hidden sm:grid grid-cols-7 gap-1 mb-1">
         {DAY_NAMES.map((name) => (
           <div key={name} className="text-center text-xs font-semibold text-ink-muted py-1">
@@ -130,8 +198,8 @@ export function WeeklyCalendar({
         ))}
       </div>
 
-      {/* גריד 4 שבועות */}
-      <div className="grid grid-cols-1 sm:grid-cols-7 gap-1 sm:gap-2">
+      {/* גריד שבוע — desktop only */}
+      <div className="hidden sm:grid grid-cols-7 gap-1 sm:gap-2">
         {gridDays.map((day, i) => {
           const isToday = day.toDateString() === todayStr;
           const isSabbath = day.getDay() === 6;

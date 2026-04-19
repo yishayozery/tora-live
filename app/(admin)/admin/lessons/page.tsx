@@ -141,12 +141,13 @@ export default async function AdminLessonsPage({
                   <div className="min-w-0 flex-1">
                     <div className="font-bold line-clamp-2">{l.title}</div>
                     <div className="text-xs text-ink-muted mt-1">
-                      <Link
-                        href={`/rabbi/${l.rabbi.slug}`}
-                        className="hover:text-primary"
-                      >
-                        {l.rabbi.name}
-                      </Link>
+                      {l.rabbi ? (
+                        <Link href={`/rabbi/${l.rabbi.slug}`} className="hover:text-primary">
+                          {l.rabbi.name}
+                        </Link>
+                      ) : (
+                        <span>{(l as any).organizerName ?? "—"}</span>
+                      )}
                     </div>
                     <div className="text-xs text-ink-muted mt-1">
                       {dateFmt.format(l.scheduledAt)}
@@ -187,12 +188,13 @@ export default async function AdminLessonsPage({
                         {l.title}
                       </td>
                       <td className="p-3">
-                        <Link
-                          href={`/rabbi/${l.rabbi.slug}`}
-                          className="hover:text-primary"
-                        >
-                          {l.rabbi.name}
-                        </Link>
+                        {l.rabbi ? (
+                          <Link href={`/rabbi/${l.rabbi.slug}`} className="hover:text-primary">
+                            {l.rabbi.name}
+                          </Link>
+                        ) : (
+                          <span className="text-ink-muted">{(l as any).organizerName ?? "—"}</span>
+                        )}
                       </td>
                       <td className="p-3 text-ink-muted whitespace-nowrap">
                         {dateFmt.format(l.scheduledAt)}

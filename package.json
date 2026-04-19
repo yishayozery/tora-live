@@ -11,6 +11,10 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "scout": "node --env-file=.env --import tsx scripts/lesson-scout.ts",
+    "daily-post": "node --env-file=.env --import tsx scripts/daily-post.ts",
+    "outreach": "node --env-file=.env --import tsx scripts/rabbi-outreach.ts",
+    "resolve-channel": "node --env-file=.env --import tsx scripts/resolve-channel-id.ts",
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test"

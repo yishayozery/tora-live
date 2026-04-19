@@ -51,8 +51,8 @@ export default async function SchedulePage() {
     ...bookmarks.map((b) => ({
       id: b.lesson.id,
       title: b.lesson.title,
-      rabbiName: b.lesson.rabbi.name,
-      rabbiSlug: b.lesson.rabbi.slug,
+      rabbiName: b.lesson.rabbi?.name ?? (b.lesson as any).organizerName ?? "אירוע",
+      rabbiSlug: b.lesson.rabbi?.slug ?? "",
       scheduledAt: b.lesson.scheduledAt.toISOString(),
       durationMin: b.lesson.durationMin ?? undefined,
       isLive: b.lesson.isLive,
@@ -61,8 +61,8 @@ export default async function SchedulePage() {
     ...fromFollowed.map((l) => ({
       id: l.id,
       title: l.title,
-      rabbiName: l.rabbi.name,
-      rabbiSlug: l.rabbi.slug,
+      rabbiName: l.rabbi?.name ?? (l as any).organizerName ?? "אירוע",
+      rabbiSlug: l.rabbi?.slug ?? "",
       scheduledAt: l.scheduledAt.toISOString(),
       durationMin: l.durationMin ?? undefined,
       isLive: l.isLive,
@@ -111,7 +111,8 @@ export default async function SchedulePage() {
 
   // מיון לפי פופולריות הרב ולקיחת 3
   const topRecommended = recommendedLessons
-    .sort((a, b) => b.rabbi._count.followers - a.rabbi._count.followers)
+    .filter((l) => l.rabbi)
+    .sort((a, b) => (b.rabbi?._count.followers ?? 0) - (a.rabbi?._count.followers ?? 0))
     .slice(0, 3);
 
   return (
@@ -211,10 +212,10 @@ export default async function SchedulePage() {
                 <Card className="hover:border-primary/30 transition h-full">
                   <div className="font-bold text-sm truncate">{l.title}</div>
                   <div className="text-xs text-ink-muted mt-1">
-                    {l.rabbi.name} &middot; {formatHebrewDate(l.scheduledAt)} {formatHebrewTime(l.scheduledAt)}
+                    {l.rabbi?.name ?? "אירוע"} &middot; {formatHebrewDate(l.scheduledAt)} {formatHebrewTime(l.scheduledAt)}
                   </div>
                   <div className="text-xs text-ink-subtle mt-1">
-                    {l.rabbi._count.followers} עוקבים
+                    {l.rabbi?._count.followers ?? 0} עוקבים
                   </div>
                 </Card>
               </Link>

@@ -90,7 +90,7 @@ export default async function AdminReportsPage() {
                 >
                   {r.lesson.title}
                 </Link>
-                <span className="text-ink-muted"> · {r.lesson.rabbi.name}</span>
+                {r.lesson.rabbi && <span className="text-ink-muted"> · {r.lesson.rabbi.name}</span>}
               </div>
             )}
             {r.reporterEmail && (

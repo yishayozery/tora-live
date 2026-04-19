@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
-import { ShieldCheck, Users, BookOpen, Flag, Heart, LogOut, CalendarCheck } from "lucide-react";
+import { ShieldCheck, Users, BookOpen, Flag, Heart, LogOut, CalendarCheck, Youtube } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <A href="/admin/users" icon={Users}>תלמידים</A>
           <A href="/admin/lessons" icon={BookOpen}>שיעורים</A>
           <A href="/admin/events" icon={CalendarCheck} badge={pendingEvents}>אירועים</A>
+          <A href="/admin/sources" icon={Youtube}>מקורות YouTube</A>
           <A href="/admin/reports" icon={Flag}>דיווחים</A>
           <A href="/admin/donations" icon={Heart}>תרומות</A>
         </nav>

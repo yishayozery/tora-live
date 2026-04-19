@@ -21,6 +21,15 @@ export const rabbiRegisterSchema = z.object({
     .regex(/^[0-9+\-\s()]*$/, "טלפון לא תקין")
     .optional()
     .or(z.literal("")),
+  photoUrl: z
+    .string()
+    .max(800_000, "התמונה גדולה מדי (מקסימום 600KB)")
+    .refine(
+      (v) => !v || /^https?:\/\//.test(v) || /^data:image\/(jpeg|png|webp|gif);base64,/.test(v),
+      "כתובת תמונה לא תקינה"
+    )
+    .optional()
+    .or(z.literal("")),
 });
 
 export const mediaLinksSchema = z.object({

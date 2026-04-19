@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
+
+// ISR — מתעדכן כל דקה. דף ציבורי, לא מותאם אישית.
+export const revalidate = 60;
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
 import { LiveNowStrip, type LiveLesson } from "@/components/LiveNowStrip";
 import { PrayersEventsNow } from "@/components/PrayersEventsNow";
@@ -32,8 +35,8 @@ async function getHomeData() {
   const live: LiveLesson[] = liveLessons.map((l) => ({
     id: l.id,
     title: l.title,
-    rabbiName: l.rabbi.name,
-    rabbiSlug: l.rabbi.slug,
+    rabbiName: l.rabbi?.name ?? (l as any).organizerName ?? "אירוע",
+    rabbiSlug: l.rabbi?.slug ?? "",
     viewerCount: l.viewCount,
   }));
 
@@ -94,16 +97,36 @@ async function getHomeData() {
     isLive: l.isLive,
   }));
 
+  // סטטיסטיקות אמיתיות מה-DB
+  const [totalLessons, totalRabbis, sumViews, sumDuration] = await Promise.all([
+    db.lesson.count({
+      where: {
+        approvalStatus: "APPROVED",
+        isPublic: true,
+        isSuspended: false,
+      },
+    }),
+    db.rabbi.count({ where: { status: "APPROVED", isBlocked: false } }),
+    db.lesson.aggregate({
+      _sum: { viewCount: true },
+      where: { approvalStatus: "APPROVED" },
+    }),
+    db.lesson.aggregate({
+      _sum: { durationMin: true },
+      where: { approvalStatus: "APPROVED" },
+    }),
+  ]);
+
   return {
     sponsor,
     live,
     options,
     calendarLessons,
     stats: {
-      totalLessons: 47120,
-      totalHours: 38940,
-      totalRabbis: 182,
-      totalViews: 2841000,
+      totalLessons,
+      totalHours: Math.round((sumDuration._sum.durationMin ?? 0) / 60),
+      totalRabbis,
+      totalViews: sumViews._sum.viewCount ?? 0,
     },
   };
 }
@@ -116,17 +139,18 @@ export default async function HomePage() {
       <SponsorBanner sponsor={sponsor} />
 
       {/* Hero עם חיפוש */}
-      <section className="relative max-w-6xl mx-auto px-4 pt-12 sm:pt-16 pb-8">
-        <div className="text-center mb-8">
+      <section className="relative max-w-6xl mx-auto px-4 pt-5 sm:pt-12 pb-6 sm:pb-8">
+        <div className="text-center mb-5 sm:mb-8">
           <span className="inline-flex items-center gap-2 text-xs font-semibold text-primary bg-primary-soft px-3 py-1.5 rounded-full">
             <Sparkles className="w-3.5 h-3.5" />
             הבית הדיגיטלי של רבני ישראל
           </span>
-          <h1 className="hebrew-serif text-4xl sm:text-6xl font-bold text-ink leading-tight mt-4">
-            מצא את השיעור המושלם <br />
+          <h1 className="hebrew-serif text-3xl sm:text-6xl font-bold text-ink leading-tight mt-3 sm:mt-4">
+            מצא את השיעור המושלם<br className="hidden sm:block" />
+            <span className="sm:hidden"> </span>
             <span className="text-primary">לרגע הזה</span>
           </h1>
-          <p className="mt-5 text-lg text-ink-soft max-w-2xl mx-auto">
+          <p className="mt-3 sm:mt-5 text-base sm:text-lg text-ink-soft max-w-2xl mx-auto px-2">
             אלפי שיעורי תורה חיים ומוקלטים — לפי רב, נושא, תאריך ושעה. ללא הרשמה לצפייה.
           </p>
         </div>
