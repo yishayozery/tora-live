@@ -121,7 +121,8 @@
       "Bash(node --env-file=.env -e ' *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/ --max-time 5)",
       "Bash(node --env-file=.env --import tsx scripts/load-test.ts 10 100)",
-      "Bash(node --import tsx scripts/quick-shot.ts)"
+      "Bash(node --import tsx scripts/quick-shot.ts)",
+      "Bash(set DATABASE_URL=file:./dev.db)"
     ]
   }
 }

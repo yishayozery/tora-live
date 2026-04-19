@@ -282,6 +282,36 @@ model Donation {
   createdAt       DateTime        @default(now())
 }
 
+// ---------- הצעת שיעור ----------
+model LessonSuggestion {
+  id            String    @id @default(cuid())
+  title         String
+  description   String    @default("") @db.Text
+  rabbiName     String?
+  scheduledAt   DateTime?
+  durationMin   Int?
+  locationName  String?
+  url           String    @db.Text
+  posterUrl     String?   @db.Text
+  broadcastType String    @default("LESSON")
+  source        String
+  sourceType    String
+  rawContent    String?   @db.Text
+  confidence    String    @default("MEDIUM")
+
+  status        String    @default("PENDING")
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  rejectReason  String?
+  approvedLessonId String?
+
+  externalId    String?   @unique
+  createdAt     DateTime  @default(now())
+
+  @@index([status, createdAt])
+  @@index([sourceType])
+}
+
 // ---------- מקור שיעורים חיצוני ----------
 model RabbiSource {
   id              String    @id @default(cuid())

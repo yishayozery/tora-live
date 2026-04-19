@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
-import { ShieldCheck, Users, BookOpen, Flag, Heart, LogOut, CalendarCheck, Youtube } from "lucide-react";
+import { ShieldCheck, Users, BookOpen, Flag, Heart, LogOut, CalendarCheck, Youtube, Sparkles } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
   const pendingEvents = await db.lesson.count({ where: { approvalStatus: "PENDING" } });
+  const pendingSuggestions = await db.lessonSuggestion.count({ where: { status: "PENDING" } });
   return (
     <div className="min-h-screen bg-paper-soft flex">
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
@@ -20,6 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <A href="/admin/lessons" icon={BookOpen}>שיעורים</A>
           <A href="/admin/events" icon={CalendarCheck} badge={pendingEvents}>אירועים</A>
           <A href="/admin/sources" icon={Youtube}>מקורות YouTube</A>
+          <A href="/admin/suggestions" icon={Sparkles} badge={pendingSuggestions}>הצעות מהרשת</A>
           <A href="/admin/reports" icon={Flag}>דיווחים</A>
           <A href="/admin/donations" icon={Heart}>תרומות</A>
         </nav>
