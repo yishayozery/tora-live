@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getHebrewHoliday, formatHebrewCalendarDate } from "@/lib/hebrew-dates";
+import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 
 type CalendarLesson = {
   id: string;
@@ -48,24 +48,26 @@ export function WeeklyCalendar({
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
 
-  /** שבוע אחד מתחילת השבוע הנוכחי + offset */
+  /** שבועיים מתחילת השבוע הנוכחי + offset */
   const gridDays = useMemo(() => {
     const start = getCurrentWeekStart();
-    start.setDate(start.getDate() + weekOffset * 7);
-    return Array.from({ length: 7 }, (_, i) => {
+    start.setDate(start.getDate() + weekOffset * 14);
+    return Array.from({ length: 14 }, (_, i) => {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       return d;
     });
   }, [weekOffset]);
 
-  // טווח התצוגה לכותרת
+  // טווח התצוגה לכותרת — עברי + לועזי
   const rangeLabel = useMemo(() => {
     if (gridDays.length === 0) return "";
     const first = gridDays[0];
     const last = gridDays[gridDays.length - 1];
-    const fmt = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short" });
-    return `${fmt.format(first)} – ${fmt.format(last)}`;
+    const fmtGreg = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short" });
+    const firstHe = formatHebrewDayOnly(first) + " " + formatHebrewMonthOnly(first);
+    const lastHe = formatHebrewDayOnly(last) + " " + formatHebrewMonthOnly(last);
+    return `${firstHe} – ${lastHe} · ${fmtGreg.format(first)} – ${fmtGreg.format(last)}`;
   }, [gridDays]);
 
   /** מיפוי dateString -> שיעורים */
@@ -108,7 +110,7 @@ export function WeeklyCalendar({
                 : "border-border bg-white hover:bg-paper-soft"
             )}
           >
-            השבוע
+            עכשיו
           </button>
           <button
             onClick={() => setWeekOffset((o) => o + 1)}
@@ -146,14 +148,15 @@ export function WeeklyCalendar({
                   "px-3 py-2 flex items-center justify-between gap-2",
                   holiday ? "bg-gold/10" : isSabbath ? "bg-paper-warm/50" : isToday ? "bg-primary text-white" : "bg-paper-soft"
                 )}>
-                  <div className="flex items-center gap-2 text-sm font-bold">
+                  <div className="flex items-center gap-2 text-sm font-bold flex-wrap">
                     <span>{DAY_NAMES[day.getDay()]}</span>
                     <span className="opacity-75">·</span>
-                    <span>{day.getDate()}/{day.getMonth() + 1}</span>
+                    <span className="hebrew-serif">{formatHebrewDayOnly(day)} {formatHebrewMonthOnly(day)}</span>
+                    <span className="text-xs font-normal opacity-60">({day.getDate()}/{day.getMonth() + 1})</span>
                     {holiday && <span className="text-xs font-medium opacity-90">· {holiday}</span>}
                   </div>
-                  <span className={cn("text-xs", isToday ? "text-white/80" : "text-ink-muted")}>
-                    {dayLessons.length} שיעורים
+                  <span className={cn("text-xs shrink-0", isToday ? "text-white/80" : "text-ink-muted")}>
+                    {dayLessons.length}
                   </span>
                 </div>
                 <div className="p-2 space-y-1.5 bg-white">
@@ -204,7 +207,8 @@ export function WeeklyCalendar({
           const isToday = day.toDateString() === todayStr;
           const isSabbath = day.getDay() === 6;
           const holiday = getHebrewHoliday(day);
-          const hebrewDate = formatHebrewCalendarDate(day);
+          const hebrewDay = formatHebrewDayOnly(day);
+          const hebrewMonth = formatHebrewMonthOnly(day);
           const dayLessons = lessonsByDate.get(day.toDateString()) ?? [];
 
           return (
@@ -222,11 +226,14 @@ export function WeeklyCalendar({
                       : "border-border bg-white"
               )}
             >
-              {/* כותרת יום — מובייל מציג שם יום, דסקטופ לא (כבר בכותרת) */}
-              <div className={cn("text-xs font-semibold mb-1", isToday ? "text-primary" : "text-ink-muted")}>
-                <span className="sm:hidden ml-1">{DAY_NAMES[day.getDay()]}</span>
-                <span>{day.getDate()}</span>
-                <span className="mr-1 text-[10px] text-ink-muted">{hebrewDate}</span>
+              {/* כותרת יום — תאריך עברי באותיות + יום בשבוע במובייל */}
+              <div className={cn("mb-1", isToday ? "text-primary" : "text-ink-muted")}>
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="sm:hidden text-xs font-semibold">{DAY_NAMES[day.getDay()]}</span>
+                  <span className="hebrew-serif font-bold text-base leading-none">{hebrewDay}</span>
+                  <span className="text-[10px] text-ink-muted">{hebrewMonth}</span>
+                </div>
+                <div className="text-[10px] text-ink-subtle mt-0.5">{day.getDate()}/{day.getMonth() + 1}</div>
               </div>
 
               {/* שם חג */}

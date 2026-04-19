@@ -172,6 +172,28 @@ export function formatHebrewCalendarDate(date: Date): string {
 }
 
 /**
+ * מחזיר רק את היום העברי באותיות (גימטריה) — למשל "כ״ה" ל-25.
+ */
+export function formatHebrewDayOnly(date: Date): string {
+  try {
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { day: "numeric" }).format(date);
+  } catch {
+    return String(date.getDate());
+  }
+}
+
+/**
+ * מחזיר רק את החודש העברי — למשל "ניסן".
+ */
+export function formatHebrewMonthOnly(date: Date): string {
+  try {
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { month: "long" }).format(date);
+  } catch {
+    return "";
+  }
+}
+
+/**
  * פורמט תאריך עברי מלא — יום בשבוע + תאריך + שנה.
  * לדוגמה: "יום שלישי, י״ג ניסן תשפ״ו"
  */
