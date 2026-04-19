@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription } from "@/components/ui/Card";
 import { SuggestionRow } from "@/components/admin/SuggestionRow";
+import { AddSuggestionForm } from "@/components/admin/AddSuggestionForm";
 import { Sparkles, Filter } from "lucide-react";
 
 export default async function AdminSuggestionsPage({ searchParams }: { searchParams?: { status?: string } }) {
@@ -33,6 +34,8 @@ export default async function AdminSuggestionsPage({ searchParams }: { searchPar
           </p>
         </div>
       </header>
+
+      <AddSuggestionForm />
 
       {/* Filter tabs */}
       <div className="flex items-center gap-2 flex-wrap">
