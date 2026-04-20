@@ -17,15 +17,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <span className="hebrew-serif text-xl font-bold text-ink">אדמין · TORA_LIVE</span>
         </Link>
         <nav className="flex-1 p-3 space-y-1">
-          <NavLink href="/admin" icon={ShieldCheck} exact>סקירה</NavLink>
-          <NavLink href="/admin/rabbis" icon={Users}>רבנים</NavLink>
-          <NavLink href="/admin/users" icon={Users}>תלמידים</NavLink>
-          <NavLink href="/admin/lessons" icon={BookOpen}>שיעורים</NavLink>
-          <NavLink href="/admin/events" icon={CalendarCheck} badge={pendingEvents}>אירועים</NavLink>
-          <NavLink href="/admin/sources" icon={Youtube}>מקורות YouTube</NavLink>
-          <NavLink href="/admin/suggestions" icon={Sparkles} badge={pendingSuggestions}>הצעות מהרשת</NavLink>
-          <NavLink href="/admin/reports" icon={Flag}>דיווחים</NavLink>
-          <NavLink href="/admin/donations" icon={Heart}>תרומות</NavLink>
+          <NavLink href="/admin" exact><ShieldCheck className="w-4 h-4" /> סקירה</NavLink>
+          <NavLink href="/admin/rabbis"><Users className="w-4 h-4" /> רבנים</NavLink>
+          <NavLink href="/admin/users"><Users className="w-4 h-4" /> תלמידים</NavLink>
+          <NavLink href="/admin/lessons"><BookOpen className="w-4 h-4" /> שיעורים</NavLink>
+          <NavLink href="/admin/events" badge={pendingEvents}><CalendarCheck className="w-4 h-4" /> אירועים</NavLink>
+          <NavLink href="/admin/sources"><Youtube className="w-4 h-4" /> מקורות YouTube</NavLink>
+          <NavLink href="/admin/suggestions" badge={pendingSuggestions}><Sparkles className="w-4 h-4" /> הצעות מהרשת</NavLink>
+          <NavLink href="/admin/reports"><Flag className="w-4 h-4" /> דיווחים</NavLink>
+          <NavLink href="/admin/donations"><Heart className="w-4 h-4" /> תרומות</NavLink>
         </nav>
         <div className="p-3 border-t border-border text-sm">
           <LogoutButton label="יציאה" />

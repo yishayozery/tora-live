@@ -17,11 +17,11 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
           <span className="hebrew-serif text-xl font-bold text-ink">TORA_LIVE</span>
         </Link>
         <nav className="flex-1 p-3 space-y-1">
-          <NavLink href="/dashboard" icon={LayoutDashboard} exact>דף ראשי</NavLink>
-          <NavLink href="/dashboard/lessons" icon={BookOpen}>שיעורים</NavLink>
-          <NavLink href="/dashboard/live" icon={Radio}>שידור חי</NavLink>
-          <NavLink href="/dashboard/requests" icon={MessageSquare}>פניות</NavLink>
-          <NavLink href="/dashboard/settings" icon={Settings}>הגדרות</NavLink>
+          <NavLink href="/dashboard" exact><LayoutDashboard className="w-4 h-4" /> דף ראשי</NavLink>
+          <NavLink href="/dashboard/lessons"><BookOpen className="w-4 h-4" /> שיעורים</NavLink>
+          <NavLink href="/dashboard/live"><Radio className="w-4 h-4" /> שידור חי</NavLink>
+          <NavLink href="/dashboard/requests"><MessageSquare className="w-4 h-4" /> פניות</NavLink>
+          <NavLink href="/dashboard/settings"><Settings className="w-4 h-4" /> הגדרות</NavLink>
         </nav>
         <div className="p-3 border-t border-border text-sm text-ink-muted">
           <div className="mb-2 truncate">שלום, {rabbi.name}</div>

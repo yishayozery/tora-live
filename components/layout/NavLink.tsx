@@ -6,18 +6,16 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   href: string;
-  icon?: any;
   children: React.ReactNode;
   badge?: number;
   /** "sidebar" — vertical (default) | "header" — horizontal */
   variant?: "sidebar" | "header";
-  /** האם להחשיב התאמה רק על המסלול המדויק (default: false → התאמה גם תת-מסלולים) */
+  /** האם להחשיב התאמה רק על המסלול המדויק (default: false) */
   exact?: boolean;
 };
 
-export function NavLink({ href, icon: Icon, children, badge, variant = "sidebar", exact = false }: Props) {
+export function NavLink({ href, children, badge, variant = "sidebar", exact = false }: Props) {
   const pathname = usePathname();
-  // active — כשהדף הנוכחי הוא href או תת-מסלול שלו
   const isActive = exact
     ? pathname === href
     : pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
@@ -50,8 +48,7 @@ export function NavLink({ href, icon: Icon, children, badge, variant = "sidebar"
       )}
       aria-current={isActive ? "page" : undefined}
     >
-      {Icon && <Icon className="w-4 h-4" />}
-      <span className="flex-1">{children}</span>
+      <span className="flex-1 inline-flex items-center gap-3">{children}</span>
       {badge && badge > 0 ? (
         <span className={cn(
           "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold",
