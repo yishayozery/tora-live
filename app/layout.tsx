@@ -36,7 +36,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl" className={`${assistant.variable} ${frankRuhl.variable}`}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {/* Skip-to-content — מופיע רק עם focus (Tab). דרישת נגישות. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-btn focus:shadow-soft"
+        >
+          דלג לתוכן הראשי
+        </a>
+        <div id="main-content">{children}</div>
+      </body>
     </html>
   );
 }

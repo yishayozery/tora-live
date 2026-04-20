@@ -17,3 +17,5 @@ upcoming.json
 upcoming.err
 data/posts/
 data/outreach/
+
+.vercel

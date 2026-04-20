@@ -134,7 +134,24 @@
       "Bash(export DIRECT_URL='postgresql://neondb_owner:npg_nx4p9mTbDhCe@ep-ancient-union-aldts3yh.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require')",
       "Bash(export YOUTUBE_API_KEY='AIzaSyA_FUe1pF5cIkvlrE8kp7i91Fu3mskT2ds')",
       "Bash(node --import tsx scripts/import-musayof.ts)",
-      "Bash(node --env-file=.env --import tsx scripts/rename-rabbi.ts eliezer-melamed yeshivat-har-bracha \"ישיבת הר ברכה\" \"ערוץ ה-YouTube הרשמי של ישיבת הר ברכה. שיעורי תורה ופודקאסטים מבית המדרש שלנו, ברוח הציונות הדתית.\" \"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mountain_Bracha.JPG/600px-Mountain_Bracha.JPG\")"
+      "Bash(node --env-file=.env --import tsx scripts/rename-rabbi.ts eliezer-melamed yeshivat-har-bracha \"ישיבת הר ברכה\" \"ערוץ ה-YouTube הרשמי של ישיבת הר ברכה. שיעורי תורה ופודקאסטים מבית המדרש שלנו, ברוח הציונות הדתית.\" \"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mountain_Bracha.JPG/600px-Mountain_Bracha.JPG\")",
+      "WebFetch(domain:vercel.com)",
+      "Bash(vercel whoami *)",
+      "Bash(gh auth *)",
+      "Bash(vercel env *)",
+      "Bash(vercel link *)",
+      "Bash(node --import tsx scripts/rotate-secrets.ts)",
+      "Bash(vercel --prod)",
+      "Bash(xxd .env)",
+      "Bash(xxd)",
+      "Bash(vercel --prod --yes)",
+      "Bash(vercel deploy *)",
+      "Bash(vercel inspect *)",
+      "Bash(vercel ls *)",
+      "Bash(vercel projects *)",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" -H \"Authorization: Bearer OLD_WRONG\" --max-time 5 \"https://torah-live-rho.vercel.app/api/cron/detect-live\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/yeshivat-har-bracha\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/eliezer-melamed\")"
     ]
   }
 }
