@@ -122,7 +122,19 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/ --max-time 5)",
       "Bash(node --env-file=.env --import tsx scripts/load-test.ts 10 100)",
       "Bash(node --import tsx scripts/quick-shot.ts)",
-      "Bash(set DATABASE_URL=file:./dev.db)"
+      "Bash(set DATABASE_URL=file:./dev.db)",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://t.me/s/harbracha\" --max-time 5)",
+      "Bash(grep -oE \"tgme_widget_message_text[^>]*>[^<]{20,200}\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://t.me/s/torahlive\" --max-time 5)",
+      "WebFetch(domain:telegram4u.com)",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://t.me/s/dailytora\" --max-time 5)",
+      "Bash(grep -oE \"tgme_widget_message_text[^>]*>[^<]{30,200}\")",
+      "Bash(node --env-file=.env --import tsx scripts/reset-imported-rabbi-passwords.ts rabbi1234)",
+      "Bash(export DATABASE_URL='postgresql://neondb_owner:npg_nx4p9mTbDhCe@ep-ancient-union-aldts3yh-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require')",
+      "Bash(export DIRECT_URL='postgresql://neondb_owner:npg_nx4p9mTbDhCe@ep-ancient-union-aldts3yh.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require')",
+      "Bash(export YOUTUBE_API_KEY='AIzaSyA_FUe1pF5cIkvlrE8kp7i91Fu3mskT2ds')",
+      "Bash(node --import tsx scripts/import-musayof.ts)",
+      "Bash(node --env-file=.env --import tsx scripts/rename-rabbi.ts eliezer-melamed yeshivat-har-bracha \"ישיבת הר ברכה\" \"ערוץ ה-YouTube הרשמי של ישיבת הר ברכה. שיעורי תורה ופודקאסטים מבית המדרש שלנו, ברוח הציונות הדתית.\" \"https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mountain_Bracha.JPG/600px-Mountain_Bracha.JPG\")"
     ]
   }
 }

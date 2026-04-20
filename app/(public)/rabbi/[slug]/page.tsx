@@ -19,8 +19,11 @@ import {
   Facebook,
   Link as LinkIcon,
   Eye,
-  History,
+  Archive,
+  Search,
 } from "lucide-react";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { BROADCAST_TYPES } from "@/lib/enums";
 
 const MEDIA_META: Record<string, { label: string; icon: typeof Youtube }> = {
   youtube: { label: "YouTube", icon: Youtube },
@@ -42,10 +45,13 @@ export default async function RabbiPage({
   searchParams,
 }: {
   params: { slug: string };
-  searchParams?: { page?: string };
+  searchParams?: { page?: string; q?: string; type?: string; year?: string };
 }) {
   const now = new Date();
   const currentPage = Math.max(1, parseInt(searchParams?.page || "1", 10));
+  const filterQ = (searchParams?.q ?? "").trim().toLowerCase();
+  const filterType = searchParams?.type ?? "";
+  const filterYear = searchParams?.year ?? "";
 
   const rabbi = await db.rabbi.findUnique({
     where: { slug: params.slug },
@@ -226,7 +232,7 @@ export default async function RabbiPage({
         </Card>
       </div>
 
-      {/* ===== Upcoming lessons ===== */}
+      {/* ===== Upcoming lessons — calendar view ===== */}
       <section className="mb-10">
         <h2 className="hebrew-serif text-2xl font-bold text-ink mb-4 flex items-center gap-2">
           <Calendar className="w-6 h-6 text-primary" /> שיעורים מתוכננים
@@ -236,98 +242,184 @@ export default async function RabbiPage({
             <CardDescription>אין שיעורים מתוכננים כעת.</CardDescription>
           </Card>
         ) : (
-          <div className="grid gap-3">
-            {upcomingLessons.map((l) => (
-              <Link key={l.id} href={`/lesson/${l.id}`} className="block">
-                <Card className="hover:border-primary/40 transition">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <CardTitle>{l.title}</CardTitle>
-                      <div className="text-sm text-ink-muted mt-1">
-                        {formatHebrewDate(l.scheduledAt)} ·{" "}
-                        {formatHebrewTime(l.scheduledAt)}
-                      </div>
-                      {l.category && (
-                        <span className="text-xs text-ink-subtle mt-1 inline-block">
-                          {l.category.name}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <BroadcastTypeBadge value={l.broadcastType} />
-                      {l.isLive && (
-                        <span className="text-xs bg-live/10 text-live px-2 py-1 rounded-full flex items-center gap-1">
-                          <Radio className="w-3 h-3" /> שידור חי
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <WeeklyCalendar
+            title=""
+            compact
+            lessons={upcomingLessons.map((l) => ({
+              id: l.id,
+              title: l.title,
+              rabbiName: rabbi.name,
+              rabbiSlug: rabbi.slug,
+              scheduledAt: l.scheduledAt.toISOString(),
+              durationMin: l.durationMin ?? undefined,
+              category: l.category?.name,
+              broadcastType: l.broadcastType,
+              isLive: l.isLive,
+            }))}
+          />
         )}
+
+        {/* גם רשימה תחתונה — אם יש שיעורים מעבר לטווח של הלוח (יותר מ-14 יום) */}
+        {(() => {
+          const beyondCalendar = upcomingLessons.filter(
+            (l) => new Date(l.scheduledAt).getTime() > Date.now() + 14 * 86400_000
+          );
+          if (beyondCalendar.length === 0) return null;
+          return (
+            <details className="mt-4">
+              <summary className="cursor-pointer text-sm text-primary hover:underline">
+                ועוד {beyondCalendar.length} שיעורים מעבר לשבועיים הקרובים
+              </summary>
+              <div className="grid gap-2 mt-3">
+                {beyondCalendar.map((l) => (
+                  <Link key={l.id} href={`/lesson/${l.id}`} className="text-sm flex items-center justify-between gap-2 px-3 py-2 rounded-btn border border-border bg-white hover:border-primary/40">
+                    <span className="font-medium text-ink truncate">{l.title}</span>
+                    <span className="text-xs text-ink-muted shrink-0">{formatHebrewDate(l.scheduledAt)}</span>
+                  </Link>
+                ))}
+              </div>
+            </details>
+          );
+        })()}
       </section>
 
-      {/* ===== Past lessons (history) ===== */}
+      {/* ===== Archive (past lessons with filters) ===== */}
       <section className="mb-10">
         <h2 className="hebrew-serif text-2xl font-bold text-ink mb-4 flex items-center gap-2">
-          <History className="w-6 h-6 text-primary" /> היסטוריית שיעורים
+          <Archive className="w-6 h-6 text-primary" /> ארכיון שיעורים
+          <span className="text-base text-ink-muted font-normal">({pastLessons.length})</span>
         </h2>
+
+        {/* Filters bar */}
+        {pastLessons.length > 0 && (
+          <form className="mb-5 grid gap-2 sm:grid-cols-3 sm:gap-3">
+            <label className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+              <input
+                type="search"
+                name="q"
+                defaultValue={filterQ}
+                placeholder="חפש לפי כותרת..."
+                className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none"
+              />
+            </label>
+            <select
+              name="type"
+              defaultValue={filterType}
+              className="h-11 px-3 rounded-btn border border-border bg-white text-sm"
+            >
+              <option value="">כל סוגי השיעורים</option>
+              {BROADCAST_TYPES.map((bt) => (
+                <option key={bt.value} value={bt.value}>{bt.label}</option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <select
+                name="year"
+                defaultValue={filterYear}
+                className="flex-1 h-11 px-3 rounded-btn border border-border bg-white text-sm"
+              >
+                <option value="">כל השנים</option>
+                {Array.from(new Set(pastLessons.map((l) => l.scheduledAt.getFullYear()))).sort((a, b) => b - a).map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <button type="submit" className="h-11 px-4 rounded-btn bg-primary text-white text-sm font-medium hover:bg-primary-hover">סנן</button>
+            </div>
+          </form>
+        )}
 
         {pastLessons.length === 0 ? (
           <Card>
             <CardDescription>עדיין אין שיעורים שהתקיימו.</CardDescription>
           </Card>
         ) : (() => {
-          // Pagination על pastLessons (כולם — categorized + uncategorized יחד)
-          const totalPages = Math.ceil(pastLessons.length / PAGE_SIZE);
+          // === Apply filters ===
+          let filtered = pastLessons;
+          if (filterQ) filtered = filtered.filter((l) => l.title.toLowerCase().includes(filterQ));
+          if (filterType) filtered = filtered.filter((l) => l.broadcastType === filterType);
+          if (filterYear) filtered = filtered.filter((l) => l.scheduledAt.getFullYear() === parseInt(filterYear, 10));
+
+          if (filtered.length === 0) {
+            return (
+              <Card>
+                <CardDescription>
+                  לא נמצאו שיעורים שמתאימים לסינון.{" "}
+                  <Link href={`/rabbi/${rabbi.slug}`} className="text-primary hover:underline">נקה סינון</Link>
+                </CardDescription>
+              </Card>
+            );
+          }
+
+          // Pagination
+          const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
           const safePage = Math.min(currentPage, totalPages);
           const startIdx = (safePage - 1) * PAGE_SIZE;
-          const pageLessons = pastLessons.slice(startIdx, startIdx + PAGE_SIZE);
+          const pageLessons = filtered.slice(startIdx, startIdx + PAGE_SIZE);
           const pageLessonIds = new Set(pageLessons.map(l => l.id));
 
-          // קטגוריות בעמוד הזה
-          const catsInPage = categoriesWithPast
+          // קטגוריות בעמוד הזה — רק אם אין סינון פעיל (אחרת מציגים שטוח)
+          const showCategorized = !filterQ && !filterType && !filterYear;
+          const catsInPage = showCategorized ? categoriesWithPast
             .map(cat => ({ ...cat, lessons: cat.lessons.filter(l => pageLessonIds.has(l.id)) }))
-            .filter(c => c.lessons.length > 0);
-          const uncatInPage = uncategorizedPast.filter(l => pageLessonIds.has(l.id));
+            .filter(c => c.lessons.length > 0) : [];
+          const uncatInPage = showCategorized ? uncategorizedPast.filter(l => pageLessonIds.has(l.id)) : [];
 
           return (
             <>
               <div className="mb-3 text-sm text-ink-muted">
-                מציג {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, pastLessons.length)} מתוך {pastLessons.length} שיעורים
+                מציג {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, filtered.length)} מתוך {filtered.length} שיעורים
               </div>
 
-              {catsInPage.map((cat) => (
-                <div key={cat.id} className="mb-8">
-                  <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">{cat.name}</h3>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {cat.lessons.map((l) => (
-                      <PastLessonCard key={l.id} lesson={l} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {uncatInPage.length > 0 && (
-                <div className="mb-8">
-                  {catsInPage.length > 0 && (
-                    <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">כללי</h3>
+              {showCategorized ? (
+                <>
+                  {catsInPage.map((cat) => (
+                    <div key={cat.id} className="mb-8">
+                      <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">{cat.name}</h3>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {cat.lessons.map((l) => (
+                          <PastLessonCard key={l.id} lesson={l} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  {uncatInPage.length > 0 && (
+                    <div className="mb-8">
+                      {catsInPage.length > 0 && (
+                        <h3 className="hebrew-serif text-xl font-bold text-ink mb-3">כללי</h3>
+                      )}
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {uncatInPage.map((l) => (
+                          <PastLessonCard key={l.id} lesson={l} />
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {uncatInPage.map((l) => (
-                      <PastLessonCard key={l.id} lesson={l} />
-                    ))}
-                  </div>
+                </>
+              ) : (
+                /* Filtered view — flat grid, no categories */
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {pageLessons.map((l) => (
+                    <PastLessonCard key={l.id} lesson={l} />
+                  ))}
                 </div>
               )}
 
-              {/* Pagination controls */}
-              {totalPages > 1 && (
+              {/* Pagination controls — שומרים את פרמטרי הסינון */}
+              {totalPages > 1 && (() => {
+                const baseParams = new URLSearchParams();
+                if (filterQ) baseParams.set("q", filterQ);
+                if (filterType) baseParams.set("type", filterType);
+                if (filterYear) baseParams.set("year", filterYear);
+                const pageHref = (p: number) => {
+                  const u = new URLSearchParams(baseParams);
+                  u.set("page", String(p));
+                  return `?${u.toString()}`;
+                };
+                return (
                 <nav className="flex items-center justify-center gap-2 mt-8" aria-label="ניווט בין עמודים">
                   <Link
-                    href={safePage > 1 ? `?page=${safePage - 1}` : "#"}
+                    href={safePage > 1 ? pageHref(safePage - 1) : "#"}
                     aria-disabled={safePage === 1}
                     className={`min-w-[44px] h-11 px-4 inline-flex items-center justify-center rounded-btn border text-sm font-medium ${
                       safePage === 1
@@ -343,7 +435,7 @@ export default async function RabbiPage({
                       <span key={p} className="flex items-center gap-1">
                         {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-ink-muted px-1">…</span>}
                         <Link
-                          href={`?page=${p}`}
+                          href={pageHref(p)}
                           className={`min-w-[44px] h-11 px-3 inline-flex items-center justify-center rounded-btn border text-sm font-medium transition ${
                             p === safePage
                               ? "border-primary bg-primary text-white"
@@ -356,7 +448,7 @@ export default async function RabbiPage({
                       </span>
                     ))}
                   <Link
-                    href={safePage < totalPages ? `?page=${safePage + 1}` : "#"}
+                    href={safePage < totalPages ? pageHref(safePage + 1) : "#"}
                     aria-disabled={safePage === totalPages}
                     className={`min-w-[44px] h-11 px-4 inline-flex items-center justify-center rounded-btn border text-sm font-medium ${
                       safePage === totalPages
@@ -367,7 +459,8 @@ export default async function RabbiPage({
                     ← הקודם
                   </Link>
                 </nav>
-              )}
+                );
+              })()}
             </>
           );
         })()}

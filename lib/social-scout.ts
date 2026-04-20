@@ -112,9 +112,14 @@ export async function saveSuggestion(input: SuggestionInput): Promise<"created" 
 export async function scoutTelegramChannel(handle: string): Promise<SuggestionInput[]> {
   const cleanHandle = handle.replace(/^@/, "");
   const url = `https://t.me/s/${cleanHandle}`;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (TORA_LIVE-scout)" } });
-  if (!res.ok) return [];
+  // redirect:false — אם הערוץ לא קיים, t.me עושה 302 → אנחנו לא רוצים לעקוב
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0 (TORA_LIVE-scout)" },
+    redirect: "manual",
+  });
+  if (res.status !== 200) return [];  // 302 = ערוץ לא קיים / פרטי
   const html = await res.text();
+  if (html.length < 5000) return [];  // דף ריק
 
   // פרסור פשוט של הודעות בעמוד (Telegram preview format)
   const messages: SuggestionInput[] = [];
@@ -161,12 +166,10 @@ export async function runSocialScout(opts: { telegramChannels?: string[]; dryRun
   const result: ScoutResult = { scanned: 0, found: 0, duplicates: 0, errors: [] };
 
   const channels = opts.telegramChannels ?? [
-    // ערוצי טלגרם פומביים מומלצים
-    "yeshivaorg",
-    "machonmeir_org",
-    "harbracha",
-    "shiurim_yomi",
-    "torahlive",
+    // ערוצי טלגרם פומביים שאומתו (HTTP 200)
+    "harbracha",     // ישוב הר ברכה — חדשות, לעיתים שיעורים
+    "torahlive",     // tora live
+    "dailytora",     // תוכן יומי
   ];
 
   for (const ch of channels) {
