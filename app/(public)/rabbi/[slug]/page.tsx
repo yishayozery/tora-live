@@ -77,10 +77,19 @@ export default async function RabbiPage({
   let isFollowing = false;
   let canContact = false;
   let isContactBlocked = false;
+  let userInfo: { email?: string; phone?: string; name?: string } | undefined;
   if (session?.user?.id) {
     const student = await db.student.findUnique({
       where: { userId: session.user.id },
+      include: { user: { select: { email: true } } },
     });
+    if (student) {
+      userInfo = {
+        name: student.name,
+        email: student.user?.email,
+        phone: student.phoneE164 ?? undefined,
+      };
+    }
     if (student) {
       if (student.isBlocked) {
         isContactBlocked = true;
@@ -180,6 +189,7 @@ export default async function RabbiPage({
               rabbiId={rabbi.id}
               canSend={canContact}
               isBlocked={isContactBlocked}
+              userInfo={userInfo}
             />
             <span className="text-sm text-ink-muted">
               {rabbi._count.followers.toLocaleString("he-IL")} עוקבים
@@ -475,6 +485,7 @@ export default async function RabbiPage({
           rabbiId={rabbi.id}
           canSend={canContact}
           isBlocked={isContactBlocked}
+          userInfo={userInfo}
         />
       </section>
     </div>

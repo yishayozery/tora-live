@@ -4,10 +4,16 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockNotification = { id: "n1" };
 const studentStore: Record<string, any> = {};
 
+// Force notify.ts to use console.log fallback (no resend)
+process.env.RESEND_API_KEY = "";
+
 vi.mock("@/lib/db", () => ({
   db: {
     student: {
       findUnique: vi.fn(async ({ where }: any) => studentStore[where.id] ?? null),
+    },
+    user: {
+      findUnique: vi.fn(async () => ({ email: "stub@example.com" })),
     },
     notification: {
       create: vi.fn(async () => mockNotification),

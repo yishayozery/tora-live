@@ -94,21 +94,17 @@ describe("lessonSchema", () => {
     const r = lessonSchema.safeParse({ ...base, broadcastType: "LESSON" });
     expect(r.success).toBe(true);
   });
-  it("accepts new broadcastType HESPED", () => {
+  it("accepts broadcastType PRAYER", () => {
+    const r = lessonSchema.safeParse({ ...base, broadcastType: "PRAYER" });
+    expect(r.success).toBe(true);
+  });
+  it("accepts broadcastType OTHER", () => {
+    const r = lessonSchema.safeParse({ ...base, broadcastType: "OTHER" });
+    expect(r.success).toBe(true);
+  });
+  it("rejects deprecated HESPED type", () => {
     const r = lessonSchema.safeParse({ ...base, broadcastType: "HESPED" });
-    expect(r.success).toBe(true);
-  });
-  it("accepts new broadcastType WEDDING", () => {
-    const r = lessonSchema.safeParse({ ...base, broadcastType: "WEDDING" });
-    expect(r.success).toBe(true);
-  });
-  it("accepts new broadcastType NIGGUN", () => {
-    const r = lessonSchema.safeParse({ ...base, broadcastType: "NIGGUN" });
-    expect(r.success).toBe(true);
-  });
-  it("accepts new broadcastType SHIUR_KLALI", () => {
-    const r = lessonSchema.safeParse({ ...base, broadcastType: "SHIUR_KLALI" });
-    expect(r.success).toBe(true);
+    expect(r.success).toBe(false);
   });
   it("rejects unknown broadcastType", () => {
     const r = lessonSchema.safeParse({ ...base, broadcastType: "FOO" });
