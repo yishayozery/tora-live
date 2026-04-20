@@ -6,6 +6,7 @@ import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { LessonsTabs } from "@/components/LessonsTabs";
 import { formatHebrewDate } from "@/lib/utils";
 import { BookOpen, Eye, Youtube, Music, Link as LinkIcon, ExternalLink, Download } from "lucide-react";
+import { LessonRowActions } from "@/components/rabbi/LessonRowActions";
 
 function daysUntil(date: Date): number {
   const diff = date.getTime() - Date.now();
@@ -86,13 +87,11 @@ function UpcomingList({ lessons }: { lessons: any[] }) {
                 {l.isLive && <span className="text-live"> · משדר עכשיו</span>}
               </div>
             </div>
-            <div className="flex gap-3 text-sm shrink-0">
-              <Link href={`/lesson/${l.id}`} className="text-ink-muted hover:text-ink inline-flex items-center gap-1">
-                <ExternalLink className="w-3.5 h-3.5" /> תצוגה
+            <div className="flex gap-2 items-center shrink-0">
+              <Link href={`/lesson/${l.id}`} className="text-ink-muted hover:text-ink inline-flex items-center gap-1 text-xs">
+                <ExternalLink className="w-3 h-3" /> תצוגה
               </Link>
-              <Link href={`/dashboard/lessons/${l.id}`} className="text-primary font-semibold">
-                ערוך
-              </Link>
+              <LessonRowActions lessonId={l.id} isLive={l.isLive} />
             </div>
           </div>
         </Card>
@@ -170,9 +169,12 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
                     )}
                   </td>
                   <td className="py-2 px-3">
-                    <Link href={`/lesson/${l.id}`} className="text-primary text-xs hover:underline inline-flex items-center gap-1">
-                      לשיעור <ExternalLink className="w-3 h-3" />
-                    </Link>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <Link href={`/lesson/${l.id}`} className="text-primary text-xs hover:underline inline-flex items-center gap-1">
+                        לשיעור <ExternalLink className="w-3 h-3" />
+                      </Link>
+                      <LessonRowActions lessonId={l.id} isLive={l.isLive} showEdit={false} />
+                    </div>
                   </td>
                 </tr>
               );

@@ -15,12 +15,24 @@ export type LiveLesson = {
   embedUrl?: string | null;
   externalUrl?: string | null;
   hasSources?: boolean;
-  /** PDF source URL — לתצוגה inline */
   sourcesPdfUrl?: string | null;
-  /** האם המשתמש יכול לשלוח צ'אט (תלמיד מחובר ולא חסום) */
   canChat?: boolean;
   isChatBlocked?: boolean;
+  /** מתי השידור החי התחיל (ISO string) — להציג "החל לפני X דק'" */
+  liveStartedAt?: string | null;
 };
+
+function relativeTime(iso?: string | null): string | null {
+  if (!iso) return null;
+  const ms = Date.now() - new Date(iso).getTime();
+  if (ms < 0 || ms > 8 * 3600_000) return null;  // עד 8 שעות
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return "החל זה עתה";
+  if (min < 60) return `החל לפני ${min} דק׳`;
+  const hr = Math.floor(min / 60);
+  const remMin = min % 60;
+  return `החל לפני ${hr}:${String(remMin).padStart(2, "0")} שעות`;
+}
 
 function isYouTubeEmbed(url: string | null | undefined): boolean {
   return !!url && /youtube\.com\/embed\//.test(url);
@@ -133,10 +145,16 @@ function LiveNowStripInner({ lessons }: { lessons: LiveLesson[] }) {
                     <h3 className="hebrew-serif font-bold text-ink line-clamp-2 group-hover:text-primary transition">
                       {l.title}
                     </h3>
-                    <p className="text-sm text-ink-muted mt-1">
+                    <p className="text-sm text-ink-muted mt-1 flex items-center gap-2 flex-wrap">
                       {l.rabbiSlug ? (
                         <Link href={`/rabbi/${l.rabbiSlug}`} className="hover:text-primary">{l.rabbiName}</Link>
-                      ) : l.rabbiName}
+                      ) : <span>{l.rabbiName}</span>}
+                      {relativeTime(l.liveStartedAt) && (
+                        <>
+                          <span className="text-ink-muted">·</span>
+                          <span className="text-live font-medium">{relativeTime(l.liveStartedAt)}</span>
+                        </>
+                      )}
                     </p>
                   </Link>
 

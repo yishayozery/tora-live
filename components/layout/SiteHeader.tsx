@@ -38,18 +38,39 @@ export async function SiteHeader() {
         </div>
 
         <nav className="hidden md:flex items-center gap-5 text-sm">
-          <NavLink href="/rabbis" variant="header">רבנים</NavLink>
-          <NavLink href="/lessons" variant="header">שיעורים</NavLink>
-          {isLoggedIn && userRole !== "RABBI" && userRole !== "ADMIN" && (
-            <NavLink href="/my/schedule" variant="header">הלוח שלי</NavLink>
+          {userRole === "RABBI" ? (
+            // רב מחובר — תפריט מקוצר עם קישורים פנימיים שלו
+            <>
+              <NavLink href="/dashboard/lessons" variant="header">השיעורים שלי</NavLink>
+              <NavLink href="/dashboard/live" variant="header">שידור חי</NavLink>
+              <NavLink href="/dashboard/requests" variant="header">פניות</NavLink>
+              <NavLink href="/lessons" variant="header">דפדף בשיעורים</NavLink>
+            </>
+          ) : userRole === "ADMIN" ? (
+            // אדמין — קישורים מהירים פנימיים
+            <>
+              <NavLink href="/admin/suggestions" variant="header">הצעות</NavLink>
+              <NavLink href="/admin/lessons" variant="header">שיעורים</NavLink>
+              <NavLink href="/admin/rabbis" variant="header">רבנים</NavLink>
+              <NavLink href="/lessons" variant="header">צד ציבורי</NavLink>
+            </>
+          ) : (
+            // אורח / תלמיד — תפריט ציבורי מלא
+            <>
+              <NavLink href="/rabbis" variant="header">רבנים</NavLink>
+              <NavLink href="/lessons" variant="header">שיעורים</NavLink>
+              {isLoggedIn && (
+                <NavLink href="/my/schedule" variant="header">הלוח שלי</NavLink>
+              )}
+              {isLoggedIn && (
+                <NavLink href="/propose-event" variant="header">
+                  <span className="text-gold hover:text-gold/80 font-medium">הצעת יום עיון</span>
+                </NavLink>
+              )}
+              <NavLink href="/donate" variant="header">תרומה</NavLink>
+              <NavLink href="/contact" variant="header">צור קשר</NavLink>
+            </>
           )}
-          {isLoggedIn && (
-            <NavLink href="/propose-event" variant="header">
-              <span className="text-gold hover:text-gold/80 font-medium">הצעת יום עיון</span>
-            </NavLink>
-          )}
-          <NavLink href="/donate" variant="header">תרומה</NavLink>
-          <NavLink href="/contact" variant="header">צור קשר</NavLink>
         </nav>
 
         <div className="flex items-center gap-2">

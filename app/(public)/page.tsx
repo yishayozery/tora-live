@@ -64,6 +64,8 @@ async function getHomeData() {
     sourcesPdfUrl: l.sourcesPdfUrl,
     canChat,
     isChatBlocked,
+    // updatedAt משמש כ-proxy ל-liveStartedAt (כשהפכנו ל-isLive=true ה-updatedAt התעדכן)
+    liveStartedAt: l.updatedAt.toISOString(),
   }));
 
   const options: SearchOptions = {

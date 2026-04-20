@@ -15,11 +15,19 @@ export default async function AdminSuggestionsPage({ searchParams }: { searchPar
     db.lessonSuggestion.count({ where: { status: "REJECTED" } }),
   ]);
 
+  // PENDING — מציגים רק עם URL תקין. השאר (ללא URL) במצב מיוחד "מחכה לקישור"
+  const baseWhere = filter === "ALL" ? {} : { status: filter };
   const items = await db.lessonSuggestion.findMany({
-    where: filter === "ALL" ? {} : { status: filter },
+    where: filter === "PENDING"
+      ? { status: "PENDING", url: { not: "" } }  // רק עם URL
+      : baseWhere,
     orderBy: { createdAt: "desc" },
     take: 100,
   });
+
+  const waitingForLink = filter === "PENDING"
+    ? await db.lessonSuggestion.count({ where: { status: "PENDING", url: "" } })
+    : 0;
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -36,6 +44,12 @@ export default async function AdminSuggestionsPage({ searchParams }: { searchPar
       </header>
 
       <AddSuggestionForm />
+
+      {waitingForLink > 0 && (
+        <div className="rounded-btn bg-gold-soft border border-gold/30 p-3 text-sm text-gold">
+          ⏳ <strong>{waitingForLink}</strong> הצעות נמצאו אבל ללא קישור — הסוכן ימתין לסריקה הבאה כדי למצוא את הקישור.
+        </div>
+      )}
 
       {/* Filter tabs */}
       <div className="flex items-center gap-2 flex-wrap">

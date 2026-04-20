@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LiveStarter } from "@/components/LiveStarter";
 import { RecordingsList } from "@/components/RecordingsList";
-import { Radio, Video, Download } from "lucide-react";
+import { Radio, Video, Download, Plus } from "lucide-react";
 
 export default async function LivePage() {
   const { rabbi } = await requireApprovedRabbi();
@@ -25,9 +26,18 @@ export default async function LivePage() {
 
   return (
     <div className="max-w-3xl space-y-8">
-      <div className="flex items-center gap-3">
-        <Radio className="w-7 h-7 text-live" />
-        <h1 className="hebrew-serif text-3xl font-bold">שידור חי</h1>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <Radio className="w-7 h-7 text-live" />
+          <h1 className="hebrew-serif text-3xl font-bold">שידור חי</h1>
+        </div>
+        <Link
+          href="/dashboard/lessons/new"
+          className="inline-flex items-center gap-1.5 h-10 px-4 rounded-btn bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition"
+        >
+          <Plus className="w-4 h-4" />
+          צור שיעור חדש
+        </Link>
       </div>
 
       {/* שידורים פעילים */}

@@ -153,10 +153,23 @@ export function SuggestionRow({ suggestion: s }: { suggestion: Suggestion }) {
             </div>
           )}
 
-          <a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-3">
-            <ExternalLink className="w-3 h-3" />
-            המקור: {s.source}
-          </a>
+          {/* מקור — בולט עם URL מלא */}
+          <div className="mb-3 p-2 rounded-btn bg-paper-soft border border-border">
+            <div className="text-[11px] text-ink-muted mb-0.5">📡 מקור המידע:</div>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline break-all"
+              dir="ltr"
+            >
+              <ExternalLink className="w-3 h-3 shrink-0" />
+              <span className="truncate">{s.url}</span>
+            </a>
+            <div className="text-[11px] text-ink-muted mt-1">
+              סורק: <code className="bg-white px-1 rounded">{s.source}</code>
+            </div>
+          </div>
 
           {/* Raw content (collapsed) */}
           {s.rawContent && (
