@@ -33,7 +33,11 @@ export async function POST(
 
   const lesson = await db.lesson.findUnique({
     where: { id: params.id },
-    select: { id: true, title: true, reportCount: true, isSuspended: true },
+    select: {
+      id: true, title: true, reportCount: true, isSuspended: true,
+      rabbiId: true,
+      rabbi: { select: { id: true, name: true, isBlocked: true } },
+    },
   });
   if (!lesson) {
     return NextResponse.json({ error: "שיעור לא נמצא" }, { status: 404 });
@@ -79,6 +83,19 @@ export async function POST(
       `[report] lesson "${lesson.title}" (${lesson.id}) reached threshold ${REPORT_THRESHOLD} — suspended.`
     );
 
+    // === חסימת הרב אוטומטית ===
+    // כשיעור מגיע לסף דיווחים, הרב נחסם לבדיקת אדמין.
+    // האדמין יכול לבטל חסימה ב-/admin/rabbis אחרי בדיקה.
+    if (lesson.rabbi && !lesson.rabbi.isBlocked) {
+      await db.rabbi.update({
+        where: { id: lesson.rabbi.id },
+        data: { isBlocked: true },
+      });
+      console.log(
+        `[report] rabbi "${lesson.rabbi.name}" (${lesson.rabbi.id}) auto-blocked due to report threshold.`
+      );
+    }
+
     // אם האדמין רשום כתלמיד — גם התראה in-app
     const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
     if (adminEmail) {
@@ -92,11 +109,14 @@ export async function POST(
           select: { id: true },
         });
         if (adminStudent) {
+          const rabbiNote = lesson.rabbi && !lesson.rabbi.isBlocked
+            ? `\n\n⚠️ הרב ${lesson.rabbi.name} נחסם אוטומטית. בדוק ב-/admin/rabbis.`
+            : "";
           await notifyStudent({
             studentId: adminStudent.id,
             kind: "LESSON_SUSPENDED",
             title: "שיעור הושהה אוטומטית",
-            body: `"${lesson.title}" קיבל ${newCount} דיווחים והושהה זמנית. נדרשת בדיקה.`,
+            body: `"${lesson.title}" קיבל ${newCount} דיווחים והושהה זמנית. נדרשת בדיקה.${rabbiNote}`,
             link: `/admin/reports`,
           }).catch(console.error);
         }

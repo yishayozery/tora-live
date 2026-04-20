@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
+import { formatTimeRange } from "@/lib/utils";
 
 type CalendarLesson = {
   id: string;
@@ -26,6 +27,15 @@ type CalendarLesson = {
 
 const DAY_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 const timeFmt = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" });
+
+/** קובע את ה-variant של שיעור לפי הנתונים שלו (variant מפורש → live → EVENT (>=90min or broadcastType=EVENT) → lesson) */
+function resolveVariant(l: CalendarLesson): "lesson" | "live" | "event" | "approvedRequest" | "private" {
+  if (l.variant) return l.variant;
+  if (l.isLive) return "live";
+  // יום עיון / אירוע — לפי broadcastType או משך > 90 דק'
+  if (l.broadcastType === "EVENT" || (l.durationMin && l.durationMin >= 90)) return "event";
+  return "lesson";
+}
 
 /** ראשון של השבוע הנוכחי */
 function getCurrentWeekStart(): Date {
@@ -161,11 +171,11 @@ export function WeeklyCalendar({
                 </div>
                 <div className="p-2 space-y-1.5 bg-white">
                   {dayLessons.map((l) => {
-                    const variant = l.variant ?? (l.isLive ? "live" : "lesson");
+                    const variant = resolveVariant(l);
                     const cls = variant === "live"
                       ? "bg-live/10 text-live border-live/20"
                       : variant === "event"
-                        ? "bg-gold-soft text-gold border-gold/30"
+                        ? "bg-gold-soft text-gold border-gold/40 font-semibold"
                         : "bg-primary-soft text-primary border-primary/20";
                     return (
                       <Link key={l.id} href={l.href ?? `/lesson/${l.id}`} className={cn(
@@ -174,8 +184,9 @@ export function WeeklyCalendar({
                       )}>
                         <div className="flex items-center justify-between gap-2 mb-0.5">
                           <span className="font-semibold flex items-center gap-1">
+                            {variant === "event" && <span>🎪</span>}
                             <Clock className="w-3 h-3 shrink-0" />
-                            {timeFmt.format(new Date(l.scheduledAt))}
+                            {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
                           </span>
                           {l.isLive && <span className="text-[10px] font-bold inline-flex items-center gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
                         </div>
@@ -243,44 +254,87 @@ export function WeeklyCalendar({
                 </div>
               )}
 
-              {/* שיעורים */}
+              {/* שיעורים — מיון: אירועים ארוכים למעלה, שידורים חיים אחריהם, שיעורים רגילים */}
               <div className="space-y-1">
-                {dayLessons.map((l) => {
-                  const variant = l.variant ?? (l.isLive ? "live" : "lesson");
-                  const cls =
-                    variant === "live"
-                      ? "bg-live/10 text-live border border-live/20"
-                      : variant === "event"
-                        ? "bg-gold-soft text-gold border border-gold/30"
-                        : variant === "approvedRequest"
-                          ? "bg-purple-100 text-purple-700 border border-purple-300"
-                          : variant === "private"
-                            ? "bg-paper-soft text-ink-muted border border-border border-dashed"
-                            : "bg-primary-soft text-primary border border-primary/20 hover:bg-primary-soft/70";
+                {(() => {
+                  // מיון: events קודם (ארוך יותר), אז live, אז lessons
+                  const sorted = [...dayLessons].sort((a, b) => {
+                    const priority = (l: CalendarLesson) => {
+                      const v = resolveVariant(l);
+                      return v === "event" ? 0 : l.isLive ? 1 : 2;
+                    };
+                    return priority(a) - priority(b) || new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+                  });
+                  const MAX_VISIBLE = 3;
+                  const visible = sorted.slice(0, MAX_VISIBLE);
+                  const hidden = sorted.slice(MAX_VISIBLE);
+
                   return (
-                    <Link
-                      key={l.id}
-                      href={l.href ?? `/lesson/${l.id}`}
-                      className={cn(
-                        "block rounded-btn p-1.5 text-[11px] leading-tight transition hover:shadow-soft",
-                        cls
+                    <>
+                      {visible.map((l) => {
+                        const variant = resolveVariant(l);
+                        const cls =
+                          variant === "live"
+                            ? "bg-live/10 text-live border border-live/20"
+                            : variant === "event"
+                              ? "bg-gold-soft text-gold border border-gold/40 font-semibold"
+                              : variant === "approvedRequest"
+                                ? "bg-purple-100 text-purple-700 border border-purple-300"
+                                : variant === "private"
+                                  ? "bg-paper-soft text-ink-muted border border-border border-dashed"
+                                  : "bg-primary-soft text-primary border border-primary/20 hover:bg-primary-soft/70";
+                        return (
+                          <Link
+                            key={l.id}
+                            href={l.href ?? `/lesson/${l.id}`}
+                            className={cn(
+                              "block rounded-btn p-1.5 text-[11px] leading-tight transition hover:shadow-soft",
+                              cls
+                            )}
+                          >
+                            <div className="flex items-center gap-1 mb-0.5">
+                              {variant === "event" && <span className="text-[10px]">🎪</span>}
+                              <span className="font-semibold truncate">{l.title}</span>
+                            </div>
+                            <div className="flex items-center gap-1 opacity-75 mt-0.5">
+                              <Clock className="w-2.5 h-2.5 shrink-0" />
+                              {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
+                            </div>
+                            <div className="opacity-75 truncate">{l.rabbiName}</div>
+                            {l.canStartBroadcast && (
+                              <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-live px-1.5 py-0.5 text-[9px] font-bold text-white">
+                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                התחל שידור
+                              </div>
+                            )}
+                          </Link>
+                        );
+                      })}
+                      {hidden.length > 0 && (
+                        <details className="group">
+                          <summary className="cursor-pointer text-[11px] text-ink-muted hover:text-primary text-center py-1 border border-dashed border-border rounded-btn hover:border-primary list-none">
+                            + עוד {hidden.length} {hidden.length === 1 ? "פריט" : "פריטים"}
+                          </summary>
+                          <div className="mt-1 space-y-1">
+                            {hidden.map((l) => {
+                              const variant = resolveVariant(l);
+                              const cls =
+                                variant === "live" ? "bg-live/10 text-live border border-live/20"
+                                : variant === "event" ? "bg-gold-soft text-gold border border-gold/40"
+                                : "bg-primary-soft text-primary border border-primary/20";
+                              return (
+                                <Link key={l.id} href={l.href ?? `/lesson/${l.id}`} className={cn("block rounded-btn p-1.5 text-[11px]", cls)}>
+                                  <div className="font-semibold truncate">{l.title}</div>
+                                  <div className="opacity-75">{formatTimeRange(l.scheduledAt, l.durationMin ?? null)}</div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </details>
                       )}
-                    >
-                      <div className="font-semibold truncate">{l.title}</div>
-                      <div className="flex items-center gap-1 opacity-75 mt-0.5">
-                        <Clock className="w-2.5 h-2.5 shrink-0" />
-                        {timeFmt.format(new Date(l.scheduledAt))}
-                      </div>
-                      <div className="opacity-75 truncate">{l.rabbiName}</div>
-                      {l.canStartBroadcast && (
-                        <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-live px-1.5 py-0.5 text-[9px] font-bold text-white">
-                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                          התחל שידור
-                        </div>
-                      )}
-                    </Link>
+                    </>
                   );
-                })}
+                })()}
                 {dayLessons.length === 0 && (
                   <div className="text-[10px] text-ink-muted text-center py-2 hidden sm:block">—</div>
                 )}

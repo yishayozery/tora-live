@@ -15,6 +15,19 @@ export function formatHebrewDate(d: Date | string) {
 }
 
 /**
+ * מחזיר טווח שעות כ-"09:00-17:00" (עבור אירועים ארוכים),
+ * או שעת התחלה בלבד "09:00" (לשיעורים קצרים, < 90 דק').
+ */
+export function formatTimeRange(scheduledAt: Date | string, durationMin: number | null | undefined): string {
+  const start = typeof scheduledAt === "string" ? new Date(scheduledAt) : scheduledAt;
+  const fmt = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" });
+  const startStr = fmt.format(start);
+  if (!durationMin || durationMin < 90) return startStr;
+  const end = new Date(start.getTime() + durationMin * 60_000);
+  return `${startStr}–${fmt.format(end)}`;
+}
+
+/**
  * Hebrew pluralization helper.
  * pluralize(1, "שיעור", "שיעורים") → "שיעור אחד"
  * pluralize(2, "שיעור", "שיעורים") → "שני שיעורים"
