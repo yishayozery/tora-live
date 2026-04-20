@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { requireRabbi } from "@/lib/session";
-import { BookOpen, LayoutDashboard, MessageSquare, Settings, LogOut, Radio } from "lucide-react";
+import { BookOpen, LayoutDashboard, MessageSquare, Settings, Radio } from "lucide-react";
 import { RabbiMobileNav } from "@/components/RabbiMobileNav";
+import { NavLink } from "@/components/layout/NavLink";
+import { LogoutButton } from "@/components/layout/LogoutButton";
 
 export default async function RabbiLayout({ children }: { children: React.ReactNode }) {
   const { rabbi } = await requireRabbi();
@@ -10,12 +12,12 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
     <div className="min-h-screen bg-paper-soft md:flex">
       <RabbiMobileNav rabbiName={rabbi.name} />
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
-        <div className="h-16 px-5 border-b border-border flex items-center gap-2">
+        <Link href="/" className="h-16 px-5 border-b border-border flex items-center gap-2 hover:bg-paper-soft transition">
           <BookOpen className="w-5 h-5 text-primary" />
-          <span className="hebrew-serif text-xl font-bold">TORA_LIVE</span>
-        </div>
-        <nav className="flex-1 p-3 space-y-1 text-sm">
-          <NavLink href="/dashboard" icon={LayoutDashboard}>דף ראשי</NavLink>
+          <span className="hebrew-serif text-xl font-bold text-ink">TORA_LIVE</span>
+        </Link>
+        <nav className="flex-1 p-3 space-y-1">
+          <NavLink href="/dashboard" icon={LayoutDashboard} exact>דף ראשי</NavLink>
           <NavLink href="/dashboard/lessons" icon={BookOpen}>שיעורים</NavLink>
           <NavLink href="/dashboard/live" icon={Radio}>שידור חי</NavLink>
           <NavLink href="/dashboard/requests" icon={MessageSquare}>פניות</NavLink>
@@ -23,24 +25,10 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
         </nav>
         <div className="p-3 border-t border-border text-sm text-ink-muted">
           <div className="mb-2 truncate">שלום, {rabbi.name}</div>
-          <Link href="/api/auth/signout" className="flex items-center gap-2 hover:text-ink">
-            <LogOut className="w-4 h-4" /> יציאה
-          </Link>
+          <LogoutButton label="יציאה" />
         </div>
       </aside>
       <main className="flex-1 p-4 sm:p-6 md:p-10">{children}</main>
     </div>
-  );
-}
-
-function NavLink({ href, icon: Icon, children }: { href: string; icon: any; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 px-3 py-2 rounded-btn text-ink-soft hover:bg-paper-soft hover:text-ink"
-    >
-      <Icon className="w-4 h-4" />
-      {children}
-    </Link>
   );
 }

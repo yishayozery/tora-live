@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import {
   User,
   Calendar,
@@ -78,14 +79,19 @@ export function UserMenu({ name, role }: Props) {
 
           {/* התנתקות */}
           <div className="border-t border-border mt-1">
-            <a
-              href="/api/auth/signout"
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/5 transition w-full"
-              onClick={() => setOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                if (window.confirm("האם להתנתק מהחשבון?")) {
+                  signOut({ callbackUrl: "/" });
+                }
+              }}
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger/5 transition w-full text-right"
             >
               <LogOut className="w-4 h-4" />
               התנתק
-            </a>
+            </button>
           </div>
         </div>
       )}

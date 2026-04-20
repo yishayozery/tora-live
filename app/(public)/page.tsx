@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
 
-// ISR — מתעדכן כל דקה. דף ציבורי, לא מותאם אישית.
-export const revalidate = 60;
+// dynamic — צריך session לחישוב canChat. revalidate לא יעבוד עם session.
+export const dynamic = "force-dynamic";
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
 import { LiveNowStrip, type LiveLesson } from "@/components/LiveNowStrip";
 import { PrayersEventsNow } from "@/components/PrayersEventsNow";
@@ -38,6 +40,18 @@ async function getHomeData() {
     take: 10,
   });
 
+  // chat permissions — תלוי בסשן
+  const session = await getServerSession(authOptions);
+  let canChat = false;
+  let isChatBlocked = false;
+  if (session?.user?.id) {
+    const student = await db.student.findUnique({ where: { userId: session.user.id } });
+    if (student) {
+      if (student.isBlocked) isChatBlocked = true;
+      else canChat = true;
+    }
+  }
+
   const live: LiveLesson[] = liveLessons.map((l) => ({
     id: l.id,
     title: l.title,
@@ -47,6 +61,9 @@ async function getHomeData() {
     embedUrl: l.liveEmbedUrl,
     externalUrl: l.youtubeUrl ?? l.otherUrl,
     hasSources: l.sources.length > 0 || !!l.sourcesPdfUrl,
+    sourcesPdfUrl: l.sourcesPdfUrl,
+    canChat,
+    isChatBlocked,
   }));
 
   const options: SearchOptions = {

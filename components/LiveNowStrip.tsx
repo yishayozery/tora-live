@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { Radio, Users, MessageSquare, FileText, ExternalLink, Maximize2, Video } from "lucide-react";
+import { Radio, Users, MessageSquare, FileText, ExternalLink, Maximize2, Video, ChevronDown } from "lucide-react";
 import { pluralize } from "@/lib/utils";
+import { LessonChat } from "@/components/LessonChat";
 
 export type LiveLesson = {
   id: string;
@@ -8,12 +12,14 @@ export type LiveLesson = {
   rabbiName: string;
   rabbiSlug: string;
   viewerCount?: number;
-  /** YouTube embed URL (https://www.youtube.com/embed/XXX) — אם זה YouTube נטמיע אותו */
   embedUrl?: string | null;
-  /** URL חיצוני (Zoom/אחר) שלא ניתן להטמעה — נפתח בלשונית חדשה */
   externalUrl?: string | null;
-  /** האם יש שיעור הקלטה? (סימן ל-sources) */
   hasSources?: boolean;
+  /** PDF source URL — לתצוגה inline */
+  sourcesPdfUrl?: string | null;
+  /** האם המשתמש יכול לשלוח צ'אט (תלמיד מחובר ולא חסום) */
+  canChat?: boolean;
+  isChatBlocked?: boolean;
 };
 
 function isYouTubeEmbed(url: string | null | undefined): boolean {
@@ -25,6 +31,10 @@ function isZoomUrl(url: string | null | undefined): boolean {
 }
 
 export function LiveNowStrip({ lessons }: { lessons: LiveLesson[] }) {
+  return <LiveNowStripInner lessons={lessons} />;
+}
+
+function LiveNowStripInner({ lessons }: { lessons: LiveLesson[] }) {
   return (
     <section className="max-w-6xl mx-auto px-4 mt-10">
       <div className="flex items-center gap-3 mb-4">
@@ -131,42 +141,7 @@ export function LiveNowStrip({ lessons }: { lessons: LiveLesson[] }) {
                   </Link>
 
                   {/* === Quick actions === */}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Link
-                      href={lessonHref}
-                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-primary text-white text-sm font-medium hover:bg-primary-hover transition"
-                    >
-                      <Maximize2 className="w-3.5 h-3.5" />
-                      צפייה מלאה
-                    </Link>
-                    <Link
-                      href={`${lessonHref}#chat`}
-                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-paper-soft text-ink-soft text-sm font-medium hover:bg-white hover:text-ink border border-border transition"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      צ׳אט
-                    </Link>
-                    {l.hasSources && (
-                      <Link
-                        href={`${lessonHref}#sources`}
-                        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-paper-soft text-ink-soft text-sm font-medium hover:bg-white hover:text-ink border border-border transition"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        מקורות
-                      </Link>
-                    )}
-                    {l.externalUrl && youtube && (
-                      <a
-                        href={l.externalUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-paper-soft text-ink-soft text-sm font-medium hover:bg-white hover:text-ink border border-border transition"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        YouTube
-                      </a>
-                    )}
-                  </div>
+                  <LiveCardActions lesson={l} youtube={!!youtube} lessonHref={lessonHref} />
                 </div>
               </article>
             );
@@ -174,5 +149,94 @@ export function LiveNowStrip({ lessons }: { lessons: LiveLesson[] }) {
         </div>
       )}
     </section>
+  );
+}
+
+/** כפתורי פעולה + פאנלים נפתחים inline (chat / sources) */
+function LiveCardActions({
+  lesson: l,
+  youtube,
+  lessonHref,
+}: {
+  lesson: LiveLesson;
+  youtube: boolean;
+  lessonHref: string;
+}) {
+  const [panel, setPanel] = useState<"none" | "chat" | "sources">("none");
+
+  return (
+    <>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link
+          href={lessonHref}
+          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-primary text-white text-sm font-medium hover:bg-primary-hover transition"
+        >
+          <Maximize2 className="w-3.5 h-3.5" />
+          צפייה מלאה
+        </Link>
+        <button
+          type="button"
+          onClick={() => setPanel(panel === "chat" ? "none" : "chat")}
+          className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-btn text-sm font-medium border transition ${
+            panel === "chat"
+              ? "bg-primary text-white border-primary"
+              : "bg-paper-soft text-ink-soft border-border hover:bg-white hover:text-ink"
+          }`}
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          צ׳אט
+          <ChevronDown className={`w-3 h-3 transition ${panel === "chat" ? "rotate-180" : ""}`} />
+        </button>
+        {l.hasSources && (
+          <button
+            type="button"
+            onClick={() => setPanel(panel === "sources" ? "none" : "sources")}
+            className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-btn text-sm font-medium border transition ${
+              panel === "sources"
+                ? "bg-primary text-white border-primary"
+                : "bg-paper-soft text-ink-soft border-border hover:bg-white hover:text-ink"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            מקורות
+            <ChevronDown className={`w-3 h-3 transition ${panel === "sources" ? "rotate-180" : ""}`} />
+          </button>
+        )}
+        {l.externalUrl && youtube && (
+          <a
+            href={l.externalUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-paper-soft text-ink-soft text-sm font-medium hover:bg-white hover:text-ink border border-border transition"
+            aria-label="פתח ב-YouTube"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            YouTube
+          </a>
+        )}
+      </div>
+
+      {/* === Inline panel === */}
+      {panel === "chat" && (
+        <div className="mt-3 -mx-4 -mb-4 px-4 py-3 bg-paper-soft border-t border-border max-h-96 overflow-y-auto">
+          <LessonChat lessonId={l.id} canSend={!!l.canChat} isBlocked={!!l.isChatBlocked} />
+        </div>
+      )}
+      {panel === "sources" && (
+        <div className="mt-3 -mx-4 -mb-4 px-4 py-3 bg-paper-soft border-t border-border">
+          {l.sourcesPdfUrl ? (
+            <iframe
+              src={l.sourcesPdfUrl}
+              className="w-full h-96 rounded-btn border border-border bg-white"
+              title="דף מקורות"
+            />
+          ) : (
+            <Link href={`${lessonHref}#sources`} className="text-primary hover:underline text-sm">
+              דף מקורות מלא ←
+            </Link>
+          )}
+        </div>
+      )}
+    </>
   );
 }

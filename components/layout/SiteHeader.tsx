@@ -2,10 +2,11 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { BookOpen, UserPlus } from "lucide-react";
+import { BookOpen, UserPlus, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserMenu } from "@/components/UserMenu";
 import { PublicMobileNav } from "@/components/layout/PublicMobileNav";
+import { NavLink } from "@/components/layout/NavLink";
 
 export async function SiteHeader() {
   const session = await getServerSession(authOptions);
@@ -37,21 +38,42 @@ export async function SiteHeader() {
         </div>
 
         <nav className="hidden md:flex items-center gap-5 text-sm">
-          <Link href="/rabbis" className="text-ink-soft hover:text-ink transition">רבנים</Link>
-          <Link href="/lessons" className="text-ink-soft hover:text-ink transition">שיעורים</Link>
-          {isLoggedIn && (
-            <Link href="/my/schedule" className="text-ink-soft hover:text-ink transition">הלוח שלי</Link>
+          <NavLink href="/rabbis" variant="header">רבנים</NavLink>
+          <NavLink href="/lessons" variant="header">שיעורים</NavLink>
+          {isLoggedIn && userRole !== "RABBI" && userRole !== "ADMIN" && (
+            <NavLink href="/my/schedule" variant="header">הלוח שלי</NavLink>
           )}
           {isLoggedIn && (
-            <Link href="/propose-event" className="text-gold hover:text-gold/80 transition font-medium">הצעת יום עיון</Link>
+            <NavLink href="/propose-event" variant="header">
+              <span className="text-gold hover:text-gold/80 font-medium">הצעת יום עיון</span>
+            </NavLink>
           )}
-          <Link href="/donate" className="text-ink-soft hover:text-ink transition">תרומה</Link>
-          <Link href="/contact" className="text-ink-soft hover:text-ink transition">צור קשר</Link>
+          <NavLink href="/donate" variant="header">תרומה</NavLink>
+          <NavLink href="/contact" variant="header">צור קשר</NavLink>
         </nav>
 
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <>
+              {/* קיצור דרך לדשבורד עבור רב/אדמין — תמיד גלוי */}
+              {userRole === "RABBI" && (
+                <Link
+                  href="/dashboard"
+                  className="hidden sm:inline-flex items-center gap-1.5 h-10 px-3 rounded-btn bg-primary text-white hover:bg-primary-hover text-sm font-semibold transition"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  לדשבורד
+                </Link>
+              )}
+              {userRole === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  className="hidden sm:inline-flex items-center gap-1.5 h-10 px-3 rounded-btn bg-primary text-white hover:bg-primary-hover text-sm font-semibold transition"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  אדמין
+                </Link>
+              )}
               <NotificationBell />
               <UserMenu name={userName} role={userRole} />
             </>
