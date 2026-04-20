@@ -3,7 +3,8 @@
     { "path": "/api/cron/reminders", "schedule": "0 8 * * *" },
     { "path": "/api/cron/discover-lessons", "schedule": "0 3 * * *" },
     { "path": "/api/cron/social-scout", "schedule": "0 4 * * *" },
-    { "path": "/api/cron/daily-post", "schedule": "30 5 * * *" }
+    { "path": "/api/cron/daily-post", "schedule": "30 5 * * *" },
+    { "path": "/api/cron/auto-close-lessons", "schedule": "0 22 * * *" }
   ],
   "regions": ["fra1"]
 }
