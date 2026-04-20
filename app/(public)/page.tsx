@@ -26,9 +26,15 @@ async function getHomeData() {
       isPublic: true,
       approvalStatus: "APPROVED",
       isSuspended: false,
-      rabbi: { status: "APPROVED", isBlocked: false },
+      OR: [
+        { rabbi: { status: "APPROVED", isBlocked: false } },
+        { rabbiId: null },  // אירועים ללא רב (כמו הכותל)
+      ],
     },
-    include: { rabbi: { select: { name: true, slug: true } } },
+    include: {
+      rabbi: { select: { name: true, slug: true } },
+      sources: { select: { id: true }, take: 1 },
+    },
     take: 10,
   });
 
@@ -38,6 +44,9 @@ async function getHomeData() {
     rabbiName: l.rabbi?.name ?? (l as any).organizerName ?? "אירוע",
     rabbiSlug: l.rabbi?.slug ?? "",
     viewerCount: l.viewCount,
+    embedUrl: l.liveEmbedUrl,
+    externalUrl: l.youtubeUrl ?? l.otherUrl,
+    hasSources: l.sources.length > 0 || !!l.sourcesPdfUrl,
   }));
 
   const options: SearchOptions = {
