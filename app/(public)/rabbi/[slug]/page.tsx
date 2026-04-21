@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { BROADCAST_TYPES } from "@/lib/enums";
+import { LogoIcon } from "@/components/Logo";
 
 const MEDIA_META: Record<string, { label: string; icon: typeof Youtube }> = {
   youtube: { label: "YouTube", icon: Youtube },
@@ -538,8 +539,8 @@ function PastLessonCard({ lesson: l }: { lesson: PastLesson }) {
   const poster = (l as any).posterUrl as string | null | undefined;
   return (
     <Card className="overflow-hidden p-0">
-      {poster && (
-        <Link href={`/lesson/${l.id}`} className="block relative h-32 w-full overflow-hidden bg-paper-soft">
+      <Link href={`/lesson/${l.id}`} className="block relative h-32 w-full overflow-hidden bg-paper-soft">
+        {poster ? (
           <Image
             src={poster}
             alt={l.title}
@@ -547,8 +548,12 @@ function PastLessonCard({ lesson: l }: { lesson: PastLesson }) {
             sizes="(max-width: 640px) 100vw, 50vw"
             className="object-cover hover:scale-105 transition"
           />
-        </Link>
-      )}
+        ) : (
+          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-paper-soft to-paper-warm">
+            <LogoIcon className="w-20 h-20 opacity-40" />
+          </div>
+        )}
+      </Link>
       <div className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">

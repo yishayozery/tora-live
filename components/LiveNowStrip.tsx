@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Radio, Users, MessageSquare, FileText, ExternalLink, Maximize2, Video, ChevronDown } from "lucide-react";
-import { pluralize } from "@/lib/utils";
+import { Radio, Users, MessageSquare, FileText, ExternalLink, Maximize2, Video, ChevronDown, CalendarClock, Bell } from "lucide-react";
+import { pluralize, formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LessonChat } from "@/components/LessonChat";
 
 export type LiveLesson = {
@@ -42,11 +42,33 @@ function isZoomUrl(url: string | null | undefined): boolean {
   return !!url && /zoom\.us\//.test(url);
 }
 
-export function LiveNowStrip({ lessons }: { lessons: LiveLesson[] }) {
-  return <LiveNowStripInner lessons={lessons} />;
+export type NextLiveLesson = {
+  id: string;
+  title: string;
+  rabbiName: string;
+  rabbiSlug: string;
+  scheduledAt: string;
+  posterUrl: string | null;
+};
+
+function relativeFuture(iso: string): string {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (ms < 0) return "התחיל";
+  const min = Math.floor(ms / 60_000);
+  if (min < 60) return `בעוד ${min} דק׳`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `בעוד ${hr} ${hr === 1 ? "שעה" : "שעות"}`;
+  const days = Math.floor(hr / 24);
+  if (days === 1) return "מחר";
+  if (days < 7) return `בעוד ${days} ימים`;
+  return `בעוד ${Math.floor(days / 7)} ${Math.floor(days / 7) === 1 ? "שבוע" : "שבועות"}`;
 }
 
-function LiveNowStripInner({ lessons }: { lessons: LiveLesson[] }) {
+export function LiveNowStrip({ lessons, nextLive }: { lessons: LiveLesson[]; nextLive?: NextLiveLesson | null }) {
+  return <LiveNowStripInner lessons={lessons} nextLive={nextLive} />;
+}
+
+function LiveNowStripInner({ lessons, nextLive }: { lessons: LiveLesson[]; nextLive?: NextLiveLesson | null }) {
   return (
     <section className="max-w-6xl mx-auto px-4 mt-10">
       <div className="flex items-center gap-3 mb-4">
@@ -61,10 +83,42 @@ function LiveNowStripInner({ lessons }: { lessons: LiveLesson[] }) {
       </div>
 
       {lessons.length === 0 ? (
-        <div className="rounded-card border border-dashed border-border bg-white p-8 text-center">
-          <Radio className="w-8 h-8 text-ink-muted mx-auto mb-2" />
-          <p className="text-ink-muted">אין כרגע שיעורים בשידור חי. השיעור הבא יתחיל בקרוב.</p>
-        </div>
+        nextLive ? (
+          <Link
+            href={`/lesson/${nextLive.id}`}
+            className="block rounded-card border border-primary/20 bg-gradient-to-br from-primary-soft via-white to-paper-soft p-6 hover:border-primary/40 hover:shadow-soft transition group"
+          >
+            <div className="flex items-start gap-4 flex-col sm:flex-row">
+              <div className="w-14 h-14 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                <CalendarClock className="w-7 h-7 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">השיעור החי הבא</div>
+                <h3 className="hebrew-serif text-xl font-bold text-ink group-hover:text-primary transition line-clamp-1">
+                  {nextLive.title}
+                </h3>
+                <div className="text-sm text-ink-soft mt-1 flex items-center gap-2 flex-wrap">
+                  <span className="font-medium">{nextLive.rabbiName}</span>
+                  <span className="text-ink-muted">·</span>
+                  <span>{formatHebrewDate(nextLive.scheduledAt)} ב-{formatHebrewTime(nextLive.scheduledAt)}</span>
+                  <span className="text-ink-muted">·</span>
+                  <span className="text-primary font-bold">{relativeFuture(nextLive.scheduledAt)}</span>
+                </div>
+              </div>
+              <div className="hidden sm:flex shrink-0 self-center">
+                <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-white border border-border text-ink-soft text-sm font-medium group-hover:border-primary group-hover:text-primary">
+                  <Bell className="w-3.5 h-3.5" />
+                  הוסף ללוח שלי
+                </span>
+              </div>
+            </div>
+          </Link>
+        ) : (
+          <div className="rounded-card border border-dashed border-border bg-white p-8 text-center">
+            <Radio className="w-8 h-8 text-ink-muted mx-auto mb-2" />
+            <p className="text-ink-muted">אין כרגע שיעורים בשידור חי או מתוכננים. תחזור מאוחר יותר.</p>
+          </div>
+        )
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {lessons.map((l) => {

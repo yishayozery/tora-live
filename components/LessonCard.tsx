@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { MockLesson } from "@/lib/mock-data";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
+import { LogoIcon } from "@/components/Logo";
 
 const fmt = new Intl.DateTimeFormat("he-IL", {
   weekday: "short",
@@ -11,34 +12,14 @@ const fmt = new Intl.DateTimeFormat("he-IL", {
   minute: "2-digit",
 });
 
-// Avatar צבעוני מהאות הראשונה של שם הרב — fallback כשאין posterUrl
-function rabbiAvatar(name: string): { letter: string; bg: string } {
-  const cleaned = name.replace(/^הרב\s+/, "").trim();
-  const letter = cleaned.charAt(0) || "?";
-  const palette = [
-    "from-primary to-primary-hover",
-    "from-gold to-gold-soft",
-    "from-live to-emerald-700",
-    "from-purple-500 to-purple-700",
-    "from-pink-500 to-pink-700",
-    "from-amber-500 to-orange-600",
-    "from-sky-500 to-blue-700",
-    "from-rose-500 to-red-700",
-  ];
-  const hash = Array.from(cleaned).reduce((a, c) => a + c.charCodeAt(0), 0);
-  return { letter, bg: palette[hash % palette.length] };
-}
-
 export function LessonCard({ lesson }: { lesson: MockLesson & { posterUrl?: string | null } }) {
-  const { letter, bg } = rabbiAvatar(lesson.rabbiName);
-
   return (
     <Link
       href={`/lesson/${lesson.id}`}
       className="card group block overflow-hidden transition hover:border-primary/40"
     >
-      {/* Poster / Avatar — תמיד יש משהו */}
-      <div className="relative h-32 w-full overflow-hidden">
+      {/* Poster / Logo fallback — תמיד יש משהו */}
+      <div className="relative h-32 w-full overflow-hidden bg-paper-soft">
         {lesson.posterUrl ? (
           <Image
             src={lesson.posterUrl}
@@ -48,8 +29,8 @@ export function LessonCard({ lesson }: { lesson: MockLesson & { posterUrl?: stri
             className="object-cover transition group-hover:scale-105"
           />
         ) : (
-          <div className={`h-full w-full bg-gradient-to-br ${bg} flex items-center justify-center`}>
-            <span className="hebrew-serif text-6xl font-bold text-white/95 drop-shadow">{letter}</span>
+          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-paper-soft to-paper-warm">
+            <LogoIcon className="w-20 h-20 opacity-40" />
           </div>
         )}
         {lesson.isLive && (

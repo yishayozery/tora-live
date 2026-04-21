@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
+import { LogoIcon } from "@/components/Logo";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { broadcastTypeMeta, BROADCAST_TYPES, LANGUAGES } from "@/lib/enums";
 import { db } from "@/lib/db";
@@ -181,17 +182,13 @@ export default async function LessonsPage({
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((l: any) => {
             const rabbiName = l.rabbi?.name ?? l.organizerName ?? "אירוע";
-            const initial = (rabbiName as string).replace(/^הרב\s+/, "").charAt(0) || "?";
-            const palette = ["from-primary to-primary-hover","from-gold to-amber-700","from-live to-emerald-700","from-purple-500 to-purple-700","from-pink-500 to-pink-700","from-amber-500 to-orange-600","from-sky-500 to-blue-700","from-rose-500 to-red-700"];
-            const hash = Array.from(rabbiName as string).reduce((a:number,c:string)=>a+c.charCodeAt(0),0);
-            const bg = palette[hash % palette.length];
             return (
               <Link
                 key={l.id}
                 href={`/lesson/${l.id}`}
                 className="group block overflow-hidden rounded-card border border-border bg-white hover:border-primary/40 hover:shadow-soft transition"
               >
-                <div className="relative h-32 w-full overflow-hidden">
+                <div className="relative h-32 w-full overflow-hidden bg-paper-soft">
                   {l.posterUrl ? (
                     <Image
                       src={l.posterUrl}
@@ -201,8 +198,8 @@ export default async function LessonsPage({
                       className="object-cover transition group-hover:scale-105"
                     />
                   ) : (
-                    <div className={`h-full w-full bg-gradient-to-br ${bg} flex items-center justify-center`}>
-                      <span className="hebrew-serif text-6xl font-bold text-white/95 drop-shadow">{initial}</span>
+                    <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-paper-soft to-paper-warm">
+                      <LogoIcon className="w-20 h-20 opacity-40" />
                     </div>
                   )}
                   {l.isLive && (

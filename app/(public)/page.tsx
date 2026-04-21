@@ -52,6 +52,38 @@ async function getHomeData() {
     }
   }
 
+  // השיעור החי הבא — להציג כשאין שיעור חי כרגע
+  let nextLive: { id: string; title: string; rabbiName: string; rabbiSlug: string; scheduledAt: string; posterUrl: string | null } | null = null;
+  if (liveLessons.length === 0) {
+    const next = await db.lesson.findFirst({
+      where: {
+        isLive: false,
+        isPublic: true,
+        approvalStatus: "APPROVED",
+        isSuspended: false,
+        scheduledAt: { gte: new Date() },
+        // יש קישור לשידור (כדי שזה אכן יהיה שידור חי בעתיד)
+        OR: [
+          { liveEmbedUrl: { not: null } },
+          { youtubeUrl: { not: null } },
+          { otherUrl: { not: null } },
+        ],
+      },
+      include: { rabbi: { select: { name: true, slug: true } } },
+      orderBy: { scheduledAt: "asc" },
+    });
+    if (next) {
+      nextLive = {
+        id: next.id,
+        title: next.title,
+        rabbiName: next.rabbi?.name ?? (next as any).organizerName ?? "—",
+        rabbiSlug: next.rabbi?.slug ?? "",
+        scheduledAt: next.scheduledAt.toISOString(),
+        posterUrl: next.posterUrl,
+      };
+    }
+  }
+
   const live: LiveLesson[] = liveLessons.map((l) => ({
     id: l.id,
     title: l.title,
@@ -148,6 +180,7 @@ async function getHomeData() {
   return {
     sponsor,
     live,
+    nextLive,
     options,
     calendarLessons,
     stats: {
@@ -160,7 +193,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { sponsor, live, options, stats, calendarLessons } = await getHomeData();
+  const { sponsor, live, nextLive, options, stats, calendarLessons } = await getHomeData();
 
   return (
     <>
@@ -205,7 +238,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <LiveNowStrip lessons={live} />
+      <LiveNowStrip lessons={live} nextLive={nextLive} />
 
       <WeeklyCalendar lessons={calendarLessons} />
 
