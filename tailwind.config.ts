@@ -5,8 +5,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-assistant)", "system-ui", "sans-serif"],
-        serif: ["var(--font-frank-ruhl)", "Georgia", "serif"],
+        sans: ["var(--font-heebo)", "system-ui", "sans-serif"],
+        serif: ["var(--font-noto-serif-hebrew)", "Georgia", "serif"],
       },
       colors: {
         // בסיס נקי (כיוון 2)

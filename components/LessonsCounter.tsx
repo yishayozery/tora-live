@@ -35,11 +35,15 @@ export function LessonsCounter({
 
       <div className="relative max-w-6xl mx-auto px-4 text-white">
         <div className="relative">
-          <div className="text-center mb-8">
-            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold">
-              קהילת לימוד אחת גדולה
-            </h2>
-            <p className="text-white/80 mt-2">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-4 mb-3">
+              <span className="w-12 h-0.5 bg-gold/60" />
+              <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+                קהילת לימוד אחת גדולה
+              </h2>
+              <span className="w-12 h-0.5 bg-gold/60" />
+            </div>
+            <p className="text-base sm:text-lg text-white/80">
               כל הנתונים מתעדכנים בזמן אמת
             </p>
           </div>

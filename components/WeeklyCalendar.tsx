@@ -124,27 +124,28 @@ export function WeeklyCalendar({
     )}>
       {!compact && (
         <>
-          {/* רקע 2: תמונת ספרים עתיקים — fixed — אפקט parallax */}
+          {/* רקע 2: אבני ירושלים — fixed — אפקט parallax, גוון חם-זהוב שונה מסקציית השיעורים */}
           <div
             className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
             aria-hidden="true"
             style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1600&q=75')",
+              backgroundImage: "url('https://images.unsplash.com/photo-1544734037-5a3b4b7e0a3d?w=1600&q=75'), url('https://images.unsplash.com/photo-1519817914152-22d216bb9170?w=1600&q=75')",
             }}
           />
-          {/* Overlay חם לקריאות */}
-          <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/92 via-white/85 to-paper-warm/92 pointer-events-none" aria-hidden="true" />
+          {/* שכבת גראדיאנט חם-זהוב — מבדיל מסקציית השיעורים הבהירה */}
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-50/95 via-stone-100/90 to-amber-100/85 pointer-events-none" aria-hidden="true" />
+          <div className="absolute inset-0 bg-stone-900/[0.04] pointer-events-none" aria-hidden="true" />
         </>
       )}
       <div className={cn(compact ? "" : "relative max-w-6xl mx-auto px-4")}>
       {!compact && (
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <span className="w-8 h-0.5 bg-gold/40" />
-            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
-            <span className="w-8 h-0.5 bg-gold/40" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-4 mb-3">
+            <span className="w-12 h-0.5 bg-gold/50" />
+            <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">{title}</h2>
+            <span className="w-12 h-0.5 bg-gold/50" />
           </div>
-          <p className="text-sm text-ink-muted">שיעורים, תפילות ואירועים קרובים</p>
+          <p className="text-base sm:text-lg text-ink-muted">שיעורים, תפילות ואירועים קרובים</p>
         </div>
       )}
 

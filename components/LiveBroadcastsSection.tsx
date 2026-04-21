@@ -134,9 +134,9 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
             </span>
-            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">שידורים חיים עכשיו</h2>
+            <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">שידורים חיים עכשיו</h2>
           </div>
-          <p className="text-sm text-ink-soft">
+          <p className="text-base sm:text-lg text-ink-soft mt-3">
             {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
           </p>
         </div>

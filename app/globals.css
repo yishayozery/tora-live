@@ -25,4 +25,4 @@ a { @apply text-primary hover:text-primary-hover; }
 /* גלילה עדינה */
 * { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
 
-.hebrew-serif { font-family: var(--font-frank-ruhl), Georgia, serif; }
+.hebrew-serif { font-family: var(--font-noto-serif-hebrew), Georgia, serif; font-feature-settings: "kern" 1, "liga" 1; }
