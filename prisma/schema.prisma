@@ -1,15 +1,18 @@
-// TORA_LIVE — Prisma schema
-// מבוסס על אפיון v2.0
+// TORA_LIVE — Prisma schema (PostgreSQL / Supabase)
+// סנכרון מלא עם schema.prisma הנוכחי (SQLite) — לשימוש ב-production.
+// כדי להחליף: cp prisma/schema.postgres.prisma prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
+// ---------- Enums ----------
 // ---------- משתמש בסיסי (auth) ----------
 model User {
   id           String     @id @default(cuid())
@@ -31,23 +34,21 @@ model Rabbi {
 
   slug         String       @unique
   name         String
-  bio          String       @default("")
+  bio          String       @default("") @db.Text
   photoUrl     String?
-  phone        String?       // לא נחשף לציבור
-  status       String       @default("PENDING")
+  phone        String?
+  status       String  @default("PENDING")
   isBlocked    Boolean      @default(false)
   profileCompleted Boolean  @default(false)
 
-  calendarSync String?         // {google: {...}, outlook: {...}, caldav: {...}}
-  mediaLinks   String?         // JSON: { youtube, spotify, applePodcast, soundcloud, facebook, website, other }
+  calendarSync String?
+  mediaLinks   String?
 
-  // מסלול שידור חי ברירת מחדל: "OWN" (ערוץ שלו) או "PLATFORM" (ערוץ TORA_LIVE)
-  liveMode     String       @default("OWN")
-  streamKey    String?      @unique // עבור PLATFORM — stream key דינמי
+  liveMode     String     @default("OWN")
+  streamKey    String?      @unique
 
-  // מענה אוטומטי לפניות
   autoReplyEnabled Boolean  @default(false)
-  autoReplyMessage String?
+  autoReplyMessage String?  @db.Text
 
   categories   Category[]
   lessons      Lesson[]
@@ -59,28 +60,27 @@ model Rabbi {
 
 // ---------- תלמיד ----------
 model Student {
-  id            String    @id @default(cuid())
-  userId        String    @unique
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   name          String
-  isBlocked     Boolean   @default(false)
+  isBlocked     Boolean        @default(false)
   blockedReason String?
 
-  // --- העדפות התראה ---
-  notifyChannel String @default("EMAIL")
-  phoneE164     String?        // למשלוח וואטסאפ, פורמט +9725XXXXXXX
+  notifyChannel String  @default("EMAIL")
+  phoneE164     String?
 
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime       @default(now())
 
-  chatMessages  ChatMessage[]
-  requests      ContactRequest[]
-  follows       Follow[]
-  bookmarks     Bookmark[]
-  notifications Notification[]
+  chatMessages    ChatMessage[]
+  requests        ContactRequest[]
+  follows         Follow[]
+  bookmarks       Bookmark[]
+  notifications   Notification[]
 }
 
-// ---------- קטגוריה (שהרב יוצר בעצמו) ----------
+// ---------- קטגוריה ----------
 model Category {
   id       String   @id @default(cuid())
   rabbiId  String
@@ -95,7 +95,7 @@ model Category {
 // ---------- שיעור ----------
 model Lesson {
   id              String    @id @default(cuid())
-  rabbiId         String?   // nullable — יום עיון יכול להיות מאורגן ע"י תלמיד/משתמש
+  rabbiId         String?
   rabbi           Rabbi?    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
   organizerUserId String?
   organizer       User?     @relation("LessonOrganizer", fields: [organizerUserId], references: [id], onDelete: SetNull)
@@ -104,23 +104,22 @@ model Lesson {
   category        Category? @relation(fields: [categoryId], references: [id])
 
   title           String
-  description     String
+  description     String    @db.Text
   scheduledAt     DateTime
   durationMin     Int?
   locationName    String?
   locationUrl     String?
   isPublic        Boolean   @default(true)
-  posterUrl       String?   // PDF/תמונה — לאירועים וימי עיון
-  approvalStatus  String    @default("APPROVED")  // APPROVED | PENDING | REJECTED
+  posterUrl       String?
+  approvalStatus  String    @default("APPROVED")
   reportCount     Int       @default(0)
   isSuspended     Boolean   @default(false)
-  language        String    @default("he")  // he, en, yi, fr, es, ru, ladino, other
-  broadcastType   String    @default("LESSON") // LESSON, PRAYER, SELICHOT, EVENT, TEHILLIM
+  language        String    @default("he")
+  broadcastType   String    @default("LESSON")
 
-  // --- שיעור מחזורי ---
   isRecurring     Boolean   @default(false)
-  recurringRule   String?    // JSON: { freq: "WEEKLY", dayOfWeek: 0-6, hour: HH, minute: MM, endDate? }
-  recurringGroupId String?   // ID קבוצתי לזיהוי כל המופעים של שיעור מחזורי
+  recurringRule   String?
+  recurringGroupId String?
 
   youtubeUrl      String?
   spotifyUrl      String?
@@ -129,14 +128,14 @@ model Lesson {
   otherUrl        String?
 
   sourcesPdfUrl   String?
-  transcriptText  String?  
+  transcriptText  String?   @db.Text
 
   isLive          Boolean   @default(false)
-  liveMethod      String?    // "BROWSER" | "YOUTUBE" | "EXTERNAL"
-  streamId        String?    // Cloudflare Stream live input ID
-  playbackUrl     String?    // HLS playback URL from Cloudflare
-  recordingUrl    String?    // MP4 recording URL after stream ends
-  recordingExpiry DateTime?  // מתי ההקלטה נמחקת (5 ימים אחרי סיום)
+  liveMethod      String?
+  streamId        String?
+  playbackUrl     String?
+  recordingUrl    String?
+  recordingExpiry DateTime?
   liveEmbedUrl    String?
 
   viewCount       Int       @default(0)
@@ -144,7 +143,7 @@ model Lesson {
   calendarEventId String?
 
   // --- Auto-discovery (lesson-scout) ---
-  externalId      String?   @unique   // youtubeVideoId / spotifyEpisodeId
+  externalId      String?   @unique
   autoDiscovered  Boolean   @default(false)
   discoveredAt    DateTime?
   sourceId        String?
@@ -158,9 +157,10 @@ model Lesson {
   updatedAt       DateTime  @updatedAt
 
   @@index([rabbiId, scheduledAt])
+  @@index([recurringGroupId])
 }
 
-// ---------- מקור PDF לשיעור (Live Follow) ----------
+// ---------- מקור PDF (Live Follow) ----------
 model LessonSource {
   id            String   @id @default(cuid())
   lessonId      String
@@ -176,7 +176,7 @@ model LessonSource {
   @@index([lessonId])
 }
 
-// ---------- עקיבה אחרי רב ----------
+// ---------- עקיבה ----------
 model Follow {
   id          String   @id @default(cuid())
   studentId   String
@@ -190,7 +190,7 @@ model Follow {
   @@index([rabbiId])
 }
 
-// ---------- סימון שיעור ללוח שלי + תזכורת ----------
+// ---------- סימון שיעור ללוח ----------
 model Bookmark {
   id              String    @id @default(cuid())
   studentId       String
@@ -212,7 +212,7 @@ model Notification {
   student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   kind       String
   title      String
-  body       String          
+  body       String           @db.Text
   link       String
   readAt     DateTime?
   sentEmail  Boolean          @default(false)
@@ -222,14 +222,14 @@ model Notification {
   @@index([studentId, readAt])
 }
 
-// ---------- צ'אט שאלות בשידור ----------
+// ---------- צ'אט שאלות ----------
 model ChatMessage {
   id         String   @id @default(cuid())
   lessonId   String
   lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   studentId  String
   student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  content    String  
+  content    String   @db.Text
   isAnswered Boolean  @default(false)
   createdAt  DateTime @default(now())
 
@@ -238,68 +238,68 @@ model ChatMessage {
 
 // ---------- צור קשר עם הרב ----------
 model ContactRequest {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   rabbiId       String
-  rabbi         Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  rabbi         Rabbi         @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
   studentId     String
-  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  message       String
-  reply         String?
-  requestType   String?   // "SINGLE_LESSON" | "STUDY_DAY" | "SERIES" | "OTHER"
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  message       String        @db.Text
+  reply         String?       @db.Text
+  requestType   String?
   topic         String?
   requestedDate DateTime?
-  requestedTime String?   // "HH:MM"
-  status        String    @default("PENDING") // PENDING | APPROVED | REJECTED | REPLIED
-  createdAt     DateTime  @default(now())
+  requestedTime String?
+  status        String @default("PENDING")
+  createdAt     DateTime      @default(now())
   repliedAt     DateTime?
 }
 
-// ---------- חסות יומית (למי מוקדשים השיעורים היום) ----------
+// ---------- חסות יומית ----------
 model Sponsor {
-  id             String          @id @default(cuid())
-  date           DateTime       
+  id             String         @id @default(cuid())
+  date           DateTime       @db.Date
   name           String
   dedicationType String
   donorName      String?
   donorEmail     String?
-  donationId     String?         // קישור אופציונלי לתרומה
-  createdAt      DateTime        @default(now())
+  donationId     String?
+  createdAt      DateTime       @default(now())
 
   @@index([date])
 }
 
 // ---------- תרומה ----------
 model Donation {
-  id              String         @id @default(cuid())
-  amount          Int             // באגורות
+  id              String          @id @default(cuid())
+  amount          Int
   donorName       String
   donorEmail      String
   dedicationName  String?
   dedicationType  String?
-  showPublicly    Boolean        @default(false)
-  receiptSent     Boolean        @default(false)
+  showPublicly    Boolean         @default(false)
+  receiptSent     Boolean         @default(false)
   paymentRef      String?
-  createdAt       DateTime       @default(now())
+  createdAt       DateTime        @default(now())
 }
 
-// ---------- הצעת שיעור (סורק חברתי → אישור אדמין) ----------
+// ---------- הצעת שיעור ----------
 model LessonSuggestion {
   id            String    @id @default(cuid())
   title         String
-  description   String    @default("")
+  description   String    @default("") @db.Text
   rabbiName     String?
   scheduledAt   DateTime?
   durationMin   Int?
   locationName  String?
-  url           String
-  posterUrl     String?
+  url           String    @db.Text
+  posterUrl     String?   @db.Text
   broadcastType String    @default("LESSON")
   source        String
-  sourceType    String    // TELEGRAM | FACEBOOK | INSTAGRAM | TWITTER | NEWS | GOOGLE | OTHER
-  rawContent    String?
+  sourceType    String
+  rawContent    String?   @db.Text
   confidence    String    @default("MEDIUM")
 
-  status        String    @default("PENDING")  // PENDING | APPROVED | REJECTED | DUPLICATE
+  status        String    @default("PENDING")
   reviewedBy    String?
   reviewedAt    DateTime?
   rejectReason  String?
@@ -312,24 +312,24 @@ model LessonSuggestion {
   @@index([sourceType])
 }
 
-// ---------- מקור שיעורים חיצוני (לסורק) ----------
+// ---------- מקור שיעורים חיצוני ----------
 model RabbiSource {
-  id            String    @id @default(cuid())
-  rabbiId       String?   // אם מקושר לרב קיים במערכת
-  platform      String    // "YOUTUBE" | "SPOTIFY"
-  channelId     String    // UC... ב-YouTube
-  channelTitle  String
-  channelUrl    String
-  rabbiName     String?   // שם הרב (לתצוגה — גם ללא rabbiId)
-  notes         String?
-  lastCheckedAt DateTime?
-  lastFoundAt   DateTime?
-  totalDiscovered Int     @default(0)
-  enabled       Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  rabbiId         String?
+  platform        String
+  channelId       String
+  channelTitle    String
+  channelUrl      String
+  rabbiName       String?
+  notes           String?
+  lastCheckedAt   DateTime?
+  lastFoundAt     DateTime?
+  totalDiscovered Int       @default(0)
+  enabled         Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  lessons       Lesson[]
+  lessons         Lesson[]
 
   @@unique([platform, channelId])
   @@index([enabled, lastCheckedAt])
@@ -339,10 +339,10 @@ model RabbiSource {
 model Report {
   id             String         @id @default(cuid())
   lessonId       String?
-  lesson         Lesson?        @relation(fields: [lessonId], references: [id])
+  lesson         Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   reporterEmail  String?
   category       String
-  description    String        
+  description    String         @db.Text
   status         String   @default("OPEN")
   createdAt      DateTime       @default(now())
 }

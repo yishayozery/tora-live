@@ -90,6 +90,8 @@ async function getHomeData() {
     embedUrl: l.liveEmbedUrl,
     externalUrl: l.youtubeUrl ?? l.otherUrl,
     liveStartedAt: l.updatedAt.toISOString(),
+    broadcastType: l.broadcastType,
+    language: l.language,
   }));
 
   // לוח שנה שבועי — 14 יום קדימה
@@ -122,6 +124,7 @@ async function getHomeData() {
     scheduledAt: l.scheduledAt.toISOString(),
     durationMin: l.durationMin ?? undefined,
     category: l.category?.name,
+    language: l.language,
     broadcastType: l.broadcastType,
     isLive: l.isLive,
   }));

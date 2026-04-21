@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Clock, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 import { formatTimeRange } from "@/lib/utils";
+import { BROADCAST_TYPES, languageLabel } from "@/lib/enums";
 
 type CalendarLesson = {
   id: string;
@@ -15,6 +16,7 @@ type CalendarLesson = {
   scheduledAt: string;
   durationMin?: number;
   category?: string;
+  language?: string;
   isLive?: boolean;
   broadcastType?: string;
   /** סוג ויזואלי: lesson (כחול), live (ירוק), event (זהב), approvedRequest (סגול), private (מקווקו) */
@@ -59,6 +61,30 @@ export function WeeklyCalendar({
   const [weekOffset, setWeekOffset] = useState(0);
   const [filter, setFilter] = useState("");
   const [viewMode, setViewMode] = useState<"day" | "week" | "2weeks" | "month">("2weeks");
+  const [rabbiFilter, setRabbiFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("");
+  const [languageFilter, setLanguageFilter] = useState<string>("");
+
+  // אפשרויות פילטר מתוך הלוח
+  const rabbiOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    lessons.forEach((l) => map.set(l.rabbiName, (map.get(l.rabbiName) ?? 0) + 1));
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [lessons]);
+  const categoryOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    lessons.forEach((l) => { if (l.category) map.set(l.category, (map.get(l.category) ?? 0) + 1); });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [lessons]);
+  const availableLanguages = useMemo(() => {
+    const set = new Set<string>();
+    lessons.forEach((l) => { if (l.language) set.add(l.language); });
+    return Array.from(set);
+  }, [lessons]);
+
+  const hasActiveFilter = !!(filter || rabbiFilter || categoryFilter || typeFilter || languageFilter);
+  const clearAll = () => { setFilter(""); setRabbiFilter(""); setCategoryFilter(""); setTypeFilter(""); setLanguageFilter(""); };
 
   const rangeLengthDays = viewMode === "day" ? 1 : viewMode === "week" ? 7 : viewMode === "month" ? 30 : 14;
   const rangeStepDays = rangeLengthDays;
@@ -90,16 +116,23 @@ export function WeeklyCalendar({
     return `${firstHe} – ${lastHe} · ${fmtGreg.format(first)} – ${fmtGreg.format(last)}`;
   }, [gridDays]);
 
-  // סינון שיעורים לפי חיפוש
+  // סינון שיעורים — חיפוש + פילטרים
   const filteredLessons = useMemo(() => {
-    if (!filter.trim()) return lessons;
-    const q = filter.toLowerCase();
-    return lessons.filter((l) =>
-      l.title.toLowerCase().includes(q) ||
-      l.rabbiName.toLowerCase().includes(q) ||
-      (l.category ?? "").toLowerCase().includes(q)
-    );
-  }, [lessons, filter]);
+    const q = filter.trim().toLowerCase();
+    return lessons.filter((l) => {
+      if (q) {
+        const match = l.title.toLowerCase().includes(q) ||
+          l.rabbiName.toLowerCase().includes(q) ||
+          (l.category ?? "").toLowerCase().includes(q);
+        if (!match) return false;
+      }
+      if (rabbiFilter && l.rabbiName !== rabbiFilter) return false;
+      if (categoryFilter && l.category !== categoryFilter) return false;
+      if (typeFilter && l.broadcastType !== typeFilter) return false;
+      if (languageFilter && l.language !== languageFilter) return false;
+      return true;
+    });
+  }, [lessons, filter, rabbiFilter, categoryFilter, typeFilter, languageFilter]);
 
   /** מיפוי dateString -> שיעורים */
   const lessonsByDate = useMemo(() => {
@@ -149,38 +182,108 @@ export function WeeklyCalendar({
         </div>
       )}
 
-      {/* חיפוש + toggle תצוגה (לא compact) */}
+      {/* סרגל פילטרים קומפקטי (לא compact) */}
       {!compact && (
-        <div className="max-w-2xl mx-auto mb-4 flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
-            <input
-              type="search"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="חפש בלוח לפי רב, נושא או כותרת..."
-              className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
-            />
+        <div className="max-w-5xl mx-auto mb-4 space-y-2">
+          {/* שורה 1: חיפוש קצר + chips סוג + toggle תצוגה */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <div className="relative w-48 shrink-0">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+              <input
+                type="search"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="חיפוש..."
+                className="w-full h-10 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
+              />
+            </div>
+
+            <div className="flex gap-1 flex-wrap">
+              {BROADCAST_TYPES.map((t) => {
+                const active = typeFilter === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTypeFilter(active ? "" : t.value)}
+                    className={`h-10 px-3 rounded-full text-sm font-medium border transition ${
+                      active
+                        ? "bg-primary text-white border-primary shadow-soft"
+                        : "bg-white border-border text-ink-soft hover:border-primary hover:text-primary"
+                    }`}
+                    aria-pressed={active}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-1 p-1 bg-white rounded-btn border border-border shadow-soft mr-auto" role="group" aria-label="תצוגה">
+              {[
+                { v: "day" as const, label: "יום" },
+                { v: "week" as const, label: "שבוע" },
+                { v: "2weeks" as const, label: "שבועיים" },
+                { v: "month" as const, label: "חודש" },
+              ].map((opt) => (
+                <button
+                  key={opt.v}
+                  type="button"
+                  onClick={() => { setViewMode(opt.v); setWeekOffset(0); }}
+                  className={`h-8 px-3 text-sm font-medium rounded-btn transition ${
+                    viewMode === opt.v ? "bg-primary text-white" : "text-ink-soft hover:text-ink"
+                  }`}
+                  aria-pressed={viewMode === opt.v}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-1 p-1 bg-paper-soft rounded-btn border border-border" role="group" aria-label="תצוגה">
-            {[
-              { v: "day" as const, label: "יום" },
-              { v: "week" as const, label: "שבוע" },
-              { v: "2weeks" as const, label: "שבועיים" },
-              { v: "month" as const, label: "חודש" },
-            ].map((opt) => (
-              <button
-                key={opt.v}
-                type="button"
-                onClick={() => { setViewMode(opt.v); setWeekOffset(0); }}
-                className={`h-9 px-3 text-sm font-medium rounded-btn transition ${
-                  viewMode === opt.v ? "bg-primary text-white" : "text-ink-soft hover:text-ink hover:bg-white"
-                }`}
-                aria-pressed={viewMode === opt.v}
-              >
-                {opt.label}
+
+          {/* שורה 2: רב · נושא · שפה · נקה */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <select value={rabbiFilter} onChange={(e) => setRabbiFilter(e.target.value)}
+              className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+              aria-label="רב">
+              <option value="">רב · כולם</option>
+              {rabbiOptions.map(([name, count]) => (
+                <option key={name} value={name}>{name} ({count})</option>
+              ))}
+            </select>
+
+            {categoryOptions.length > 0 && (
+              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
+                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                aria-label="נושא">
+                <option value="">נושא · הכל</option>
+                {categoryOptions.map(([cat, count]) => (
+                  <option key={cat} value={cat}>{cat} ({count})</option>
+                ))}
+              </select>
+            )}
+
+            {availableLanguages.length > 1 && (
+              <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}
+                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${languageFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                aria-label="שפה">
+                <option value="">שפה · הכל</option>
+                {availableLanguages.map((code) => (
+                  <option key={code} value={code}>{languageLabel(code) || code}</option>
+                ))}
+              </select>
+            )}
+
+            {hasActiveFilter && (
+              <button type="button" onClick={clearAll}
+                className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium">
+                נקה
               </button>
-            ))}
+            )}
+
+            <div className="mr-auto text-xs text-ink-muted">
+              {filteredLessons.length}/{lessons.length}
+            </div>
           </div>
         </div>
       )}
