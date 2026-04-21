@@ -23,10 +23,18 @@ export const metadata: Metadata = {
   description:
     "הבית הדיגיטלי של רבני ישראל — שיעורים, שידורים חיים, לוח שנה ותקשורת עם תלמידים במקום אחד.",
   metadataBase: new URL("https://tora-live.co.il"),
+  alternates: {
+    canonical: "https://tora-live.co.il/",
+    languages: {
+      "he-IL": "https://tora-live.co.il/",
+      "en-US": "https://tora-live.co.il/en",
+    },
+  },
   openGraph: {
     title: "TORA_LIVE",
     description: "שיעורי תורה אונליין — הבית הדיגיטלי של הרבנים.",
     locale: "he_IL",
+    alternateLocale: ["en_US"],
     type: "website",
   },
 };

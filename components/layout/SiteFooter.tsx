@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Accessibility } from "lucide-react";
+import { Accessibility, Globe } from "lucide-react";
 
 export function SiteFooter() {
   return (
@@ -39,8 +39,16 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="text-center text-xs text-ink-muted py-4 border-t border-border">
-        © {new Date().getFullYear()} TORA_LIVE · כל הזכויות שמורות
+      <div className="flex items-center justify-center gap-4 text-xs text-ink-muted py-4 border-t border-border flex-wrap">
+        <span>© {new Date().getFullYear()} TORA_LIVE · כל הזכויות שמורות</span>
+        <Link
+          href="/en"
+          className="inline-flex items-center gap-1 h-7 px-2.5 rounded-btn border border-border bg-paper-soft hover:border-primary hover:text-primary transition"
+          aria-label="Switch to English version"
+        >
+          <Globe className="w-3 h-3" />
+          English
+        </Link>
       </div>
     </footer>
   );
