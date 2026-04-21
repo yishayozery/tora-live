@@ -175,7 +175,7 @@ export function WeeklyCalendar({
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-4 mb-3">
             <span className="w-12 h-0.5 bg-gold/50" />
-            <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">{title}</h2>
+            <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">{title}</h2>
             <span className="w-12 h-0.5 bg-gold/50" />
           </div>
           <p className="text-base sm:text-lg text-ink-muted">שיעורים, תפילות ואירועים קרובים</p>
@@ -187,7 +187,7 @@ export function WeeklyCalendar({
         <div className="max-w-5xl mx-auto mb-4 space-y-2">
           {/* שורה 1: חיפוש קצר + chips סוג + toggle תצוגה */}
           <div className="flex gap-2 flex-wrap items-center">
-            <div className="relative w-48 shrink-0">
+            <div className="relative w-full sm:w-48 shrink-0">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
               <input
                 type="search"

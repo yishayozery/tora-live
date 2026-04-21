@@ -38,7 +38,7 @@ export function LessonsCounter({
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-4 mb-3">
               <span className="w-12 h-0.5 bg-gold/60" />
-              <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
+              <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
                 קהילת לימוד אחת גדולה
               </h2>
               <span className="w-12 h-0.5 bg-gold/60" />

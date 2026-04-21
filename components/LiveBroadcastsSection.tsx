@@ -7,6 +7,7 @@ import { Radio, Search, Users, Clock, ExternalLink, ChevronLeft, CalendarClock, 
 import { LogoIcon } from "@/components/Logo";
 import { pluralize, formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LANGUAGES, BROADCAST_TYPES, languageLabel } from "@/lib/enums";
+import { ReportLessonButton } from "@/components/ReportLessonButton";
 
 export type LiveBroadcast = {
   id: string;
@@ -150,7 +151,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
             </span>
-            <h2 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">שידורים חיים עכשיו</h2>
+            <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">שידורים חיים עכשיו</h2>
           </div>
           <p className="text-base sm:text-lg text-ink-soft mt-3">
             {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
@@ -162,7 +163,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           <div className="max-w-5xl mx-auto mb-6 space-y-2">
             {/* שורה 1: חיפוש קצר + chips לסוג שידור + toggle תצוגה */}
             <div className="flex gap-2 flex-wrap items-center">
-              <div className="relative w-48 shrink-0">
+              <div className="relative w-full sm:w-48 shrink-0">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
                 <input
                   type="search"
@@ -174,7 +175,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
               </div>
 
               {/* Chips סוג שידור */}
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex gap-1 flex-wrap overflow-x-auto">
                 {BROADCAST_TYPES.map((t) => {
                   const active = typeFilter === t.value;
                   return (
@@ -379,14 +380,17 @@ function LiveCardGrid({ b }: { b: LiveBroadcast }) {
             ) : <span>{b.rabbiName}</span>}
           </div>
         </Link>
-        <Link
-          href={lessonHref}
-          className="mt-3 inline-flex items-center gap-1 h-8 px-3 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition"
-        >
-          <Radio className="w-3 h-3" />
-          לדף השיעור
-          <ChevronLeft className="w-3 h-3" />
-        </Link>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <Link
+            href={lessonHref}
+            className="inline-flex items-center gap-1 h-8 px-3 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition"
+          >
+            <Radio className="w-3 h-3" />
+            לדף השיעור
+            <ChevronLeft className="w-3 h-3" />
+          </Link>
+          <ReportLessonButton lessonId={b.id} />
+        </div>
       </div>
     </article>
   );
@@ -450,8 +454,8 @@ function LiveCardList({ b }: { b: LiveBroadcast }) {
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="shrink-0">
+      {/* CTA + Report */}
+      <div className="shrink-0 flex flex-col items-end gap-1">
         <Link
           href={lessonHref}
           className="inline-flex items-center gap-1.5 h-10 px-4 rounded-btn bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition"
@@ -460,6 +464,7 @@ function LiveCardList({ b }: { b: LiveBroadcast }) {
           <span className="hidden sm:inline">לצפייה</span>
           <ChevronLeft className="w-4 h-4" />
         </Link>
+        <ReportLessonButton lessonId={b.id} />
       </div>
     </article>
   );

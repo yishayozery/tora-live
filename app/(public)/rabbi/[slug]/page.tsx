@@ -51,6 +51,10 @@ import {
   Eye,
   Archive,
   Search,
+  Share2,
+  Mail,
+  Play,
+  Star,
 } from "lucide-react";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { BROADCAST_TYPES } from "@/lib/enums";
@@ -175,6 +179,13 @@ export default async function RabbiPage({
 
   const uncategorizedPast = pastLessons.filter((l) => !l.categoryId);
 
+  // === Featured lesson — הכי נצפה ===
+  const featuredLesson = [...pastLessons].sort((a, b) => b.viewCount - a.viewCount)[0] ?? null;
+
+  // === Share URL ===
+  const rabbiUrl = `${SITE}/rabbi/${rabbi.slug}`;
+  const shareText = encodeURIComponent(`שיעורי תורה של ${rabbi.name} ב-TORA_LIVE:\n${rabbiUrl}`);
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       {/* ===== Header ===== */}
@@ -210,7 +221,7 @@ export default async function RabbiPage({
             </p>
           )}
 
-          <div className="mt-4 flex items-center justify-center sm:justify-start gap-3 flex-wrap">
+          <div className="mt-4 flex items-center justify-center sm:justify-start gap-2 flex-wrap">
             <FollowButton
               rabbiId={rabbi.id}
               initialFollowing={isFollowing}
@@ -222,7 +233,17 @@ export default async function RabbiPage({
               isBlocked={isContactBlocked}
               userInfo={userInfo}
             />
-            <span className="text-sm text-ink-muted">
+            <a
+              href={`https://wa.me/?text=${shareText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn border border-border bg-white text-sm font-medium text-ink-soft hover:border-primary hover:text-primary transition"
+              aria-label={`שתף את ${rabbi.name} ב-WhatsApp`}
+            >
+              <Share2 className="w-4 h-4" />
+              שתף
+            </a>
+            <span className="text-sm text-ink-muted self-center">
               {rabbi._count.followers.toLocaleString("he-IL")} עוקבים
             </span>
           </div>
@@ -252,6 +273,42 @@ export default async function RabbiPage({
           )}
         </div>
       </div>
+
+      {/* ===== Featured Lesson — Social Proof / Top hit ===== */}
+      {featuredLesson && (
+        <Link
+          href={`/lesson/${featuredLesson.id}`}
+          className="block mb-8 rounded-card border border-gold/40 bg-gradient-to-bl from-gold-soft/70 via-paper-warm to-white p-4 sm:p-5 hover:shadow-soft transition group"
+        >
+          <div className="flex items-start gap-4 flex-col sm:flex-row">
+            <div className="w-14 h-14 shrink-0 rounded-full bg-gold/20 flex items-center justify-center">
+              <Star className="w-7 h-7 text-gold fill-gold" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-gold uppercase tracking-wider mb-1">
+                השיעור הפופולרי ביותר של הרב
+              </div>
+              <h3 className="hebrew-serif text-xl sm:text-2xl font-bold text-ink group-hover:text-primary transition line-clamp-2">
+                {featuredLesson.title}
+              </h3>
+              <div className="text-sm text-ink-soft mt-1 flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1">
+                  <Eye className="w-3.5 h-3.5" />
+                  {featuredLesson.viewCount.toLocaleString("he-IL")} צפיות
+                </span>
+                <span className="text-ink-muted">·</span>
+                <span>{formatHebrewDate(featuredLesson.scheduledAt)}</span>
+              </div>
+            </div>
+            <div className="shrink-0 self-center">
+              <span className="inline-flex items-center gap-1.5 h-10 px-4 rounded-btn bg-primary text-white text-sm font-semibold group-hover:bg-primary-hover transition">
+                <Play className="w-4 h-4" />
+                האזן עכשיו
+              </span>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* ===== Mini dashboard ===== */}
       <div className="grid grid-cols-3 gap-3 mb-10">
@@ -507,17 +564,74 @@ export default async function RabbiPage({
         })()}
       </section>
 
-      {/* ===== Contact / request ===== */}
-      <section className="text-center py-8 border-t border-border">
-        <h2 className="hebrew-serif text-2xl font-bold text-ink mb-3">
-          רוצה לבקש שיעור או ליצור קשר?
-        </h2>
-        <ContactRabbiButton
-          rabbiId={rabbi.id}
-          canSend={canContact}
-          isBlocked={isContactBlocked}
-          userInfo={userInfo}
-        />
+      {/* ===== Subscribe / Contact — CTA תחתון ===== */}
+      <section className="mt-8 border-t border-border pt-10">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* התראות שיעורים חדשים */}
+          <div className="rounded-card border border-primary/20 bg-gradient-to-br from-primary-soft via-white to-paper-soft p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail className="w-5 h-5 text-primary" />
+              <h3 className="hebrew-serif text-xl font-bold text-ink">קבל כל שיעור חדש במייל</h3>
+            </div>
+            <p className="text-sm text-ink-soft mb-4">
+              {canFollow
+                ? "עקוב אחרי הרב ותקבל התראה על כל שיעור חדש — חי או מוקלט."
+                : "הירשם כתלמיד וקבל התראות על שיעורים חדשים של הרב במייל."}
+            </p>
+            {canFollow ? (
+              <FollowButton rabbiId={rabbi.id} initialFollowing={isFollowing} canFollow={canFollow} />
+            ) : (
+              <Link
+                href={`/register?next=/rabbi/${rabbi.slug}`}
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-btn bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition"
+              >
+                הירשם חינם
+              </Link>
+            )}
+          </div>
+
+          {/* צור קשר */}
+          <div className="rounded-card border border-border bg-white p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Radio className="w-5 h-5 text-gold" />
+              <h3 className="hebrew-serif text-xl font-bold text-ink">בקש שיעור או שאל שאלה</h3>
+            </div>
+            <p className="text-sm text-ink-soft mb-4">
+              רוצה לבקש מהרב לדבר על נושא מסוים? שלח הודעה — הרב יקבל אותה ישירות.
+            </p>
+            <ContactRabbiButton
+              rabbiId={rabbi.id}
+              canSend={canContact}
+              isBlocked={isContactBlocked}
+              userInfo={userInfo}
+            />
+          </div>
+        </div>
+
+        {/* Share bar */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-ink-muted mb-2">עזור להפיץ תורה — שתף את הדף של הרב</p>
+          <div className="inline-flex items-center gap-2 flex-wrap justify-center">
+            <a
+              href={`https://wa.me/?text=${shareText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-[#25D366] text-white text-sm font-medium hover:opacity-90 transition"
+            >
+              <Share2 className="w-4 h-4" />
+              WhatsApp
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(rabbiUrl)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-[#1877F2] text-white text-sm font-medium hover:opacity-90 transition"
+            >
+              <Facebook className="w-4 h-4" />
+              Facebook
+            </a>
+          </div>
+        </div>
       </section>
     </div>
   );

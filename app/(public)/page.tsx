@@ -6,6 +6,7 @@ import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@
 import { LessonsCounter } from "@/components/LessonsCounter";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { PopularLessonsStrip } from "@/components/PopularLessonsStrip";
+import { TestimonialsStrip } from "@/components/TestimonialsStrip";
 import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { db } from "@/lib/db";
 
@@ -286,6 +287,9 @@ export default async function HomePage() {
           <path fill="currentColor" d="M0,40 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 L0,80 Z" />
         </svg>
       </div>
+
+      {/* === Testimonials strip (לפני הדשבורד) === */}
+      <TestimonialsStrip />
 
       {/* === SECTION 3: דשבורד (רקע כחול) === */}
       <div id="dashboard" className="-mt-1">
