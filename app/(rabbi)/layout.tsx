@@ -5,6 +5,7 @@ import { RabbiMobileNav } from "@/components/RabbiMobileNav";
 import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { Logo } from "@/components/Logo";
+import { PersonalAssistant } from "@/components/PersonalAssistant";
 
 export default async function RabbiLayout({ children }: { children: React.ReactNode }) {
   const { rabbi } = await requireRabbi();
@@ -29,6 +30,7 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
         </div>
       </aside>
       <main className="flex-1 p-4 sm:p-6 md:p-10">{children}</main>
+      <PersonalAssistant role="rabbi" userName={rabbi.name} />
     </div>
   );
 }

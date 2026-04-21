@@ -5,6 +5,7 @@ import { ShieldCheck, Users, BookOpen, Flag, Heart, CalendarCheck, Youtube, Spar
 import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { Logo } from "@/components/Logo";
+import { PersonalAssistant } from "@/components/PersonalAssistant";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
@@ -33,6 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
       <main className="flex-1 p-6 md:p-10">{children}</main>
+      <PersonalAssistant role="admin" userName="אדמין" />
     </div>
   );
 }
