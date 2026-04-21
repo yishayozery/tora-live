@@ -119,12 +119,32 @@ export function WeeklyCalendar({
   const todayStr = new Date().toDateString();
 
   return (
-    <section className={cn(compact ? "" : "max-w-6xl mx-auto px-4 py-12 bg-white")}>
-      {/* כותרת ממורכזת (לא compact) */}
+    <section className={cn(
+      compact ? "" : "relative overflow-hidden py-14 sm:py-20 scroll-mt-16"
+    )}>
+      {!compact && (
+        <>
+          {/* רקע 2: נייר/ספרייה — טון חם */}
+          <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-white to-paper-soft pointer-events-none" aria-hidden="true" />
+          <div
+            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            aria-hidden="true"
+            style={{
+              backgroundImage: "linear-gradient(45deg, transparent 48%, rgba(184, 134, 47, 0.5) 49%, rgba(184, 134, 47, 0.5) 51%, transparent 52%)",
+              backgroundSize: "20px 20px",
+            }}
+          />
+        </>
+      )}
+      <div className={cn(compact ? "" : "relative max-w-6xl mx-auto px-4")}>
       {!compact && (
         <div className="text-center mb-6">
-          <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
-          <p className="text-sm text-ink-muted mt-2">שיעורים, תפילות ואירועים קרובים</p>
+          <div className="inline-flex items-center gap-3 mb-2">
+            <span className="w-8 h-0.5 bg-gold/40" />
+            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
+            <span className="w-8 h-0.5 bg-gold/40" />
+          </div>
+          <p className="text-sm text-ink-muted">שיעורים, תפילות ואירועים קרובים</p>
         </div>
       )}
 
@@ -407,6 +427,7 @@ export function WeeklyCalendar({
             </div>
           );
         })}
+      </div>
       </div>
     </section>
   );

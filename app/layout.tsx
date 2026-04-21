@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="he" dir="rtl" className={`${assistant.variable} ${frankRuhl.variable}`}>
+    <html lang="he" dir="rtl" className={`${assistant.variable} ${frankRuhl.variable} scroll-smooth`}>
       <body className="font-sans">
         {/* Skip-to-content — מופיע רק עם focus (Tab). דרישת נגישות. */}
         <a

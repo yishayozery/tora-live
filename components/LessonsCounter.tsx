@@ -19,11 +19,21 @@ export function LessonsCounter({
   ] as const;
 
   return (
-    <section className="max-w-6xl mx-auto px-4 mt-14 mb-20">
-      <div className="rounded-card bg-gradient-to-l from-primary to-primary-hover p-8 sm:p-10 text-white shadow-soft overflow-hidden relative">
-        <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-        <div className="absolute -right-16 -top-16 w-56 h-56 bg-gold/10 rounded-full blur-3xl" />
+    <section className="relative overflow-hidden py-16 sm:py-24 scroll-mt-16">
+      {/* רקע 3: כחול עמוק עם כוכבים עדינים — "לוח הכבוד" */}
+      <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary-hover to-ink pointer-events-none" aria-hidden="true" />
+      <div
+        className="absolute inset-0 opacity-[0.08] pointer-events-none"
+        aria-hidden="true"
+        style={{
+          backgroundImage: "radial-gradient(circle at 15% 30%, white 1.5px, transparent 1.5px), radial-gradient(circle at 70% 70%, rgba(184,134,47,0.8) 1px, transparent 1px), radial-gradient(circle at 45% 10%, white 1px, transparent 1px)",
+          backgroundSize: "100px 100px, 80px 80px, 120px 120px",
+        }}
+      />
+      <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-gold/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+      <div className="absolute -right-24 -top-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 
+      <div className="relative max-w-6xl mx-auto px-4 text-white">
         <div className="relative">
           <div className="text-center mb-8">
             <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold">

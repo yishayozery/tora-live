@@ -114,7 +114,18 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   const clearAll = () => { setFilter(""); setRabbiFilter(""); setCategoryFilter(""); setDurationFilter(""); };
 
   return (
-    <section className="bg-gradient-to-b from-live/5 via-white to-white py-10 sm:py-14 border-b-4 border-live/10">
+    <section className="relative overflow-hidden py-14 sm:py-20 scroll-mt-16">
+      {/* רקע 1: gradient כהה עם דוגמת גלים עדינה — אווירת "אולפן שידור" */}
+      <div className="absolute inset-0 bg-gradient-to-bl from-ink via-ink/95 to-primary/80 pointer-events-none" aria-hidden="true" />
+      <div
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        aria-hidden="true"
+        style={{
+          backgroundImage: "radial-gradient(circle at 25% 20%, white 1px, transparent 1px), radial-gradient(circle at 75% 60%, white 1px, transparent 1px)",
+          backgroundSize: "60px 60px, 90px 90px",
+        }}
+      />
+      <div className="relative text-white">
       <div className="max-w-6xl mx-auto px-4">
         {/* === כותרת ממורכזת === */}
         <div className="text-center mb-6">
@@ -123,9 +134,9 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
             </span>
-            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">שידורים חיים עכשיו</h2>
+            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-white drop-shadow">שידורים חיים עכשיו</h2>
           </div>
-          <p className="text-sm text-ink-muted">
+          <p className="text-sm text-white/75">
             {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
           </p>
         </div>
@@ -229,7 +240,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                 </button>
               )}
 
-              <div className="mx-auto sm:mr-auto sm:ml-0 text-xs text-ink-muted self-center">
+              <div className="mx-auto sm:mr-auto sm:ml-0 text-xs text-white/70 self-center">
                 מציג {filtered.length} מתוך {broadcasts.length}
               </div>
             </div>
@@ -286,6 +297,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             {filtered.map((b) => <LiveCardList key={b.id} b={b} />)}
           </div>
         )}
+      </div>
       </div>
     </section>
   );

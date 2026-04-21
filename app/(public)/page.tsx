@@ -190,19 +190,52 @@ export default async function HomePage() {
       {/* 1. שיעור מוקדש */}
       <SponsorBanner sponsor={sponsor} />
 
-      {/* 2. SECTION: שידורים חיים עכשיו (עם חיפוש משלו) */}
-      <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
+      {/* === SECTION 1: שידורים חיים (רקע כהה) === */}
+      <div id="live">
+        <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
+      </div>
 
-      {/* 3. SECTION: לוח שיעורים — שבועיים קדימה (עם חיפוש משלו) */}
-      <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים — שבועיים קדימה" />
+      {/* Divider 1→2 — wave מ-ink לנייר */}
+      <div className="relative -mt-1 leading-none" aria-hidden="true">
+        <svg viewBox="0 0 1440 80" className="w-full block text-paper-warm" preserveAspectRatio="none">
+          <path fill="currentColor" d="M0,40 C180,80 360,0 720,30 C1080,60 1260,20 1440,40 L1440,80 L0,80 Z" />
+        </svg>
+      </div>
 
-      {/* 4. דשבורד — סטטיסטיקות */}
-      <LessonsCounter
-        totalLessons={stats.totalLessons}
-        totalHours={stats.totalHours}
-        totalRabbis={stats.totalRabbis}
-        totalViews={stats.totalViews}
-      />
+      {/* === SECTION 2: לוח שיעורים (רקע נייר) === */}
+      <div id="calendar" className="-mt-1">
+        <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" />
+      </div>
+
+      {/* Divider 2→3 — wave מנייר לכחול */}
+      <div className="relative -mt-1 leading-none" aria-hidden="true">
+        <svg viewBox="0 0 1440 80" className="w-full block text-primary" preserveAspectRatio="none">
+          <path fill="currentColor" d="M0,40 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 L0,80 Z" />
+        </svg>
+      </div>
+
+      {/* === SECTION 3: דשבורד (רקע כחול) === */}
+      <div id="dashboard" className="-mt-1">
+        <LessonsCounter
+          totalLessons={stats.totalLessons}
+          totalHours={stats.totalHours}
+          totalRabbis={stats.totalRabbis}
+          totalViews={stats.totalViews}
+        />
+      </div>
+
+      {/* Navigation dots — נקודות צדדיות למעבר מהיר (desktop only) */}
+      <nav className="fixed right-4 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col gap-3 pointer-events-none" aria-label="ניווט סקציות">
+        <a href="#live" className="group pointer-events-auto" title="שידורים חיים">
+          <span className="block w-3 h-3 rounded-full bg-live/40 border border-live ring-2 ring-transparent group-hover:ring-live/30 transition" />
+        </a>
+        <a href="#calendar" className="group pointer-events-auto" title="לוח שיעורים">
+          <span className="block w-3 h-3 rounded-full bg-gold/40 border border-gold ring-2 ring-transparent group-hover:ring-gold/30 transition" />
+        </a>
+        <a href="#dashboard" className="group pointer-events-auto" title="דשבורד">
+          <span className="block w-3 h-3 rounded-full bg-primary/40 border border-primary ring-2 ring-transparent group-hover:ring-primary/30 transition" />
+        </a>
+      </nav>
     </>
   );
 }
