@@ -115,17 +115,17 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 
   return (
     <section className="relative overflow-hidden py-14 sm:py-20 scroll-mt-16">
-      {/* רקע 1: gradient כהה עם דוגמת גלים עדינה — אווירת "אולפן שידור" */}
-      <div className="absolute inset-0 bg-gradient-to-bl from-ink via-ink/95 to-primary/80 pointer-events-none" aria-hidden="true" />
+      {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
-        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
         aria-hidden="true"
         style={{
-          backgroundImage: "radial-gradient(circle at 25% 20%, white 1px, transparent 1px), radial-gradient(circle at 75% 60%, white 1px, transparent 1px)",
-          backgroundSize: "60px 60px, 90px 90px",
+          backgroundImage: "url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1600&q=75')",
         }}
       />
-      <div className="relative text-white">
+      {/* Overlay בהיר לקריאות — paper-warm semi-transparent */}
+      <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
+      <div className="relative">
       <div className="max-w-6xl mx-auto px-4">
         {/* === כותרת ממורכזת === */}
         <div className="text-center mb-6">
@@ -134,9 +134,9 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
               <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
             </span>
-            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-white drop-shadow">שידורים חיים עכשיו</h2>
+            <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">שידורים חיים עכשיו</h2>
           </div>
-          <p className="text-sm text-white/75">
+          <p className="text-sm text-ink-soft">
             {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
           </p>
         </div>
@@ -240,7 +240,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                 </button>
               )}
 
-              <div className="mx-auto sm:mr-auto sm:ml-0 text-xs text-white/70 self-center">
+              <div className="mx-auto sm:mr-auto sm:ml-0 text-xs text-ink-muted self-center">
                 מציג {filtered.length} מתוך {broadcasts.length}
               </div>
             </div>

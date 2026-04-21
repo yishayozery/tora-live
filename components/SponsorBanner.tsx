@@ -11,8 +11,8 @@ export function SponsorBanner({ sponsor }: { sponsor: SponsorInfo | null }) {
   const hasSponsor = sponsor && sponsor.name;
 
   return (
-    <div className="bg-gradient-to-l from-gold-soft via-gold-soft/60 to-paper-warm border-b border-gold/20">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap text-sm">
+    <div className="sticky top-16 z-20 bg-gradient-to-l from-gold-soft via-gold-soft/60 to-paper-warm border-b border-gold/30 shadow-sm backdrop-blur">
+      <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4 flex-wrap text-sm">
         <div className="flex items-center gap-2 min-w-0 text-ink">
           <Heart className="w-4 h-4 text-gold fill-gold shrink-0" />
           {hasSponsor ? (

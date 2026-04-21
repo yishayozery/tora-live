@@ -20,16 +20,16 @@ export function LessonsCounter({
 
   return (
     <section className="relative overflow-hidden py-16 sm:py-24 scroll-mt-16">
-      {/* רקע 3: כחול עמוק עם כוכבים עדינים — "לוח הכבוד" */}
-      <div className="absolute inset-0 bg-gradient-to-bl from-primary via-primary-hover to-ink pointer-events-none" aria-hidden="true" />
+      {/* רקע 3: ירושלים/כותל בלילה — fixed parallax */}
       <div
-        className="absolute inset-0 opacity-[0.08] pointer-events-none"
+        className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
         aria-hidden="true"
         style={{
-          backgroundImage: "radial-gradient(circle at 15% 30%, white 1.5px, transparent 1.5px), radial-gradient(circle at 70% 70%, rgba(184,134,47,0.8) 1px, transparent 1px), radial-gradient(circle at 45% 10%, white 1px, transparent 1px)",
-          backgroundSize: "100px 100px, 80px 80px, 120px 120px",
+          backgroundImage: "url('https://images.unsplash.com/photo-1544699030-2c1a0b54c1b9?w=1600&q=75')",
         }}
       />
+      {/* Overlay כחול לקריאות */}
+      <div className="absolute inset-0 bg-gradient-to-bl from-primary/95 via-primary-hover/92 to-ink/95 pointer-events-none" aria-hidden="true" />
       <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-gold/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
       <div className="absolute -right-24 -top-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
 

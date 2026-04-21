@@ -124,16 +124,16 @@ export function WeeklyCalendar({
     )}>
       {!compact && (
         <>
-          {/* רקע 2: נייר/ספרייה — טון חם */}
-          <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-white to-paper-soft pointer-events-none" aria-hidden="true" />
+          {/* רקע 2: תמונת ספרים עתיקים — fixed — אפקט parallax */}
           <div
-            className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
             aria-hidden="true"
             style={{
-              backgroundImage: "linear-gradient(45deg, transparent 48%, rgba(184, 134, 47, 0.5) 49%, rgba(184, 134, 47, 0.5) 51%, transparent 52%)",
-              backgroundSize: "20px 20px",
+              backgroundImage: "url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1600&q=75')",
             }}
           />
+          {/* Overlay חם לקריאות */}
+          <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/92 via-white/85 to-paper-warm/92 pointer-events-none" aria-hidden="true" />
         </>
       )}
       <div className={cn(compact ? "" : "relative max-w-6xl mx-auto px-4")}>

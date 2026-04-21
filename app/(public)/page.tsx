@@ -195,10 +195,10 @@ export default async function HomePage() {
         <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
       </div>
 
-      {/* Divider 1→2 — wave מ-ink לנייר */}
+      {/* Divider 1→2 — wave עדין לנייר */}
       <div className="relative -mt-1 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 80" className="w-full block text-paper-warm" preserveAspectRatio="none">
-          <path fill="currentColor" d="M0,40 C180,80 360,0 720,30 C1080,60 1260,20 1440,40 L1440,80 L0,80 Z" />
+        <svg viewBox="0 0 1440 60" className="w-full block text-paper-warm" preserveAspectRatio="none">
+          <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
         </svg>
       </div>
 
