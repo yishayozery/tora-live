@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 import { formatTimeRange } from "@/lib/utils";
@@ -57,6 +57,7 @@ export function WeeklyCalendar({
   compact?: boolean;
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
+  const [filter, setFilter] = useState("");
 
   /** שבועיים מתחילת השבוע הנוכחי + offset */
   const gridDays = useMemo(() => {
@@ -80,10 +81,21 @@ export function WeeklyCalendar({
     return `${firstHe} – ${lastHe} · ${fmtGreg.format(first)} – ${fmtGreg.format(last)}`;
   }, [gridDays]);
 
+  // סינון שיעורים לפי חיפוש
+  const filteredLessons = useMemo(() => {
+    if (!filter.trim()) return lessons;
+    const q = filter.toLowerCase();
+    return lessons.filter((l) =>
+      l.title.toLowerCase().includes(q) ||
+      l.rabbiName.toLowerCase().includes(q) ||
+      (l.category ?? "").toLowerCase().includes(q)
+    );
+  }, [lessons, filter]);
+
   /** מיפוי dateString -> שיעורים */
   const lessonsByDate = useMemo(() => {
     const map = new Map<string, CalendarLesson[]>();
-    for (const l of lessons) {
+    for (const l of filteredLessons) {
       const key = new Date(l.scheduledAt).toDateString();
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(l);
@@ -99,9 +111,21 @@ export function WeeklyCalendar({
 
   return (
     <section className={cn(compact ? "" : "max-w-6xl mx-auto px-4 mt-12")}>
-      {/* כותרת + ניווט שבועי (4 שבועות קדימה מהיום) */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+      {/* כותרת + ניווט + חיפוש */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <h2 className="hebrew-serif text-2xl font-bold text-ink">{title}</h2>
+        {!compact && (
+          <div className="relative max-w-xs flex-1">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+            <input
+              type="search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="חיפוש בלוח (רב, נושא...)"
+              className="w-full h-10 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset((o) => Math.max(0, o - 1))}
