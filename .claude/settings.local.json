@@ -154,7 +154,9 @@
       "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/eliezer-melamed\")",
       "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/\")",
       "Bash(curl -sS -o /dev/null -w \"%{time_total}\" --max-time 10 \"https://torah-live-rho.vercel.app/\")",
-      "Bash(curl -sS --max-time 10 \"https://torah-live-rho.vercel.app/\")"
+      "Bash(curl -sS --max-time 10 \"https://torah-live-rho.vercel.app/\")",
+      "Bash(node --import tsx scripts/load-test.ts 8 50)",
+      "Bash(TORA_LIVE_URL=\"https://torah-live-rho.vercel.app\" node --import tsx scripts/load-test.ts 8 50)"
     ]
   }
 }

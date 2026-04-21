@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Search, User, Tag, Calendar, Clock, Filter, Languages, Radio } from "lucide-react";
 
 export type FilterOption = { value: string; label: string; count?: number };
@@ -61,6 +61,39 @@ export function LessonSearch({ options }: { options: SearchOptions }) {
     e.preventDefault();
     router.push(`/lessons${queryString ? `?${queryString}` : ""}`);
   }
+
+  // === Live filtering ===
+  // אם המשתמש כבר ב-/lessons → סינון מיידי (debounce 300ms על שדה החיפוש)
+  // אם המשתמש בדף הבית → ניווט ישיר ל-/lessons בכל שינוי dropdown (לא debounce — רק על q)
+  const pathname = usePathname();
+  const onLessonsPage = pathname === "/lessons";
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    // טריגר על כל שינוי בפילטרים (לא על q — שם debounce בנפרד)
+    const url = `/lessons${queryString ? `?${queryString}` : ""}`;
+    if (onLessonsPage) {
+      router.replace(url, { scroll: false });
+    } else {
+      router.push(url);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rabbi, topic, date, time, tag, language, type]);
+
+  // Debounced q — רק על דף /lessons (כדי לא להעיף את המשתמש מהבית עם כל מקש)
+  useEffect(() => {
+    if (!onLessonsPage) return;
+    if (isFirstRender.current) return;
+    const handle = setTimeout(() => {
+      router.replace(`/lessons${queryString ? `?${queryString}` : ""}`, { scroll: false });
+    }, 350);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
 
   return (
     <form onSubmit={submit} className="w-full">
