@@ -4,6 +4,36 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardDescription } from "@/components/ui/Card";
+import { ShareButtons } from "@/components/ShareButtons";
+import { LessonStructuredData } from "@/components/LessonStructuredData";
+import type { Metadata } from "next";
+
+const SITE_URL = "https://torah-live-rho.vercel.app";
+
+// === SEO + Open Graph + JSON-LD ===
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const lesson = await db.lesson.findUnique({
+    where: { id: params.id },
+    include: { rabbi: { select: { name: true } } },
+  });
+  if (!lesson) return { title: "שיעור לא נמצא | TORA_LIVE" };
+  const rabbiName = lesson.rabbi?.name ?? lesson.organizerName ?? "שיעור תורה";
+  const title = `${lesson.title} — ${rabbiName} | TORA_LIVE`;
+  const description = (lesson.description || `שיעור תורה מאת ${rabbiName} ב-TORA_LIVE`).slice(0, 155);
+  const url = `${SITE_URL}/lesson/${lesson.id}`;
+  const image = lesson.posterUrl || `${SITE_URL}/og-default.png`;
+  return {
+    title, description,
+    alternates: { canonical: url },
+    openGraph: {
+      title, description, url,
+      type: lesson.isLive ? "video.other" : "article",
+      images: [{ url: image, width: 1200, height: 630, alt: lesson.title }],
+      locale: "he_IL", siteName: "TORA_LIVE",
+    },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
+  };
+}
 import { BookmarkButton } from "@/components/BookmarkButton";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { LivePdfViewer } from "@/components/LivePdfViewer";
@@ -43,6 +73,14 @@ export default async function LessonPage({ params }: { params: { id: string } })
 
   // אירוע ממתין לאישור / נדחה — מוצג רק לבעלים
   if (lesson.approvalStatus !== "APPROVED" && !isOwner) notFound();
+
+  // === View counter — fire-and-forget. רק למבקר אמיתי שלא הבעלים. ===
+  if (!isOwner && lesson.approvalStatus === "APPROVED" && lesson.isPublic) {
+    db.lesson.update({
+      where: { id: lesson.id },
+      data: { viewCount: { increment: 1 } },
+    }).catch(() => {});
+  }
 
   // שיעור מושהה — מוצג לבעלים, לציבור מוצגת הודעה
   const isSuspendedForViewer = lesson.isSuspended && !isOwner;
@@ -114,6 +152,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
           <ReportLessonButton lessonId={lesson.id} />
         )}
       </div>
+      <LessonStructuredData lesson={lesson as any} />
       <h1 className="hebrew-serif text-4xl font-bold text-ink">{lesson.title}</h1>
       <div className="mt-2 text-ink-muted flex items-center gap-3 flex-wrap">
         <span>{formatHebrewDate(lesson.scheduledAt)} · {formatHebrewTime(lesson.scheduledAt)}</span>
@@ -141,7 +180,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5 flex flex-wrap gap-3 items-center">
         <BookmarkButton
           lessonId={lesson.id}
           initialBookmarked={!!existingBookmark}
@@ -157,6 +196,15 @@ export default async function LessonPage({ params }: { params: { id: string } })
             <FileText className="w-4 h-4" /> דף מקורות
           </a>
         )}
+      </div>
+
+      {/* Share buttons */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <ShareButtons
+          url={`https://torah-live-rho.vercel.app/lesson/${lesson.id}`}
+          title={lesson.title}
+          rabbiName={lesson.rabbi?.name ?? lesson.organizerName ?? undefined}
+        />
       </div>
 
       {/* Video Embed — שידור חי (HLS/YouTube/External) */}

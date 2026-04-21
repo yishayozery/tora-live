@@ -1,6 +1,36 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+const SITE = "https://torah-live-rho.vercel.app";
+
+// === SEO + Open Graph ===
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const rabbi = await db.rabbi.findUnique({
+    where: { slug: params.slug },
+    select: { name: true, bio: true, photoUrl: true, _count: { select: { lessons: true } } },
+  });
+  if (!rabbi) return { title: "רב לא נמצא | TORA_LIVE" };
+
+  const title = `${rabbi.name} — שיעורי תורה אונליין | TORA_LIVE`;
+  const description = (rabbi.bio || `${rabbi._count.lessons} שיעורי תורה מאת ${rabbi.name} ב-TORA_LIVE — שידורים חיים והקלטות`).slice(0, 155);
+  const url = `${SITE}/rabbi/${params.slug}`;
+  const image = rabbi.photoUrl || `${SITE}/og-default.png`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title, description, url, type: "profile",
+      images: [{ url: image, alt: rabbi.name }],
+      locale: "he_IL",
+      siteName: "TORA_LIVE",
+    },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
+  };
+}
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
