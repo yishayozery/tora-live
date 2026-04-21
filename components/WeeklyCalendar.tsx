@@ -58,17 +58,26 @@ export function WeeklyCalendar({
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [filter, setFilter] = useState("");
+  const [viewMode, setViewMode] = useState<"day" | "week" | "2weeks" | "month">("2weeks");
 
-  /** שבועיים מתחילת השבוע הנוכחי + offset */
+  const rangeLengthDays = viewMode === "day" ? 1 : viewMode === "week" ? 7 : viewMode === "month" ? 30 : 14;
+  const rangeStepDays = rangeLengthDays;
+
   const gridDays = useMemo(() => {
-    const start = getCurrentWeekStart();
-    start.setDate(start.getDate() + weekOffset * 14);
-    return Array.from({ length: 14 }, (_, i) => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const start = viewMode === "day"
+      ? new Date(today.getTime() + weekOffset * 86400000)
+      : (() => {
+          const s = getCurrentWeekStart();
+          s.setDate(s.getDate() + weekOffset * rangeStepDays);
+          return s;
+        })();
+    return Array.from({ length: rangeLengthDays }, (_, i) => {
       const d = new Date(start);
       d.setDate(d.getDate() + i);
       return d;
     });
-  }, [weekOffset]);
+  }, [weekOffset, viewMode, rangeStepDays, rangeLengthDays]);
 
   // טווח התצוגה לכותרת — עברי + לועזי
   const rangeLabel = useMemo(() => {
@@ -105,28 +114,60 @@ export function WeeklyCalendar({
       arr.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
     }
     return map;
-  }, [lessons]);
+  }, [filteredLessons]);
 
   const todayStr = new Date().toDateString();
 
   return (
-    <section className={cn(compact ? "" : "max-w-6xl mx-auto px-4 mt-12")}>
-      {/* כותרת + ניווט + חיפוש */}
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <h2 className="hebrew-serif text-2xl font-bold text-ink">{title}</h2>
-        {!compact && (
-          <div className="relative max-w-xs flex-1">
+    <section className={cn(compact ? "" : "max-w-6xl mx-auto px-4 py-12 bg-white")}>
+      {/* כותרת ממורכזת (לא compact) */}
+      {!compact && (
+        <div className="text-center mb-6">
+          <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink">{title}</h2>
+          <p className="text-sm text-ink-muted mt-2">שיעורים, תפילות ואירועים קרובים</p>
+        </div>
+      )}
+
+      {/* חיפוש + toggle תצוגה (לא compact) */}
+      {!compact && (
+        <div className="max-w-2xl mx-auto mb-4 flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
             <input
               type="search"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              placeholder="חיפוש בלוח (רב, נושא...)"
-              className="w-full h-10 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none"
+              placeholder="חפש בלוח לפי רב, נושא או כותרת..."
+              className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
             />
           </div>
-        )}
-        <div className="flex items-center gap-2">
+          <div className="flex gap-1 p-1 bg-paper-soft rounded-btn border border-border" role="group" aria-label="תצוגה">
+            {[
+              { v: "day" as const, label: "יום" },
+              { v: "week" as const, label: "שבוע" },
+              { v: "2weeks" as const, label: "שבועיים" },
+              { v: "month" as const, label: "חודש" },
+            ].map((opt) => (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => { setViewMode(opt.v); setWeekOffset(0); }}
+                className={`h-9 px-3 text-sm font-medium rounded-btn transition ${
+                  viewMode === opt.v ? "bg-primary text-white" : "text-ink-soft hover:text-ink hover:bg-white"
+                }`}
+                aria-pressed={viewMode === opt.v}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ניווט בין תקופות */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        {compact && <h2 className="hebrew-serif text-2xl font-bold text-ink">{title}</h2>}
+        <div className="flex items-center gap-2 mx-auto">
           <button
             onClick={() => setWeekOffset((o) => Math.max(0, o - 1))}
             disabled={weekOffset === 0}
