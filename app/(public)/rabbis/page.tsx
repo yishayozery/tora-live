@@ -135,52 +135,52 @@ function RabbiGalleryCard({ rabbi }: { rabbi: RabbiCardData }) {
     .slice(0, 2)
     .join("");
 
+  // tagline אוטומטי — שורה ראשונה של ה-bio (או fallback)
+  const tagline = rabbi.bio?.split(/[.\n]/).find((s) => s.trim().length > 5)?.trim().slice(0, 60)
+    ?? (rabbi._count.lessons > 50 ? "מורה מוערך · עשרות שיעורים" : rabbi._count.lessons > 10 ? "פעיל בהוראת תורה" : "רב חדש בפלטפורמה");
+
   return (
-    <article className="card group flex flex-col p-6 transition hover:border-primary/40 hover:shadow-card">
-      <div className="flex items-center gap-4">
+    <article className="card group flex flex-col p-5 transition hover:border-primary/40 hover:shadow-card hover:-translate-y-0.5">
+      <div className="flex items-start gap-4">
         {rabbi.photoUrl ? (
           rabbi.photoUrl.startsWith("data:") ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={rabbi.photoUrl} alt={rabbi.name} className="h-16 w-16 shrink-0 rounded-full object-cover" />
+            <img src={rabbi.photoUrl} alt={rabbi.name} className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-gold-soft ring-offset-2" />
           ) : (
             <Image
               src={rabbi.photoUrl}
               alt={rabbi.name}
-              width={64}
-              height={64}
-              className="h-16 w-16 shrink-0 rounded-full object-cover"
+              width={80}
+              height={80}
+              className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-gold-soft ring-offset-2"
             />
           )
         ) : (
           <div
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gold-soft font-serif text-2xl font-bold text-gold"
+            className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-soft to-gold/30 font-serif text-2xl font-bold text-gold ring-2 ring-gold-soft ring-offset-2"
             aria-hidden="true"
           >
             {initials}
           </div>
         )}
-        <div className="min-w-0 flex-1">
-          <h2 className="hebrew-serif text-xl font-bold text-ink group-hover:text-primary transition">
+        <div className="min-w-0 flex-1 pt-1">
+          <h2 className="hebrew-serif text-lg font-bold text-ink group-hover:text-primary transition leading-tight">
             {rabbi.name}
           </h2>
-          <div className="mt-1 flex items-center gap-3 text-xs text-ink-subtle">
+          {/* Tagline — אישיות במשפט אחד */}
+          <p className="text-xs text-ink-soft mt-1 line-clamp-1">{tagline}</p>
+          <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
             <span className="flex items-center gap-1">
-              <BookOpen className="w-3.5 h-3.5" />
-              {rabbi._count.lessons} שיעורים
+              <BookOpen className="w-3 h-3" />
+              {rabbi._count.lessons}
             </span>
             <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5" />
-              {rabbi._count.followers.toLocaleString("he-IL")} עוקבים
+              <Users className="w-3 h-3" />
+              {rabbi._count.followers.toLocaleString("he-IL")}
             </span>
           </div>
         </div>
       </div>
-
-      {rabbi.bio && rabbi.bio.trim() !== "" && (
-        <p className="mt-4 line-clamp-2 text-sm text-ink-muted flex-1">
-          {rabbi.bio}
-        </p>
-      )}
 
       <Link
         href={`/rabbi/${rabbi.slug}`}

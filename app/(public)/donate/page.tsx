@@ -1,4 +1,4 @@
-import { Heart, Sparkles, ShieldCheck } from "lucide-react";
+import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe } from "lucide-react";
 
 export const metadata = {
   title: "תרומה | TORA LIVE",
@@ -36,6 +36,28 @@ export default function DonatePage() {
           בעזרתך אלפי יהודים נחשפים לשיעורי תורה חינם. כל תרומה מזכה אותך ואת יקיריך בלימוד תורה אמיתי.
         </p>
       </header>
+
+      {/* Impact strip — מה התרומה שלך עושה */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
+        {[
+          { amount: 36, icon: Clock, label: "שעת לימוד", desc: "ל-15 תלמידים" },
+          { amount: 100, icon: BookOpen, label: "שיעור מלא", desc: "מועלה לאתר" },
+          { amount: 180, icon: Users, label: "100 תלמידים", desc: "תזכורת+שיעור" },
+          { amount: 540, icon: Globe, label: "יום שלם", desc: "של שידורים חיים" },
+        ].map((it) => {
+          const Icon = it.icon;
+          return (
+            <div key={it.amount} className="card p-4 text-center hover:border-gold/40 transition">
+              <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gold-soft flex items-center justify-center">
+                <Icon className="w-5 h-5 text-gold" />
+              </div>
+              <div className="hebrew-serif text-xl font-bold text-gold">₪{it.amount}</div>
+              <div className="text-sm font-medium text-ink mt-1">{it.label}</div>
+              <div className="text-xs text-ink-muted mt-0.5">{it.desc}</div>
+            </div>
+          );
+        })}
+      </section>
 
       {/* Two tracks */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageCircle, Send } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "צור קשר — TORA_LIVE",
@@ -32,6 +32,36 @@ export default function ContactPage() {
         <p className="mt-4 text-lg text-ink-soft max-w-2xl mx-auto">
           יש שאלה, הצעה, או בעיה טכנית? נשמח לשמוע ממך. הצוות שלנו יחזור אליך בהקדם.
         </p>
+
+        {/* Quick contact buttons — מענה מהיר */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="https://wa.me/972500000000?text=שלום%2C%20אני%20מעוניין%20בקשר%20עם%20TORA_LIVE"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-[#25D366] text-white font-medium hover:opacity-90 transition shadow-soft"
+          >
+            <MessageCircle className="w-4 h-4" />
+            WhatsApp
+          </a>
+          <a
+            href="https://t.me/tora_live_official"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-[#0088cc] text-white font-medium hover:opacity-90 transition shadow-soft"
+          >
+            <Send className="w-4 h-4" />
+            Telegram
+          </a>
+          <a
+            href="mailto:info@tora-live.co.il"
+            className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-paper-soft border border-border text-ink-soft hover:bg-white hover:text-ink transition"
+          >
+            <Mail className="w-4 h-4" />
+            מייל
+          </a>
+        </div>
+        <p className="text-xs text-ink-muted mt-2">תגובה מהירה ב-WhatsApp · בדרך כלל תוך שעה בשעות פעילות</p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">

@@ -151,7 +151,10 @@
       "Bash(vercel projects *)",
       "Bash(curl -sS -o /dev/null -w \"%{http_code}\" -H \"Authorization: Bearer OLD_WRONG\" --max-time 5 \"https://torah-live-rho.vercel.app/api/cron/detect-live\")",
       "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/yeshivat-har-bracha\")",
-      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/eliezer-melamed\")"
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/rabbi/eliezer-melamed\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\" --max-time 10 \"https://torah-live-rho.vercel.app/\")",
+      "Bash(curl -sS -o /dev/null -w \"%{time_total}\" --max-time 10 \"https://torah-live-rho.vercel.app/\")",
+      "Bash(curl -sS --max-time 10 \"https://torah-live-rho.vercel.app/\")"
     ]
   }
 }

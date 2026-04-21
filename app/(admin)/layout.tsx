@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { ShieldCheck, Users, BookOpen, Flag, Heart, CalendarCheck, Youtube, Sparkles } from "lucide-react";
 import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
+import { Logo } from "@/components/Logo";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
@@ -12,10 +13,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen bg-paper-soft flex">
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
-        <Link href="/" className="h-16 px-5 border-b border-border flex items-center gap-2 hover:bg-paper-soft transition">
-          <ShieldCheck className="w-5 h-5 text-primary" />
-          <span className="hebrew-serif text-xl font-bold text-ink">אדמין · TORA_LIVE</span>
-        </Link>
+        <div className="h-16 px-5 border-b border-border flex items-center justify-between hover:bg-paper-soft transition">
+          <Logo size="sm" />
+          <span className="text-[10px] font-bold text-primary bg-primary-soft px-2 py-0.5 rounded-full">אדמין</span>
+        </div>
         <nav className="flex-1 p-3 space-y-1">
           <NavLink href="/admin" exact><ShieldCheck className="w-4 h-4" /> סקירה</NavLink>
           <NavLink href="/admin/rabbis"><Users className="w-4 h-4" /> רבנים</NavLink>

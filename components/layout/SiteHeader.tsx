@@ -2,11 +2,12 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { BookOpen, UserPlus, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { UserPlus, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserMenu } from "@/components/UserMenu";
 import { PublicMobileNav } from "@/components/layout/PublicMobileNav";
 import { NavLink } from "@/components/layout/NavLink";
+import { Logo } from "@/components/Logo";
 
 export async function SiteHeader() {
   const session = await getServerSession(authOptions);
@@ -31,10 +32,7 @@ export async function SiteHeader() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <PublicMobileNav isLoggedIn={isLoggedIn} isRabbi={userRole === "RABBI"} />
-          <Link href="/" className="flex items-center gap-2 text-ink shrink-0">
-            <BookOpen className="w-7 h-7 text-primary" />
-            <span className="hebrew-serif text-2xl font-bold">TORA_LIVE</span>
-          </Link>
+          <Logo size="md" />
         </div>
 
         <nav className="hidden md:flex items-center gap-5 text-sm">
