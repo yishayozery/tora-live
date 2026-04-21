@@ -59,6 +59,9 @@ function relativeFuture(iso: string): string {
 
 export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcasts: LiveBroadcast[]; nextBroadcast?: NextBroadcast | null }) {
   const [filter, setFilter] = useState("");
+  const [rabbiFilter, setRabbiFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [durationFilter, setDurationFilter] = useState<"" | "short" | "mid" | "long">("");
   const [view, setView] = useState<"grid" | "list">("grid");
 
   // tick every minute for "time since broadcast started"
@@ -68,15 +71,47 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
     return () => clearInterval(i);
   }, []);
 
+  // רשימות לפילטרים — מובנים מהשידורים הקיימים
+  const rabbiOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    broadcasts.forEach((b) => map.set(b.rabbiName, (map.get(b.rabbiName) ?? 0) + 1));
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [broadcasts]);
+
+  const categoryOptions = useMemo(() => {
+    const map = new Map<string, number>();
+    broadcasts.forEach((b) => { if (b.category) map.set(b.category, (map.get(b.category) ?? 0) + 1); });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [broadcasts]);
+
   const filtered = useMemo(() => {
-    if (!filter.trim()) return broadcasts;
-    const q = filter.toLowerCase();
-    return broadcasts.filter((b) =>
-      b.title.toLowerCase().includes(q) ||
-      b.rabbiName.toLowerCase().includes(q) ||
-      (b.category ?? "").toLowerCase().includes(q)
-    );
-  }, [broadcasts, filter]);
+    return broadcasts.filter((b) => {
+      // חיפוש חופשי
+      if (filter.trim()) {
+        const q = filter.toLowerCase();
+        const match = b.title.toLowerCase().includes(q) ||
+          b.rabbiName.toLowerCase().includes(q) ||
+          (b.category ?? "").toLowerCase().includes(q);
+        if (!match) return false;
+      }
+      // רב
+      if (rabbiFilter && b.rabbiName !== rabbiFilter) return false;
+      // קטגוריה
+      if (categoryFilter && b.category !== categoryFilter) return false;
+      // משך השידור
+      if (durationFilter) {
+        const startedMs = b.liveStartedAt ? Date.now() - new Date(b.liveStartedAt).getTime() : 0;
+        const minutes = Math.floor(startedMs / 60_000);
+        if (durationFilter === "short" && minutes >= 10) return false;
+        if (durationFilter === "mid" && (minutes < 10 || minutes > 60)) return false;
+        if (durationFilter === "long" && minutes <= 60) return false;
+      }
+      return true;
+    });
+  }, [broadcasts, filter, rabbiFilter, categoryFilter, durationFilter]);
+
+  const hasActiveFilter = !!(filter || rabbiFilter || categoryFilter || durationFilter);
+  const clearAll = () => { setFilter(""); setRabbiFilter(""); setCategoryFilter(""); setDurationFilter(""); };
 
   return (
     <section className="bg-gradient-to-b from-live/5 via-white to-white py-10 sm:py-14 border-b-4 border-live/10">
@@ -95,44 +130,108 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           </p>
         </div>
 
-        {/* === חיפוש + toggle תצוגה === */}
+        {/* === חיפוש + פילטרים מובנים + toggle תצוגה === */}
         {broadcasts.length > 0 && (
-          <div className="max-w-2xl mx-auto mb-6 flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
-              <input
-                type="search"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                placeholder="חפש שידור לפי רב, נושא או כותרת..."
-                className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
-              />
+          <div className="max-w-4xl mx-auto mb-6 space-y-2">
+            {/* שורה 1: חיפוש חופשי + toggle */}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+                <input
+                  type="search"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  placeholder="חיפוש חופשי — רב, נושא או כותרת..."
+                  className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
+                />
+              </div>
+              <div className="flex gap-1 p-1 bg-white rounded-btn border border-border shadow-soft" role="group" aria-label="תצוגה">
+                <button
+                  type="button"
+                  onClick={() => setView("grid")}
+                  className={`h-9 w-9 inline-flex items-center justify-center rounded-btn transition ${
+                    view === "grid" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
+                  }`}
+                  aria-label="תצוגת רשת"
+                  aria-pressed={view === "grid"}
+                  title="תצוגת רשת"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("list")}
+                  className={`h-9 w-9 inline-flex items-center justify-center rounded-btn transition ${
+                    view === "list" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
+                  }`}
+                  aria-label="תצוגת רשימה"
+                  aria-pressed={view === "list"}
+                  title="תצוגת רשימה"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex gap-1 p-1 bg-white rounded-btn border border-border shadow-soft" role="group" aria-label="תצוגה">
-              <button
-                type="button"
-                onClick={() => setView("grid")}
-                className={`h-9 w-9 inline-flex items-center justify-center rounded-btn transition ${
-                  view === "grid" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
+
+            {/* שורה 2: פילטרים מובנים — מסננים מיד בשינוי */}
+            <div className="flex gap-2 flex-wrap">
+              <select
+                value={rabbiFilter}
+                onChange={(e) => setRabbiFilter(e.target.value)}
+                className={`h-10 px-3 rounded-btn border text-sm bg-white transition ${
+                  rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"
                 }`}
-                aria-label="תצוגת רשת"
-                aria-pressed={view === "grid"}
-                title="תצוגת רשת"
+                aria-label="פילטר לפי רב"
               >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("list")}
-                className={`h-9 w-9 inline-flex items-center justify-center rounded-btn transition ${
-                  view === "list" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
+                <option value="">כל הרבנים ({broadcasts.length})</option>
+                {rabbiOptions.map(([name, count]) => (
+                  <option key={name} value={name}>{name} ({count})</option>
+                ))}
+              </select>
+
+              {categoryOptions.length > 0 && (
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className={`h-10 px-3 rounded-btn border text-sm bg-white transition ${
+                    categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"
+                  }`}
+                  aria-label="פילטר לפי נושא"
+                >
+                  <option value="">כל הנושאים</option>
+                  {categoryOptions.map(([cat, count]) => (
+                    <option key={cat} value={cat}>{cat} ({count})</option>
+                  ))}
+                </select>
+              )}
+
+              <select
+                value={durationFilter}
+                onChange={(e) => setDurationFilter(e.target.value as any)}
+                className={`h-10 px-3 rounded-btn border text-sm bg-white transition ${
+                  durationFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"
                 }`}
-                aria-label="תצוגת רשימה"
-                aria-pressed={view === "list"}
-                title="תצוגת רשימה"
+                aria-label="פילטר לפי משך השידור"
               >
-                <List className="w-4 h-4" />
-              </button>
+                <option value="">כל משכי השידור</option>
+                <option value="short">התחילו עכשיו (&lt; 10 דק׳)</option>
+                <option value="mid">באמצע השיעור (10–60 דק׳)</option>
+                <option value="long">בשידור זמן ארוך (&gt; 60 דק׳)</option>
+              </select>
+
+              {hasActiveFilter && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="h-10 px-4 rounded-btn text-sm text-primary hover:underline font-medium"
+                >
+                  נקה סינון
+                </button>
+              )}
+
+              <div className="mx-auto sm:mr-auto sm:ml-0 text-xs text-ink-muted self-center">
+                מציג {filtered.length} מתוך {broadcasts.length}
+              </div>
             </div>
           </div>
         )}
@@ -175,8 +274,8 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           )
         ) : filtered.length === 0 ? (
           <div className="rounded-card border border-dashed border-border p-6 text-center text-sm text-ink-muted max-w-xl mx-auto">
-            אין שידור חי תחת הסינון &quot;{filter}&quot;.{" "}
-            <button onClick={() => setFilter("")} className="text-primary hover:underline">הצג הכל</button>
+            אין שידור חי התואם לסינון שבחרת.{" "}
+            <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
