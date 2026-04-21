@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
+import { HomeHero, type HeroLesson } from "@/components/HomeHero";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 
 // dynamic — צריך session לחישוב canChat. revalidate לא יעבוד עם session.
 export const dynamic = "force-dynamic";
@@ -83,6 +85,54 @@ async function getHomeData() {
       };
     }
   }
+
+  // === Recommended lesson — אם אין live ואין next קרוב, ניקח שיעור מומלץ של היום
+  let recommendedLesson: HeroLesson | null = null;
+  if (liveLessons.length === 0 && !nextLive) {
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(); todayEnd.setHours(23, 59, 59);
+    const rec = await db.lesson.findFirst({
+      where: {
+        isPublic: true, approvalStatus: "APPROVED", isSuspended: false,
+        scheduledAt: { gte: todayStart, lte: todayEnd },
+        OR: [{ rabbi: { status: "APPROVED", isBlocked: false } }, { rabbiId: null }],
+      },
+      include: { rabbi: { select: { name: true, slug: true } }, category: true },
+      orderBy: { viewCount: "desc" },
+    });
+    if (rec) {
+      recommendedLesson = {
+        id: rec.id, title: rec.title, description: rec.description ?? undefined,
+        rabbiName: rec.rabbi?.name ?? rec.organizerName ?? "—",
+        rabbiSlug: rec.rabbi?.slug ?? "",
+        scheduledAt: rec.scheduledAt.toISOString(),
+        durationMin: rec.durationMin,
+        posterUrl: rec.posterUrl,
+        category: rec.category?.name,
+      };
+    }
+  }
+
+  // Hero lessons (live takes priority)
+  const heroLive: HeroLesson | null = liveLessons[0] ? {
+    id: liveLessons[0].id,
+    title: liveLessons[0].title,
+    description: liveLessons[0].description ?? undefined,
+    rabbiName: liveLessons[0].rabbi?.name ?? (liveLessons[0] as any).organizerName ?? "—",
+    rabbiSlug: liveLessons[0].rabbi?.slug ?? "",
+    scheduledAt: liveLessons[0].scheduledAt.toISOString(),
+    durationMin: liveLessons[0].durationMin,
+    posterUrl: liveLessons[0].posterUrl,
+  } : null;
+
+  const heroNext: HeroLesson | null = nextLive ? {
+    id: nextLive.id,
+    title: nextLive.title,
+    rabbiName: nextLive.rabbiName,
+    rabbiSlug: nextLive.rabbiSlug,
+    scheduledAt: nextLive.scheduledAt,
+    posterUrl: nextLive.posterUrl,
+  } : null;
 
   const live: LiveLesson[] = liveLessons.map((l) => ({
     id: l.id,
@@ -181,6 +231,9 @@ async function getHomeData() {
     sponsor,
     live,
     nextLive,
+    heroLive,
+    heroNext,
+    recommendedLesson,
     options,
     calendarLessons,
     stats: {
@@ -193,52 +246,36 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { sponsor, live, nextLive, options, stats, calendarLessons } = await getHomeData();
+  const { sponsor, live, nextLive, heroLive, heroNext, recommendedLesson, options, stats, calendarLessons } = await getHomeData();
 
   return (
     <>
       <SponsorBanner sponsor={sponsor} />
 
-      {/* Hero עם חיפוש */}
-      <section className="relative max-w-6xl mx-auto px-4 pt-5 sm:pt-12 pb-6 sm:pb-8">
-        <div className="text-center mb-5 sm:mb-8">
-          <span className="inline-flex items-center gap-2 text-xs font-semibold text-primary bg-primary-soft px-3 py-1.5 rounded-full">
-            <Sparkles className="w-3.5 h-3.5" />
-            הבית הדיגיטלי של רבני ישראל
-          </span>
-          <h1 className="hebrew-serif text-3xl sm:text-6xl font-bold text-ink leading-tight mt-3 sm:mt-4">
-            מצא את השיעור המושלם<br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>
-            <span className="text-primary">לרגע הזה</span>
-          </h1>
-          <p className="mt-3 sm:mt-5 text-base sm:text-lg text-ink-soft max-w-2xl mx-auto px-2">
-            אלפי שיעורי תורה חיים ומוקלטים — לפי רב, נושא, תאריך ושעה. ללא הרשמה לצפייה.
-          </p>
-        </div>
+      {/* === Hero חכם — Live / Next / Recommended === */}
+      <HomeHero liveLesson={heroLive} nextLesson={heroNext} recommendedLesson={recommendedLesson} />
 
-        <div className="max-w-3xl mx-auto">
-          <LessonSearch options={options} />
-        </div>
-
-        <div className="mt-5 flex items-center justify-center gap-2 text-sm text-ink-muted">
+      {/* === Search bar (autocomplete) === */}
+      <section className="max-w-3xl mx-auto px-4 -mt-7 relative z-10">
+        <SearchAutocomplete />
+        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-ink-muted flex-wrap">
           <span>חיפושים פופולריים:</span>
-          {["דף יומי", "פרשת שבוע", "הלכה יומית", "תניא"].map((tag) => (
-            <Link
-              key={tag}
-              href={`/lessons?q=${encodeURIComponent(tag)}`}
-              className="hover:text-primary transition"
-            >
-              {tag}
-            </Link>
-          )).reduce((acc: any[], el, i) => {
-            if (i > 0) acc.push(<span key={`sep-${i}`} className="text-border">·</span>);
-            acc.push(el);
-            return acc;
-          }, [])}
+          {["דף יומי", "פרשת שבוע", "הלכה", "מוסר"].map((tag, i) => (
+            <span key={tag} className="flex items-center gap-2">
+              {i > 0 && <span className="text-border">·</span>}
+              <Link
+                href={`/lessons?q=${encodeURIComponent(tag)}`}
+                className="hover:text-primary transition"
+              >
+                {tag}
+              </Link>
+            </span>
+          ))}
         </div>
       </section>
 
-      <LiveNowStrip lessons={live} nextLive={nextLive} />
+      {/* === Live strip — only if there are MULTIPLE live (hero shows the first) === */}
+      {live.length > 1 && <LiveNowStrip lessons={live.slice(1)} />}
 
       <WeeklyCalendar lessons={calendarLessons} />
 
