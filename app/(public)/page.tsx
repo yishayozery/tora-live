@@ -257,19 +257,7 @@ export default async function HomePage() {
         <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
       </div>
 
-      {/* Divider 1→Popular — wave עדין */}
-      <div className="relative -mt-1 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 60" className="w-full block text-white" preserveAspectRatio="none">
-          <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
-        </svg>
-      </div>
-
-      {/* === SECTION 1.5: פופולריים + טרנדינג === */}
-      <div id="popular" className="-mt-1">
-        <PopularLessonsStrip lessons={popularLessons} topics={trendingTopics} />
-      </div>
-
-      {/* Divider Popular→2 — wave לנייר חם */}
+      {/* Divider 1→2 — wave מלבן לנייר חם */}
       <div className="relative -mt-1 leading-none" aria-hidden="true">
         <svg viewBox="0 0 1440 60" className="w-full block text-amber-50" preserveAspectRatio="none">
           <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
@@ -281,7 +269,19 @@ export default async function HomePage() {
         <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" />
       </div>
 
-      {/* Divider 2→3 — wave מנייר לכחול */}
+      {/* Divider 2→Popular — wave עדין */}
+      <div className="relative -mt-1 leading-none" aria-hidden="true">
+        <svg viewBox="0 0 1440 60" className="w-full block text-white" preserveAspectRatio="none">
+          <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
+        </svg>
+      </div>
+
+      {/* === SECTION 2.5: פופולריים + טרנדינג (אחרי הלוח) === */}
+      <div id="popular" className="-mt-1">
+        <PopularLessonsStrip lessons={popularLessons} topics={trendingTopics} />
+      </div>
+
+      {/* Divider Popular→3 — wave לכחול */}
       <div className="relative -mt-1 leading-none" aria-hidden="true">
         <svg viewBox="0 0 1440 80" className="w-full block text-primary" preserveAspectRatio="none">
           <path fill="currentColor" d="M0,40 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 L0,80 Z" />
@@ -306,11 +306,11 @@ export default async function HomePage() {
         <a href="#live" className="group pointer-events-auto" title="שידורים חיים">
           <span className="block w-3 h-3 rounded-full bg-live/40 border border-live ring-2 ring-transparent group-hover:ring-live/30 transition" />
         </a>
-        <a href="#popular" className="group pointer-events-auto" title="פופולריים">
-          <span className="block w-3 h-3 rounded-full bg-danger/40 border border-danger ring-2 ring-transparent group-hover:ring-danger/30 transition" />
-        </a>
         <a href="#calendar" className="group pointer-events-auto" title="לוח שיעורים">
           <span className="block w-3 h-3 rounded-full bg-gold/40 border border-gold ring-2 ring-transparent group-hover:ring-gold/30 transition" />
+        </a>
+        <a href="#popular" className="group pointer-events-auto" title="פופולריים">
+          <span className="block w-3 h-3 rounded-full bg-danger/40 border border-danger ring-2 ring-transparent group-hover:ring-danger/30 transition" />
         </a>
         <a href="#dashboard" className="group pointer-events-auto" title="דשבורד">
           <span className="block w-3 h-3 rounded-full bg-primary/40 border border-primary ring-2 ring-transparent group-hover:ring-primary/30 transition" />
