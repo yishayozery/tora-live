@@ -30,9 +30,9 @@ const ACTIONS_BY_ROLE: Record<Role, { greeting: string; actions: QuickAction[] }
     greeting: "שלום! איך אפשר לעזור?",
     actions: [
       { label: "השיעורים שלי", icon: Calendar, href: "/my/schedule" },
+      { label: "סימוניות", icon: BookOpen, href: "/my/bookmarks" },
       { label: "חפש שיעור", icon: Search, href: "/lessons" },
       { label: "התראות", icon: Sparkles, href: "/my/notifications" },
-      { label: "פרופיל אישי", icon: Settings, href: "/my/profile" },
     ],
   },
   rabbi: {

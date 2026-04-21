@@ -123,6 +123,9 @@ async function getHomeData() {
     scheduledAt: liveLessons[0].scheduledAt.toISOString(),
     durationMin: liveLessons[0].durationMin,
     posterUrl: liveLessons[0].posterUrl,
+    embedUrl: liveLessons[0].liveEmbedUrl,
+    liveStartedAt: liveLessons[0].updatedAt.toISOString(),
+    viewerCount: liveLessons[0].viewCount,
   } : null;
 
   const heroNext: HeroLesson | null = nextLive ? {
@@ -250,37 +253,40 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* 1. שיעור מוקדש (sponsor banner) */}
       <SponsorBanner sponsor={sponsor} />
 
-      {/* === Hero חכם — Live / Next / Recommended === */}
+      {/* 2. Hero — שידור חי / השיעור הקרוב / מומלץ */}
       <HomeHero liveLesson={heroLive} nextLesson={heroNext} recommendedLesson={recommendedLesson} />
 
-      {/* === Search bar (autocomplete) === */}
-      <section className="max-w-3xl mx-auto px-4 -mt-7 relative z-10">
+      {/* 3. חיפוש שיעור — מתחת ל-hero, חופף בעדינות */}
+      <section className="max-w-3xl mx-auto px-4 -mt-7 relative z-10 mb-12">
         <SearchAutocomplete />
         <div className="mt-4 flex items-center justify-center gap-2 text-sm text-ink-muted flex-wrap">
           <span>חיפושים פופולריים:</span>
-          {["דף יומי", "פרשת שבוע", "הלכה", "מוסר"].map((tag, i) => (
-            <span key={tag} className="flex items-center gap-2">
+          {[
+            { label: "דף יומי", slug: "daf-yomi" },
+            { label: "פרשת שבוע", slug: "parsha" },
+            { label: "הלכה", slug: "halacha" },
+            { label: "מוסר", slug: "mussar" },
+          ].map((tag, i) => (
+            <span key={tag.slug} className="flex items-center gap-2">
               {i > 0 && <span className="text-border">·</span>}
-              <Link
-                href={`/lessons?q=${encodeURIComponent(tag)}`}
-                className="hover:text-primary transition"
-              >
-                {tag}
+              <Link href={`/topic/${tag.slug}`} className="hover:text-primary transition">
+                {tag.label}
               </Link>
             </span>
           ))}
         </div>
       </section>
 
-      {/* === Live strip — only if there are MULTIPLE live (hero shows the first) === */}
+      {/* 4. שיעורים בשידור חי כעת (חוץ מההירו) — שאר השידורים החיים */}
       {live.length > 1 && <LiveNowStrip lessons={live.slice(1)} />}
 
-      <WeeklyCalendar lessons={calendarLessons} />
+      {/* 5. לוח שיעורים שבועיים — 14 יום קדימה */}
+      <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים — שבועיים קדימה" />
 
-      <PrayersEventsNow />
-
+      {/* 6. דשבורד — סטטיסטיקות */}
       <LessonsCounter
         totalLessons={stats.totalLessons}
         totalHours={stats.totalHours}

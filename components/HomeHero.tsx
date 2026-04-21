@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Radio, Play, ArrowLeft, Sparkles, Clock, Calendar as CalIcon, Bell } from "lucide-react";
+import { Radio, Play, ArrowLeft, Sparkles, Clock, Calendar as CalIcon, Bell, Users } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { formatHebrewDateFull } from "@/lib/hebrew-dates";
@@ -20,14 +20,13 @@ export type HeroLesson = {
   embedUrl?: string | null;
   externalUrl?: string | null;
   category?: string | null;
+  liveStartedAt?: string | null;
+  viewerCount?: number | null;
 };
 
 type Props = {
-  /** השיעור שמשדר עכשיו (אם יש) */
   liveLesson?: HeroLesson | null;
-  /** השיעור הבא המתוכנן (אם אין live) */
   nextLesson?: HeroLesson | null;
-  /** השיעור המומלץ של היום (אם אין live ואין next קרוב) */
   recommendedLesson?: HeroLesson | null;
 };
 
@@ -43,13 +42,28 @@ function relativeFuture(iso: string): string {
   return `בעוד ${days} ימים`;
 }
 
+function relativePast(iso?: string | null): string | null {
+  if (!iso) return null;
+  const ms = Date.now() - new Date(iso).getTime();
+  if (ms < 0 || ms > 24 * 3600_000) return null;
+  const min = Math.floor(ms / 60_000);
+  if (min < 1) return "החל זה עתה";
+  if (min < 60) return `החל לפני ${min} דק׳`;
+  const hr = Math.floor(min / 60);
+  const remMin = min % 60;
+  return `החל לפני ${hr}:${String(remMin).padStart(2, "0")} שע׳`;
+}
+
+function isYouTubeEmbed(url?: string | null): boolean {
+  return !!url && /youtube\.com\/embed\//.test(url);
+}
+
 export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
-  // עדיפות: live → next → recommended → fallback
   const lesson = liveLesson ?? nextLesson ?? recommendedLesson;
   const mode: "live" | "next" | "recommended" | "empty" =
     liveLesson ? "live" : nextLesson ? "next" : recommendedLesson ? "recommended" : "empty";
 
-  // עדכון "בעוד X דק׳" כל דקה
+  // tick every minute for relative time updates
   const [, setTick] = useState(0);
   useEffect(() => {
     const i = setInterval(() => setTick((t) => t + 1), 60_000);
@@ -83,57 +97,76 @@ export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
 
   const lessonHref = `/lesson/${lesson.id}`;
   const isLive = mode === "live";
+  const startedAgo = isLive ? relativePast(lesson.liveStartedAt) : null;
+  const youtubeEmbed = isLive && isYouTubeEmbed(lesson.embedUrl) ? lesson.embedUrl : null;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-bl from-ink via-ink/95 to-primary/40 text-white">
-      {/* Background image with overlay */}
-      {lesson.posterUrl && (
-        <div className="absolute inset-0 opacity-25">
-          <Image
-            src={lesson.posterUrl}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover blur-sm"
-            priority
+      {/* === BACKGROUND === */}
+      {/* If LIVE YouTube — embed video as background (autoplay, muted) */}
+      {youtubeEmbed ? (
+        <div className="absolute inset-0 opacity-50 pointer-events-none">
+          {/* iframe in background */}
+          <iframe
+            src={`${youtubeEmbed}?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&playsinline=1`}
+            title=""
+            allow="autoplay; encrypted-media; picture-in-picture"
+            className="absolute inset-0 w-full h-full scale-110"
+            style={{ pointerEvents: "none" }}
           />
         </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-tl from-ink via-ink/80 to-transparent" />
+      ) : lesson.posterUrl ? (
+        <div className="absolute inset-0 opacity-25">
+          <Image src={lesson.posterUrl} alt="" fill sizes="100vw" className="object-cover blur-sm" priority />
+        </div>
+      ) : null}
+      {/* Dark gradient overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-tl from-ink via-ink/85 to-ink/40" />
 
       <div className="relative max-w-6xl mx-auto px-4 py-12 sm:py-16">
-        {/* Top: Hebrew date + status */}
+        {/* Top: Hebrew date + status badges */}
         <div className="flex items-center justify-between mb-6 text-xs sm:text-sm flex-wrap gap-2">
           <div className="text-white/70 flex items-center gap-2">
             <CalIcon className="w-3.5 h-3.5" />
             {formatHebrewDateFull(today)}
           </div>
-          {isLive && (
-            <div className="inline-flex items-center gap-2 bg-live px-3 py-1 rounded-full text-xs font-bold shadow-md">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-              </span>
-              משדרים עכשיו
+          {isLive ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="inline-flex items-center gap-2 bg-live px-3 py-1 rounded-full text-xs font-bold shadow-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                </span>
+                משדרים עכשיו
+              </div>
+              {startedAgo && (
+                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">
+                  <Clock className="w-3 h-3" />
+                  {startedAgo}
+                </div>
+              )}
+              {lesson.viewerCount != null && lesson.viewerCount > 0 && (
+                <div className="inline-flex items-center gap-1.5 bg-black/40 backdrop-blur px-3 py-1 rounded-full text-xs">
+                  <Users className="w-3 h-3" />
+                  {lesson.viewerCount.toLocaleString("he-IL")} צופים
+                </div>
+              )}
             </div>
-          )}
-          {mode === "next" && (
+          ) : mode === "next" ? (
             <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-xs font-bold">
               <Clock className="w-3 h-3" />
-              {relativeFuture(lesson.scheduledAt)}
+              מתחיל {relativeFuture(lesson.scheduledAt)}
             </div>
-          )}
-          {mode === "recommended" && (
+          ) : mode === "recommended" ? (
             <div className="inline-flex items-center gap-2 bg-gold/90 text-ink px-3 py-1 rounded-full text-xs font-bold">
               <Sparkles className="w-3 h-3" />
               מומלץ היום
             </div>
-          )}
+          ) : null}
         </div>
 
-        {/* Main content grid */}
+        {/* Main content */}
         <div className="grid lg:grid-cols-5 gap-8 items-center">
-          {/* Left: Text + CTA */}
           <div className="lg:col-span-3 space-y-5">
             {lesson.category && (
               <div className="inline-block text-xs font-semibold text-gold bg-gold/15 px-3 py-1 rounded-full">
@@ -147,12 +180,14 @@ export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
               <Link href={lesson.rabbiSlug ? `/rabbi/${lesson.rabbiSlug}` : "#"} className="text-lg font-medium hover:text-gold transition">
                 {lesson.rabbiName}
               </Link>
-              <span className="text-white/40">·</span>
-              <span className="text-sm">
-                {isLive
-                  ? "בשידור חי כעת"
-                  : `${formatHebrewDate(lesson.scheduledAt)} ב-${formatHebrewTime(lesson.scheduledAt)}`}
-              </span>
+              {!isLive && (
+                <>
+                  <span className="text-white/40">·</span>
+                  <span className="text-sm">
+                    {formatHebrewDate(lesson.scheduledAt)} ב-{formatHebrewTime(lesson.scheduledAt)}
+                  </span>
+                </>
+              )}
               {lesson.durationMin && (
                 <>
                   <span className="text-white/40">·</span>
@@ -172,7 +207,6 @@ export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
               </p>
             )}
 
-            {/* CTAs — single primary, secondary subtle */}
             <div className="flex flex-wrap gap-3 pt-2">
               <Link
                 href={lessonHref}
@@ -193,31 +227,25 @@ export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
             </div>
           </div>
 
-          {/* Right: Visual / poster */}
-          <div className="lg:col-span-2 hidden lg:block">
-            <Link href={lessonHref} className="block relative aspect-video rounded-card overflow-hidden shadow-card hover:shadow-soft transition group">
-              {lesson.posterUrl ? (
-                <Image
-                  src={lesson.posterUrl}
-                  alt={lesson.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover group-hover:scale-105 transition duration-500"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-paper-soft to-paper-warm flex items-center justify-center">
-                  <LogoIcon className="w-32 h-32 opacity-50" />
+          {/* Right: poster preview (hidden when video bg is playing) */}
+          {!youtubeEmbed && (
+            <div className="lg:col-span-2 hidden lg:block">
+              <Link href={lessonHref} className="block relative aspect-video rounded-card overflow-hidden shadow-card hover:shadow-soft transition group">
+                {lesson.posterUrl ? (
+                  <Image src={lesson.posterUrl} alt={lesson.title} fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover group-hover:scale-105 transition duration-500" priority />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-paper-soft to-paper-warm flex items-center justify-center">
+                    <LogoIcon className="w-32 h-32 opacity-50" />
+                  </div>
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition">
+                  <div className="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center shadow-card group-hover:scale-110 transition">
+                    {isLive ? <Radio className="w-9 h-9 text-live" /> : <Play className="w-9 h-9 text-primary fill-primary translate-x-0.5" />}
+                  </div>
                 </div>
-              )}
-              {/* Play overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition">
-                <div className="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center shadow-card group-hover:scale-110 transition">
-                  {isLive ? <Radio className="w-9 h-9 text-live" /> : <Play className="w-9 h-9 text-primary fill-primary translate-x-0.5" />}
-                </div>
-              </div>
-            </Link>
-          </div>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </section>
