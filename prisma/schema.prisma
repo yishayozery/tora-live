@@ -326,6 +326,7 @@ model RabbiSource {
   lastFoundAt     DateTime?
   totalDiscovered Int       @default(0)
   enabled         Boolean   @default(true)
+  trusted         Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -333,6 +334,28 @@ model RabbiSource {
 
   @@unique([platform, channelId])
   @@index([enabled, lastCheckedAt])
+}
+
+model SourceCandidate {
+  id                 String    @id @default(cuid())
+  name               String
+  platform           String    @default("YOUTUBE")
+  handle             String?
+  channelUrl         String?
+  facebookUrl        String?
+  category           String
+  priority           Int       @default(2)
+  content            String?
+  concerns           String?
+  recommendedStatus  String
+  reviewStatus       String    @default("PENDING")
+  reviewNotes        String?
+  approvedSourceId   String?
+  createdAt          DateTime  @default(now())
+  reviewedAt         DateTime?
+
+  @@index([reviewStatus, priority])
+  @@index([category])
 }
 
 // ---------- דיווח ----------

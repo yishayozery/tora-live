@@ -163,7 +163,11 @@
       "Bash(gh workflow *)",
       "Bash(vercel logs *)",
       "Bash(curl -sL -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://torah-live-rho.vercel.app/admin/users)",
-      "Bash(curl -sL \"https://torah-live-rho.vercel.app/admin/users\")"
+      "Bash(curl -sL \"https://torah-live-rho.vercel.app/admin/users\")",
+      "Bash(cp prisma/schema.prisma prisma/schema.sqlite.backup)",
+      "Bash(cp prisma/schema.postgres.prisma prisma/schema.prisma)",
+      "Bash(cp prisma/schema.sqlite.backup prisma/schema.prisma)",
+      "Bash(rm prisma/schema.sqlite.backup)"
     ]
   }
 }

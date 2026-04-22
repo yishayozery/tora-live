@@ -336,6 +336,30 @@ model RabbiSource {
   @@index([enabled, lastCheckedAt])
 }
 
+// ---------- מועמד למקור (לפני אישור) ----------
+// מאוחסן כאן כדי שהאדמין יראה את כל המועמדים בממשק ויאשר אחד-אחד
+model SourceCandidate {
+  id                 String    @id @default(cuid())
+  name               String    // שם הערוץ/הרב/הישיבה
+  platform           String    @default("YOUTUBE")
+  handle             String?   // @handle או channel/ID
+  channelUrl         String?
+  facebookUrl        String?
+  category           String    // "yeshiva" | "rabbi" | "midrasha" | "org" | "facebook_only"
+  priority           Int       @default(2)
+  content            String?   // תיאור התוכן + הערות
+  concerns           String?   // דגלים אדומים
+  recommendedStatus  String    // "approve_trusted" | "approve_pending" | "verify" | "reject"
+  reviewStatus       String    @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED" | "DEFERRED"
+  reviewNotes        String?
+  approvedSourceId   String?   // אם אושר — איזה RabbiSource נוצר
+  createdAt          DateTime  @default(now())
+  reviewedAt         DateTime?
+
+  @@index([reviewStatus, priority])
+  @@index([category])
+}
+
 // ---------- דיווח ----------
 model Report {
   id             String         @id @default(cuid())
