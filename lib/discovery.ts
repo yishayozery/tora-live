@@ -68,7 +68,7 @@ export async function runDiscovery(opts: { dryRun?: boolean; channelIdFilter?: s
       const linkToRabbi = rabbi && rabbi.status === "APPROVED" && !rabbi.isBlocked ? rabbi.id : null;
 
       for (const v of videos) {
-        await processVideo(v, source.id, source.channelTitle, linkToRabbi, adminId, opts.dryRun ?? false, result);
+        await processVideo(v, source.id, source.channelTitle, linkToRabbi, adminId, opts.dryRun ?? false, result, (source as any).trusted === true);
       }
 
       // 2. עדכן live detection לשיעורים קיימים של המקור (בטווח ±30 דק' סביב scheduledAt)
@@ -107,6 +107,7 @@ async function processVideo(
   adminId: string,
   dryRun: boolean,
   result: DiscoveryResult,
+  trusted: boolean = false,
 ) {
   const title = v.snippet.title?.trim();
   const description = (v.snippet.description || "").slice(0, 2000);
@@ -168,7 +169,8 @@ async function processVideo(
       durationMin,
       broadcastType,
       isPublic: true,
-      approvalStatus: "PENDING",
+      // מקור trusted → approved אוטומטית (יופיע מיד כשידור חי בדף הבית)
+      approvalStatus: trusted ? "APPROVED" : "PENDING",
       rabbiId: rabbiId,
       organizerUserId: rabbiId ? null : adminId,
       organizerName: rabbiId ? null : channelTitle,

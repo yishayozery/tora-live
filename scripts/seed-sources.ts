@@ -20,23 +20,24 @@ type SeedChannel = {
   rabbiName?: string;  // אם רוצים לקשר לרב קיים
   notes?: string;
   priority: 1 | 2 | 3;
+  trusted?: boolean;   // אם true — פרסום אוטומטי ללא אישור אדמין
 };
 
 const SEED_CHANNELS: SeedChannel[] = [
-  // עדיפות 1 — ישיבות ומוסדות
-  { handle: "@machonmeir", title: "מכון מאיר", notes: "הרב שלמה אבינר + הרב אורי שרקי", priority: 1 },
-  { handle: "@harbracha", title: "ישיבת הר ברכה", rabbiName: "הרב אליעזר מלמד", notes: "פניני הלכה, פרשת שבוע", priority: 1 },
-  { handle: "@merkazharav", title: "ישיבת מרכז הרב", rabbiName: "הרב יעקב שפירא", notes: "שיעורי ראש ישיבה", priority: 1 },
-  { handle: "@harhamor", title: "ישיבת הר המור", notes: "הרב צבי טאו (תלמידיו)", priority: 1 },
-  { handle: "@yrg1", title: "ישיבת רמת גן", rabbiName: "הרב יהושע שפירא", priority: 1 },
-  // עדיפות 2 — רבנים
-  { handle: "@hashmuel", title: "הרב שמואל אליהו", rabbiName: "הרב שמואל אליהו", notes: "רב צפת", priority: 2 },
-  { handle: "@chaimnavon", title: "הרב חיים נבון", rabbiName: "הרב חיים נבון", priority: 2 },
-  { handle: "@YehudaBrandes", title: "הרב יהודה ברנדס", rabbiName: "הרב יהודה ברנדס", priority: 2 },
-  { handle: "@yeshivat-bnei-david", title: "ישיבת בני דוד", rabbiName: "הרב אלי סדן", priority: 2 },
-  // עדיפות 3 — ארכיונים
-  { handle: "@yeshivaorgil", title: "Yeshiva.org.il", notes: "ארכיון רב-רבני", priority: 3 },
-  { handle: "@arutz7", title: "ערוץ 7 — אולפני תורה", notes: "ראיונות, פרשת שבוע", priority: 3 },
+  // עדיפות 1 — ישיבות ומוסדות (trusted: פרסום אוטומטי)
+  { handle: "@machonmeir", title: "מכון מאיר", notes: "הרב שלמה אבינר + הרב אורי שרקי", priority: 1, trusted: true },
+  { handle: "@harbracha", title: "ישיבת הר ברכה", rabbiName: "הרב אליעזר מלמד", notes: "פניני הלכה, פרשת שבוע", priority: 1, trusted: true },
+  { handle: "@merkazharav", title: "ישיבת מרכז הרב", rabbiName: "הרב יעקב שפירא", notes: "שיעורי ראש ישיבה", priority: 1, trusted: true },
+  { handle: "@harhamor", title: "ישיבת הר המור", notes: "הרב צבי טאו (תלמידיו)", priority: 1, trusted: true },
+  { handle: "@yrg1", title: "ישיבת רמת גן", rabbiName: "הרב יהושע שפירא", priority: 1, trusted: true },
+  // עדיפות 2 — רבנים אישיים (trusted)
+  { handle: "@hashmuel", title: "הרב שמואל אליהו", rabbiName: "הרב שמואל אליהו", notes: "רב צפת", priority: 2, trusted: true },
+  { handle: "@chaimnavon", title: "הרב חיים נבון", rabbiName: "הרב חיים נבון", priority: 2, trusted: true },
+  { handle: "@YehudaBrandes", title: "הרב יהודה ברנדס", rabbiName: "הרב יהודה ברנדס", priority: 2, trusted: true },
+  { handle: "@yeshivat-bnei-david", title: "ישיבת בני דוד", rabbiName: "הרב אלי סדן", priority: 2, trusted: true },
+  // עדיפות 3 — ארכיונים (pending — דורש אישור ידני בגלל מגוון רחב של תוכן)
+  { handle: "@yeshivaorgil", title: "Yeshiva.org.il", notes: "ארכיון רב-רבני", priority: 3, trusted: false },
+  { handle: "@arutz7", title: "ערוץ 7 — אולפני תורה", notes: "ראיונות, פרשת שבוע", priority: 3, trusted: false },
 ];
 
 async function resolveChannelId(handleOrUrl: string, apiKey: string): Promise<{ channelId: string; title: string; channelUrl: string } | null> {
@@ -124,9 +125,10 @@ async function main() {
           rabbiId: rabbiId ?? existing.rabbiId,
           notes: seed.notes ?? existing.notes,
           enabled: true,
-        },
+          trusted: seed.trusted ?? false,
+        } as any,
       });
-      console.log("   🔄 עודכן");
+      console.log(`   🔄 עודכן${seed.trusted ? " 🛡️ מהימן" : ""}`);
       updated++;
     } else {
       await db.rabbiSource.create({
@@ -139,9 +141,10 @@ async function main() {
           rabbiId,
           notes: seed.notes ?? null,
           enabled: true,
-        },
+          trusted: seed.trusted ?? false,
+        } as any,
       });
-      console.log("   ✨ נוצר");
+      console.log(`   ✨ נוצר${seed.trusted ? " 🛡️ מהימן" : ""}`);
       created++;
     }
   }

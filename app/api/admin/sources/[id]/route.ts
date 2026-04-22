@@ -7,6 +7,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const body = await req.json().catch(() => ({}));
   const data: any = {};
   if (typeof body.enabled === "boolean") data.enabled = body.enabled;
+  if (typeof body.trusted === "boolean") data.trusted = body.trusted;
   if (typeof body.notes === "string") data.notes = body.notes;
   if (typeof body.rabbiId === "string" || body.rabbiId === null) data.rabbiId = body.rabbiId;
   if (Object.keys(data).length === 0) return NextResponse.json({ error: "nothing to update" }, { status: 400 });

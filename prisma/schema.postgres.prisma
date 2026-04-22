@@ -326,6 +326,7 @@ model RabbiSource {
   lastFoundAt     DateTime?
   totalDiscovered Int       @default(0)
   enabled         Boolean   @default(true)
+  trusted         Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

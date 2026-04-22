@@ -29,10 +29,24 @@ export default async function AdminSourcesPage() {
           <h1 className="hebrew-serif text-3xl font-bold">מקורות YouTube</h1>
         </div>
         <p className="text-ink-soft">
-          ערוצי YouTube שהסורק (lesson-scout) עובר עליהם כל יום ב-6:00, מאתר שיעורים חדשים
-          ומקים אותם במערכת כ-<strong>ממתינים לאישור</strong>.
+          ערוצי YouTube שהסורק עובר עליהם כל 15 דק׳, מאתר שיעורים חדשים ושידורים חיים.
+          שיעור ממקור רגיל יופיע כ-<strong>ממתין לאישור</strong>. שיעור ממקור <strong className="text-live">מהימן</strong> יופיע באתר באופן אוטומטי.
         </p>
       </header>
+
+      <Card className="border-live/30 bg-live/5">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-live shrink-0 mt-0.5" />
+          <div className="text-sm text-ink-soft">
+            <p className="font-bold text-ink mb-1">מקור מהימן (Trusted Source)</p>
+            <p>
+              כשמקור מסומן כ-<strong className="text-live">מהימן</strong>, כל שיעור שמתגלה בו יפורסם <strong>אוטומטית</strong> באתר — ללא אישור ידני.
+              <strong> שידורים חיים</strong> יופיעו בדף הבית תוך דקות מרגע תחילת השידור ב-YouTube.
+              סמן רק מקורות שאתה סומך עליהם 100% (ישיבות מוכרות, ערוצים רשמיים).
+            </p>
+          </div>
+        </div>
+      </Card>
 
       <Card className="border-primary/30 bg-primary/5">
         <div className="flex items-start gap-3">
@@ -62,6 +76,7 @@ export default async function AdminSourcesPage() {
             {enabled.map((s) => (
               <SourceRow key={s.id} source={{
                 ...s,
+                trusted: (s as any).trusted ?? false,
                 lessonCount: s._count.lessons,
                 lastCheckedAt: s.lastCheckedAt?.toISOString() ?? null,
                 lastFoundAt: s.lastFoundAt?.toISOString() ?? null,
@@ -80,6 +95,7 @@ export default async function AdminSourcesPage() {
             {disabled.map((s) => (
               <SourceRow key={s.id} source={{
                 ...s,
+                trusted: (s as any).trusted ?? false,
                 lessonCount: s._count.lessons,
                 lastCheckedAt: s.lastCheckedAt?.toISOString() ?? null,
                 lastFoundAt: s.lastFoundAt?.toISOString() ?? null,
