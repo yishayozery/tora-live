@@ -52,13 +52,12 @@ export async function runDiscovery(opts: { dryRun?: boolean; channelIdFilter?: s
     try {
       if (source.platform !== "YOUTUBE") continue;
 
-      // 1. גלה videos חדשים (upcoming + live + recent)
-      const [upcoming, live, recent] = await Promise.all([
-        listUpcoming(source.channelId).catch((e) => { if (e instanceof YouTubeQuotaError) throw e; result.errors.push(`${source.channelTitle}:upcoming:${e.message}`); return []; }),
+      // 1. גלה videos חדשים (live + recent). upcoming הוסר — משלם quota יקר ובכל מקרה נתפס כ-live כשמתחיל
+      const [live, recent] = await Promise.all([
         listLive(source.channelId).catch((e) => { if (e instanceof YouTubeQuotaError) throw e; return []; }),
         listRecent(source.channelId, 5).catch((e) => { if (e instanceof YouTubeQuotaError) throw e; return []; }),
       ]);
-      const allIds = Array.from(new Set([...upcoming, ...live, ...recent]));
+      const allIds = Array.from(new Set([...live, ...recent]));
       if (allIds.length === 0) continue;
 
       const videos = await getVideos(allIds);

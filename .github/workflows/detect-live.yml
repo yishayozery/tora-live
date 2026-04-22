@@ -13,8 +13,9 @@ name: detect-live-broadcasts
 
 on:
   schedule:
-    # כל 15 דק' בין 02:00-20:00 UTC (מכסה שעות פעילות בישראל כל השנה)
-    - cron: '*/15 2-20 * * *'
+    # כל 30 דק' בין 02:00-20:00 UTC (מכסה שעות פעילות בישראל כל השנה)
+    # הקטנה מ-15 דק' כדי להישאר בתוך quota של YouTube Data API
+    - cron: '*/30 2-20 * * *'
   workflow_dispatch: {}  # מאפשר הרצה ידנית מה-UI של GitHub
 
 concurrency:
