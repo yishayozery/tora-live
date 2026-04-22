@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { UserPlus, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { UserPlus, LayoutDashboard, ShieldCheck, Globe } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { UserMenu } from "@/components/UserMenu";
 import { PublicMobileNav } from "@/components/layout/PublicMobileNav";
@@ -72,6 +72,16 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* English toggle — תמיד גלוי */}
+          <Link
+            href="/en"
+            className="inline-flex items-center gap-1 h-9 px-2.5 rounded-btn border border-border bg-paper-soft text-ink-soft hover:border-primary hover:text-primary transition text-xs font-medium"
+            aria-label="Switch to English"
+            title="English"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">EN</span>
+          </Link>
           {isLoggedIn ? (
             <>
               {/* קיצור דרך לדשבורד עבור רב/אדמין — תמיד גלוי */}
