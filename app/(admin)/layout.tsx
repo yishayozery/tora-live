@@ -9,8 +9,18 @@ import { PersonalAssistant } from "@/components/PersonalAssistant";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const pendingEvents = await db.lesson.count({ where: { approvalStatus: "PENDING" } });
-  const pendingSuggestions = await db.lessonSuggestion.count({ where: { status: "PENDING" } });
+  let pendingEvents = 0;
+  let pendingSuggestions = 0;
+  try {
+    pendingEvents = await db.lesson.count({ where: { approvalStatus: "PENDING" } });
+  } catch (e: any) {
+    console.error("[admin/layout] lesson.count failed:", e?.message, e?.code);
+  }
+  try {
+    pendingSuggestions = await db.lessonSuggestion.count({ where: { status: "PENDING" } });
+  } catch (e: any) {
+    console.error("[admin/layout] lessonSuggestion.count failed:", e?.message, e?.code);
+  }
   return (
     <div className="min-h-screen bg-paper-soft flex">
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
