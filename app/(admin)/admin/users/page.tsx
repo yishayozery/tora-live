@@ -22,27 +22,38 @@ export default async function AdminUsersPage({
   const where: any = { role: "STUDENT" };
   if (q) {
     where.OR = [
-      { email: { contains: q } },
-      { student: { is: { name: { contains: q } } } },
+      { email: { contains: q, mode: "insensitive" } },
+      { student: { is: { name: { contains: q, mode: "insensitive" } } } },
     ];
   }
 
-  const [total, users] = await Promise.all([
-    db.user.count({ where }),
-    db.user.findMany({
-      where,
-      include: {
-        student: {
-          include: {
-            _count: { select: { follows: true, chatMessages: true } },
+  let total = 0;
+  let users: any[] = [];
+  let loadError: string | null = null;
+
+  try {
+    const [t, u] = await Promise.all([
+      db.user.count({ where }),
+      db.user.findMany({
+        where,
+        include: {
+          student: {
+            include: {
+              _count: { select: { follows: true, chatMessages: true } },
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: PAGE_SIZE,
-    }),
-  ]);
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: PAGE_SIZE,
+      }),
+    ]);
+    total = t;
+    users = u;
+  } catch (err: any) {
+    console.error("[admin/users] Query failed:", err);
+    loadError = err?.message || "Unknown error";
+  }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const fmt = new Intl.NumberFormat("he-IL");
@@ -70,7 +81,17 @@ export default async function AdminUsersPage({
         </button>
       </form>
 
-      {users.length === 0 ? (
+      {loadError ? (
+        <Card className="border-danger/40 bg-danger/5">
+          <div className="space-y-2">
+            <h3 className="font-bold text-danger">שגיאה בטעינת תלמידים</h3>
+            <p className="text-sm text-ink-soft">קוד: {loadError}</p>
+            <p className="text-xs text-ink-muted">
+              זו ככל הנראה בעיה בשאילתה או ב-DB schema. בדוק Vercel Logs לפרטים.
+            </p>
+          </div>
+        </Card>
+      ) : users.length === 0 ? (
         <Card>
           <CardDescription>לא נמצאו תלמידים.</CardDescription>
         </Card>
