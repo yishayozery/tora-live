@@ -160,7 +160,10 @@
       "Bash(grep -n \"^    </section>\\\\|^  </section>\\\\|^      </section>\\\\|^  \\);$\\\\|^}$\" components/WeeklyCalendar.tsx)",
       "Bash(gh run *)",
       "Bash(gh secret *)",
-      "Bash(gh workflow *)"
+      "Bash(gh workflow *)",
+      "Bash(vercel logs *)",
+      "Bash(curl -sL -o /dev/null -w \"HTTP %{http_code}\\\\n\" https://torah-live-rho.vercel.app/admin/users)",
+      "Bash(curl -sL \"https://torah-live-rho.vercel.app/admin/users\")"
     ]
   }
 }

@@ -24,20 +24,44 @@ type SeedChannel = {
 };
 
 const SEED_CHANNELS: SeedChannel[] = [
-  // עדיפות 1 — ישיבות ומוסדות (trusted: פרסום אוטומטי)
+  // === עדיפות 1 — ישיבות גבוהות ומוסדות מרכזיים (trusted) ===
   { handle: "@machonmeir", title: "מכון מאיר", notes: "הרב שלמה אבינר + הרב אורי שרקי", priority: 1, trusted: true },
   { handle: "@harbracha", title: "ישיבת הר ברכה", rabbiName: "הרב אליעזר מלמד", notes: "פניני הלכה, פרשת שבוע", priority: 1, trusted: true },
   { handle: "@merkazharav", title: "ישיבת מרכז הרב", rabbiName: "הרב יעקב שפירא", notes: "שיעורי ראש ישיבה", priority: 1, trusted: true },
   { handle: "@harhamor", title: "ישיבת הר המור", notes: "הרב צבי טאו (תלמידיו)", priority: 1, trusted: true },
   { handle: "@yrg1", title: "ישיבת רמת גן", rabbiName: "הרב יהושע שפירא", priority: 1, trusted: true },
-  // עדיפות 2 — רבנים אישיים (trusted)
+
+  // === עדיפות 1 — ישיבות הסדר מרכזיות (trusted) ===
+  { handle: "@yhe-haretzion", title: "ישיבת הר עציון (גוש)", notes: "הרב ברוך גיגי, הרב מאיר ליכטנשטיין", priority: 1, trusted: true },
+  { handle: "@YeshivatOrotShaul", title: "ישיבת אורות שאול", notes: "הרב יובל שרלו, הרב ראם הכהן", priority: 1, trusted: true },
+  { handle: "@shaalvim", title: "ישיבת שעלבים", notes: "הרב דוד פנדל", priority: 1, trusted: true },
+  { handle: "@kby_il", title: "ישיבת כרם ביבנה", notes: "הרב מרדכי גרינברג", priority: 1, trusted: true },
+  { handle: "@yeshivatmaalot", title: "ישיבת מעלות", priority: 1, trusted: true },
+  { handle: "@YKS-il", title: "ישיבת קריית שמונה", priority: 1, trusted: true },
+  { handle: "@MachonLev", title: "מכון לב — מרכז אקדמי לב", notes: "ישיבת השילוב", priority: 1, trusted: true },
+
+  // === עדיפות 2 — רבנים אישיים פעילים (trusted) ===
   { handle: "@hashmuel", title: "הרב שמואל אליהו", rabbiName: "הרב שמואל אליהו", notes: "רב צפת", priority: 2, trusted: true },
   { handle: "@chaimnavon", title: "הרב חיים נבון", rabbiName: "הרב חיים נבון", priority: 2, trusted: true },
   { handle: "@YehudaBrandes", title: "הרב יהודה ברנדס", rabbiName: "הרב יהודה ברנדס", priority: 2, trusted: true },
-  { handle: "@yeshivat-bnei-david", title: "ישיבת בני דוד", rabbiName: "הרב אלי סדן", priority: 2, trusted: true },
-  // עדיפות 3 — ארכיונים (pending — דורש אישור ידני בגלל מגוון רחב של תוכן)
-  { handle: "@yeshivaorgil", title: "Yeshiva.org.il", notes: "ארכיון רב-רבני", priority: 3, trusted: false },
+  { handle: "@yeshivat-bnei-david", title: "ישיבת בני דוד עלי", rabbiName: "הרב אלי סדן", priority: 2, trusted: true },
+  { handle: "@RavEliyahu", title: "הרב מרדכי אליהו", notes: "ארכיון הרב מרדכי אליהו זצ״ל", priority: 2, trusted: true },
+  { handle: "@RavShmueliz", title: "הרב יצחק שאול שמואלי", priority: 2, trusted: true },
+  { handle: "@ShimonEdery", title: "הרב שמעון אדרי", priority: 2, trusted: true },
+  { handle: "@RavAbiner", title: "הרב שלמה אבינר", rabbiName: "הרב שלמה אבינר", priority: 2, trusted: true },
+  { handle: "@zvigolombik", title: "הרב צבי גולומבק", priority: 2, trusted: true },
+
+  // === עדיפות 2 — רבני צהר וקהילה (trusted) ===
+  { handle: "@tzohar-il", title: "רבני צהר", notes: "ארגון רבני צהר — שיחות ושיעורים", priority: 2, trusted: true },
+  { handle: "@bneiakiva", title: "בני עקיבא העולמית", notes: "הרב אוהד טהרלב + משפיעים", priority: 2, trusted: true },
+  { handle: "@Mizrachi_Org", title: "מזרחי עולמי", notes: "תורה לציבור הדתי-לאומי בחו״ל", priority: 2, trusted: true },
+
+  // === עדיפות 3 — ארכיונים ותוכן מגוון (pending — דורש אישור ידני) ===
+  { handle: "@yeshivaorgil", title: "Yeshiva.org.il", notes: "ארכיון רב-רבני — 100+ רבנים", priority: 3, trusted: false },
   { handle: "@arutz7", title: "ערוץ 7 — אולפני תורה", notes: "ראיונות, פרשת שבוע", priority: 3, trusted: false },
+  { handle: "@kipa_yeshiva", title: "כיפה — תורה ושיעורים", notes: "אתר כיפה — שיעורי רבנים מגוונים", priority: 3, trusted: false },
+  { handle: "@torahcity", title: "Torah City", notes: "שיעורי תורה מהארץ ומחו״ל", priority: 3, trusted: false },
+  { handle: "@Hidabroot_co_il", title: "הידברות", notes: "תוכן כללי — רוב בחרדי, יש דתי-לאומי", priority: 3, trusted: false },
 ];
 
 async function resolveChannelId(handleOrUrl: string, apiKey: string): Promise<{ channelId: string; title: string; channelUrl: string } | null> {

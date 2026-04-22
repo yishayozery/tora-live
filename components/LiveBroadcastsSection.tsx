@@ -8,6 +8,7 @@ import { LogoIcon } from "@/components/Logo";
 import { pluralize, formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LANGUAGES, BROADCAST_TYPES, languageLabel } from "@/lib/enums";
 import { ReportLessonButton } from "@/components/ReportLessonButton";
+import { detectEmbedPlatform, toEmbedUrl } from "@/lib/embeds";
 
 export type LiveBroadcast = {
   id: string;
@@ -35,6 +36,25 @@ export type NextBroadcast = {
 
 function isYouTubeEmbed(url?: string | null): boolean {
   return !!url && /youtube\.com\/embed\//.test(url);
+}
+
+/** מחזיר { embedUrl, platform } — תומך YouTube + Facebook. */
+function resolveEmbed(b: LiveBroadcast): { embedUrl: string | null; platform: "youtube" | "facebook" | null } {
+  // עדיפות 1 — embedUrl ישיר (כבר ב-iframe format)
+  if (b.embedUrl) {
+    if (isYouTubeEmbed(b.embedUrl)) return { embedUrl: b.embedUrl, platform: "youtube" };
+    if (/facebook\.com\/plugins\/video/.test(b.embedUrl)) return { embedUrl: b.embedUrl, platform: "facebook" };
+  }
+  // עדיפות 2 — externalUrl → המרה
+  const source = b.externalUrl || b.embedUrl;
+  if (source) {
+    const platform = detectEmbedPlatform(source);
+    const url = toEmbedUrl(source);
+    if (url && (platform === "youtube" || platform === "facebook")) {
+      return { embedUrl: url, platform };
+    }
+  }
+  return { embedUrl: null, platform: null };
 }
 
 function durationSince(iso?: string | null): string | null {
@@ -320,21 +340,31 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 
 /* ============= GRID VIEW ============= */
 function LiveCardGrid({ b }: { b: LiveBroadcast }) {
-  const youtube = isYouTubeEmbed(b.embedUrl) ? b.embedUrl : null;
+  const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
 
   return (
     <article className="rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition">
       <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
-        {youtube ? (
+        {embedUrl && platform === "youtube" ? (
           <iframe
-            src={`${youtube}?autoplay=0&mute=1&controls=1&modestbranding=1`}
+            src={`${embedUrl}?autoplay=0&mute=1&controls=1&modestbranding=1`}
             title={b.title}
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="absolute inset-0 w-full h-full"
             loading="lazy"
+          />
+        ) : embedUrl && platform === "facebook" ? (
+          <iframe
+            src={embedUrl}
+            title={b.title}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full"
+            loading="lazy"
+            scrolling="no"
           />
         ) : b.externalUrl ? (
           <a href={b.externalUrl} target="_blank" rel="noreferrer" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-live/80 to-primary/70 text-white">
