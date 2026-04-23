@@ -36,6 +36,7 @@ export async function GET() {
     requestedDate: r.requestedDate,
     requestedTime: r.requestedTime,
     status: r.status,
+    approvedLessonId: (r as any).approvedLessonId ?? null,
     createdAt: r.createdAt,
     repliedAt: r.repliedAt,
   }));

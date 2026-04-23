@@ -12,6 +12,8 @@ import {
   TableProperties,
   ThumbsUp,
   XCircle,
+  Globe,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -100,13 +102,17 @@ export default function RabbiRequestsPage() {
     });
   }
 
-  async function handleStatusChange(requestId: string, status: "APPROVED" | "REJECTED") {
+  async function handleStatusChange(
+    requestId: string,
+    status: "APPROVED" | "REJECTED",
+    isPublic: boolean = false,
+  ) {
     setActionLoading(requestId);
     try {
       const res = await fetch(`/api/rabbi/requests/${requestId}/status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, isPublic }),
       });
       if (res.ok) {
         await fetchRequests();
@@ -232,12 +238,22 @@ export default function RabbiRequestsPage() {
                       {r.status === "PENDING" && (
                         <div className="flex gap-1">
                           <button
-                            onClick={() => handleStatusChange(r.id, "APPROVED")}
+                            onClick={() => handleStatusChange(r.id, "APPROVED", true)}
+                            disabled={actionLoading === r.id}
+                            className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-2 py-1 rounded-btn transition disabled:opacity-50"
+                            aria-label="אשר + פרסם"
+                            title="אשר ופרסם בלוח הציבורי"
+                          >
+                            <Globe className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(r.id, "APPROVED", false)}
                             disabled={actionLoading === r.id}
                             className="text-xs bg-live/10 text-live hover:bg-live/20 px-2 py-1 rounded-btn transition disabled:opacity-50"
-                            aria-label="אשר"
+                            aria-label="אשר פרטי"
+                            title="אשר כאירוע פרטי"
                           >
-                            <ThumbsUp className="w-3.5 h-3.5" />
+                            <Lock className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleStatusChange(r.id, "REJECTED")}
@@ -317,15 +333,25 @@ export default function RabbiRequestsPage() {
 
                     <p className="text-sm text-ink-soft whitespace-pre-line mb-3">{r.message}</p>
 
-                    {/* כפתורי פעולה */}
-                    <div className="flex items-center gap-2 mb-3">
+                    {/* כפתורי פעולה — 3 אפשרויות: פרסם ציבורי / פרטי / דחה */}
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <Button
                         size="sm"
-                        onClick={() => handleStatusChange(r.id, "APPROVED")}
+                        onClick={() => handleStatusChange(r.id, "APPROVED", true)}
+                        disabled={actionLoading === r.id}
+                        className="gap-1 bg-primary hover:bg-primary-hover text-white"
+                        title="השיעור יופיע בלוח השיעורים הציבורי של האתר — כל אחד יוכל לראות ולהצטרף"
+                      >
+                        <Globe className="w-3.5 h-3.5" /> אשר + פרסם בלוח
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleStatusChange(r.id, "APPROVED", false)}
                         disabled={actionLoading === r.id}
                         className="gap-1 bg-live hover:bg-live/90 text-white"
+                        title="השיעור יהיה רק ביומן האישי שלך ושל המבקש — לא בלוח הציבורי"
                       >
-                        <ThumbsUp className="w-3.5 h-3.5" /> אשר
+                        <Lock className="w-3.5 h-3.5" /> אשר כאירוע פרטי
                       </Button>
                       <Button
                         size="sm"
@@ -337,6 +363,9 @@ export default function RabbiRequestsPage() {
                         <XCircle className="w-3.5 h-3.5" /> דחה
                       </Button>
                     </div>
+                    <p className="text-xs text-ink-muted mb-3 -mt-1">
+                      💡 בחר &ldquo;פרסם בלוח&rdquo; אם זה שיעור פתוח לקהל. &ldquo;פרטי&rdquo; מתאים לאירועים משפחתיים/אישיים.
+                    </p>
 
                     {replyingId === r.id ? (
                       <div className="border-t border-border pt-3">

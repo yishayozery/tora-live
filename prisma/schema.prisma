@@ -250,6 +250,7 @@ model ContactRequest {
   requestedDate DateTime?
   requestedTime String?
   status        String @default("PENDING")
+  approvedLessonId String?
   createdAt     DateTime      @default(now())
   repliedAt     DateTime?
 }

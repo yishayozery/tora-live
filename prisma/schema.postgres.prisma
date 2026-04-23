@@ -250,6 +250,8 @@ model ContactRequest {
   requestedDate DateTime?
   requestedTime String?
   status        String @default("PENDING")
+  // אם הפנייה אושרה — מזהה השיעור שנוצר. מאפשר לתלמיד לקפוץ ישירות אליו
+  approvedLessonId String?
   createdAt     DateTime      @default(now())
   repliedAt     DateTime?
 }

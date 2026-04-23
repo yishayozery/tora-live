@@ -25,6 +25,7 @@ type MyRequest = {
   requestedDate: string | null;
   requestedTime: string | null;
   status: string;
+  approvedLessonId: string | null;
   createdAt: string;
   repliedAt: string | null;
 };
@@ -379,6 +380,19 @@ export default function MyRequestsPage() {
                     {r.repliedAt && (
                       <span className="text-xs text-ink-muted">{formatDate(r.repliedAt)}</span>
                     )}
+                  </div>
+                )}
+
+                {/* כשהבקשה אושרה ויש שיעור — קישור ישיר */}
+                {r.status === "APPROVED" && r.approvedLessonId && (
+                  <div className="border-t border-border pt-3 mt-3">
+                    <Link
+                      href={`/lesson/${r.approvedLessonId}`}
+                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-live text-white text-sm font-semibold hover:bg-live/90 transition"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      לדף השיעור ←
+                    </Link>
                   </div>
                 )}
               </Card>
