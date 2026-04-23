@@ -54,3 +54,21 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   await db.lesson.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }
+
+// PATCH — שינויים נקודתיים (כרגע רק isPublic) בלי לעבור validation מלא של lessonSchema
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const { rabbi } = await requireApprovedRabbi();
+  const exists = await ensureOwn(params.id, rabbi.id);
+  if (!exists) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
+
+  const body = await req.json().catch(() => ({}));
+  const data: any = {};
+  if (typeof body.isPublic === "boolean") data.isPublic = body.isPublic;
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "אין שדות לעדכון" }, { status: 400 });
+  }
+
+  await db.lesson.update({ where: { id: params.id }, data });
+  return NextResponse.json({ ok: true, ...data });
+}

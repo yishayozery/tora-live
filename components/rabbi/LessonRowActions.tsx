@@ -3,21 +3,46 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { Trash2, Edit, StopCircle } from "lucide-react";
+import { Trash2, Edit, StopCircle, Globe, Lock } from "lucide-react";
 
 type Props = {
   lessonId: string;
   /** האם השיעור כרגע במצב isLive=true — מציג גם "סיים שידור" */
   isLive?: boolean;
+  /** האם השיעור כרגע ציבורי — מציג כפתור החלפה */
+  isPublic?: boolean;
   /** האם להציג גם "ערוך"? (לרוב כן) */
   showEdit?: boolean;
   /** אחרי מחיקה מוצלחת — לאן לנווט (default: refresh) */
   redirectTo?: string;
 };
 
-export function LessonRowActions({ lessonId, isLive, showEdit = true, redirectTo }: Props) {
+export function LessonRowActions({ lessonId, isLive, isPublic, showEdit = true, redirectTo }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+
+  async function togglePublic() {
+    if (typeof isPublic !== "boolean") return;
+    const next = !isPublic;
+    if (!window.confirm(
+      next
+        ? "להפוך את השיעור לציבורי? הוא יופיע בלוח השיעורים של דף הבית."
+        : "להפוך את השיעור לפרטי? הוא ייעלם מלוח השיעורים הציבורי."
+    )) return;
+    setBusy(true);
+    const res = await fetch(`/api/lessons/${lessonId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPublic: next }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      alert(`שגיאה: ${j.error ?? "unknown"}`);
+      return;
+    }
+    router.refresh();
+  }
 
   async function remove() {
     if (!window.confirm("למחוק את השיעור? פעולה לא הפיכה.\nכל הסימוניות, הצ'אט והדיווחים יימחקו גם.")) return;
@@ -51,7 +76,7 @@ export function LessonRowActions({ lessonId, isLive, showEdit = true, redirectTo
   }
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 flex-wrap">
       {isLive && (
         <button
           type="button"
@@ -62,6 +87,22 @@ export function LessonRowActions({ lessonId, isLive, showEdit = true, redirectTo
         >
           <StopCircle className="w-3.5 h-3.5" />
           סיים שידור
+        </button>
+      )}
+      {typeof isPublic === "boolean" && (
+        <button
+          type="button"
+          onClick={togglePublic}
+          disabled={busy}
+          className={`inline-flex items-center gap-1 h-8 px-2.5 rounded-btn border text-xs font-medium disabled:opacity-50 transition ${
+            isPublic
+              ? "bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
+              : "bg-paper-soft border-border text-ink-soft hover:bg-paper-warm"
+          }`}
+          title={isPublic ? "ציבורי — לחץ להפוך לפרטי" : "פרטי — לחץ לפרסם בלוח"}
+        >
+          {isPublic ? <Globe className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+          {isPublic ? "ציבורי" : "פרטי"}
         </button>
       )}
       {showEdit && (

@@ -91,7 +91,7 @@ function UpcomingList({ lessons }: { lessons: any[] }) {
               <Link href={`/lesson/${l.id}`} className="text-ink-muted hover:text-ink inline-flex items-center gap-1 text-xs">
                 <ExternalLink className="w-3 h-3" /> תצוגה
               </Link>
-              <LessonRowActions lessonId={l.id} isLive={l.isLive} />
+              <LessonRowActions lessonId={l.id} isLive={l.isLive} isPublic={l.isPublic} />
             </div>
           </div>
         </Card>
@@ -173,7 +173,7 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
                       <Link href={`/lesson/${l.id}`} className="text-primary text-xs hover:underline inline-flex items-center gap-1">
                         לשיעור <ExternalLink className="w-3 h-3" />
                       </Link>
-                      <LessonRowActions lessonId={l.id} isLive={l.isLive} showEdit={false} />
+                      <LessonRowActions lessonId={l.id} isLive={l.isLive} isPublic={l.isPublic} showEdit={false} />
                     </div>
                   </td>
                 </tr>
