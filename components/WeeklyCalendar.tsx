@@ -182,17 +182,22 @@ export function WeeklyCalendar({
         </div>
       )}
 
-      {/* סרגל פילטרים — כרטיס צף עם גבול עליון זהב "לוח" */}
+      {/* סרגל פילטרים — כרטיס בולט עם מסגרת זהב + Header צבעוני */}
       {!compact && (
-        <div className="max-w-5xl mx-auto mb-6 bg-white/95 backdrop-blur-sm border border-border-warm border-t-2 border-t-gold rounded-card shadow-soft ring-1 ring-black/[0.02] p-4 sm:p-5 space-y-3">
-          {/* כותרת פנימית */}
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink/75">
-            <Filter className="w-4 h-4 text-gold" aria-hidden="true" />
-            <span>סינון וחיפוש</span>
-            <span className="mr-auto text-xs font-normal text-ink-muted">
-              {filteredLessons.length} / {lessons.length} שיעורים
+        <div className="max-w-5xl mx-auto mb-6 bg-white border-2 border-gold/40 rounded-card shadow-card overflow-hidden">
+          {/* Header רצועה זהב */}
+          <div className="bg-gradient-to-l from-gold-soft via-gold-soft/40 to-transparent border-b border-gold/20 px-4 sm:px-5 py-2.5 flex items-center gap-2">
+            <div className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gold/15">
+              <Filter className="w-4 h-4 text-gold" aria-hidden="true" />
+            </div>
+            <h3 className="text-sm font-bold text-ink">סינון וחיפוש בלוח</h3>
+            <span className="mr-auto inline-flex items-center gap-1 text-xs font-semibold text-gold bg-gold/10 border border-gold/30 rounded-full px-2.5 py-1">
+              {filteredLessons.length} / {lessons.length}
             </span>
           </div>
+
+          {/* גוף הפילטרים */}
+          <div className="p-4 sm:p-5 space-y-3">
 
           {/* שורה 1: חיפוש קצר + chips סוג + toggle תצוגה */}
           <div className="flex gap-2 flex-wrap items-center">
@@ -289,6 +294,7 @@ export function WeeklyCalendar({
                 נקה סינון
               </button>
             )}
+          </div>
           </div>
         </div>
       )}

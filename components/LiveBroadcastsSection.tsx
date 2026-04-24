@@ -178,17 +178,22 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           </p>
         </div>
 
-        {/* === סרגל פילטרים — כרטיס צף עם גבול עליון ירוק "חי" === */}
+        {/* === סרגל פילטרים — כרטיס בולט עם מסגרת ירוקה + Header צבעוני === */}
         {broadcasts.length > 0 && (
-          <div className="max-w-5xl mx-auto mb-8 bg-white/95 backdrop-blur-sm border border-border-warm border-t-2 border-t-live rounded-card shadow-soft ring-1 ring-black/[0.02] p-4 sm:p-5 space-y-3">
-            {/* כותרת פנימית */}
-            <div className="flex items-center gap-2 text-sm font-semibold text-ink/75">
-              <Filter className="w-4 h-4 text-live" aria-hidden="true" />
-              <span>סינון וחיפוש</span>
-              <span className="mr-auto text-xs font-normal text-ink-muted">
-                {filtered.length} / {broadcasts.length} שידורים
+          <div className="max-w-5xl mx-auto mb-8 bg-white border-2 border-live/40 rounded-card shadow-card overflow-hidden">
+            {/* Header רצועה ירוקה */}
+            <div className="bg-gradient-to-l from-live/10 via-live/5 to-transparent border-b border-live/20 px-4 sm:px-5 py-2.5 flex items-center gap-2">
+              <div className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-live/15">
+                <Filter className="w-4 h-4 text-live" aria-hidden="true" />
+              </div>
+              <h3 className="text-sm font-bold text-ink">סינון וחיפוש שידורים</h3>
+              <span className="mr-auto inline-flex items-center gap-1 text-xs font-semibold text-live bg-live/10 border border-live/20 rounded-full px-2.5 py-1">
+                {filtered.length} / {broadcasts.length}
               </span>
             </div>
+
+            {/* גוף הפילטרים */}
+            <div className="p-4 sm:p-5 space-y-3">
 
             {/* שורה 1: חיפוש קצר + chips לסוג שידור + toggle תצוגה */}
             <div className="flex gap-2 flex-wrap items-center">
@@ -283,6 +288,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                   נקה סינון
                 </button>
               )}
+            </div>
             </div>
           </div>
         )}
