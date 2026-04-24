@@ -171,6 +171,8 @@ export function WeeklyCalendar({
         </>
       )}
       <div className={cn(compact ? "" : "relative max-w-6xl mx-auto px-4")}>
+      {/* === מסגרת חיצונית: עוטפת כותרת + חיפוש + לוח === */}
+      <div className={cn(!compact && "bg-white/75 backdrop-blur-md border-2 border-gold/25 rounded-[20px] shadow-card p-5 sm:p-8 lg:p-10")}>
       {!compact && (
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-4 mb-3">
@@ -543,6 +545,7 @@ export function WeeklyCalendar({
           );
         })}
       </div>
+      </div> {/* סגירת מסגרת חיצונית */}
       </div>
     </section>
   );

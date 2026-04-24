@@ -164,6 +164,8 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
       <div className="relative">
       <div className="max-w-6xl mx-auto px-4">
+        {/* === מסגרת חיצונית: עוטפת את כל הסקציה (כותרת + חיפוש + קוביות) === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[20px] shadow-card p-5 sm:p-8 lg:p-10">
         {/* === כותרת ממורכזת === */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-3 mb-2">
@@ -343,6 +345,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             {filtered.map((b) => <LiveCardList key={b.id} b={b} />)}
           </div>
         )}
+        </div> {/* סגירת מסגרת חיצונית */}
       </div>
       </div>
     </section>
