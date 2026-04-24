@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Radio, Search, Users, Clock, ExternalLink, ChevronLeft, CalendarClock, Bell, LayoutGrid, List, BookOpen, Heart, Sparkles } from "lucide-react";
+import { Radio, Search, Users, Clock, ExternalLink, ChevronLeft, CalendarClock, Bell, LayoutGrid, List, BookOpen, Heart, Sparkles, Filter } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { pluralize, formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LANGUAGES, BROADCAST_TYPES, languageLabel } from "@/lib/enums";
@@ -178,9 +178,18 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           </p>
         </div>
 
-        {/* === סרגל פילטרים קומפקטי === */}
+        {/* === סרגל פילטרים — כרטיס צף עם גבול עליון ירוק "חי" === */}
         {broadcasts.length > 0 && (
-          <div className="max-w-5xl mx-auto mb-6 space-y-2">
+          <div className="max-w-5xl mx-auto mb-8 bg-white/95 backdrop-blur-sm border border-border-warm border-t-2 border-t-live rounded-card shadow-soft ring-1 ring-black/[0.02] p-4 sm:p-5 space-y-3">
+            {/* כותרת פנימית */}
+            <div className="flex items-center gap-2 text-sm font-semibold text-ink/75">
+              <Filter className="w-4 h-4 text-live" aria-hidden="true" />
+              <span>סינון וחיפוש</span>
+              <span className="mr-auto text-xs font-normal text-ink-muted">
+                {filtered.length} / {broadcasts.length} שידורים
+              </span>
+            </div>
+
             {/* שורה 1: חיפוש קצר + chips לסוג שידור + toggle תצוגה */}
             <div className="flex gap-2 flex-wrap items-center">
               <div className="relative w-full sm:w-48 shrink-0">
@@ -270,14 +279,10 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 
               {hasActiveFilter && (
                 <button type="button" onClick={clearAll}
-                  className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium">
-                  נקה
+                  className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium mr-auto">
+                  נקה סינון
                 </button>
               )}
-
-              <div className="mr-auto text-xs text-ink-muted">
-                {filtered.length}/{broadcasts.length}
-              </div>
             </div>
           </div>
         )}

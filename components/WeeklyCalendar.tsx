@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Clock, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Search, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 import { formatTimeRange } from "@/lib/utils";
@@ -182,9 +182,18 @@ export function WeeklyCalendar({
         </div>
       )}
 
-      {/* סרגל פילטרים קומפקטי (לא compact) */}
+      {/* סרגל פילטרים — כרטיס צף עם גבול עליון זהב "לוח" */}
       {!compact && (
-        <div className="max-w-5xl mx-auto mb-4 space-y-2">
+        <div className="max-w-5xl mx-auto mb-6 bg-white/95 backdrop-blur-sm border border-border-warm border-t-2 border-t-gold rounded-card shadow-soft ring-1 ring-black/[0.02] p-4 sm:p-5 space-y-3">
+          {/* כותרת פנימית */}
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink/75">
+            <Filter className="w-4 h-4 text-gold" aria-hidden="true" />
+            <span>סינון וחיפוש</span>
+            <span className="mr-auto text-xs font-normal text-ink-muted">
+              {filteredLessons.length} / {lessons.length} שיעורים
+            </span>
+          </div>
+
           {/* שורה 1: חיפוש קצר + chips סוג + toggle תצוגה */}
           <div className="flex gap-2 flex-wrap items-center">
             <div className="relative w-full sm:w-48 shrink-0">
@@ -276,14 +285,10 @@ export function WeeklyCalendar({
 
             {hasActiveFilter && (
               <button type="button" onClick={clearAll}
-                className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium">
-                נקה
+                className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium mr-auto">
+                נקה סינון
               </button>
             )}
-
-            <div className="mr-auto text-xs text-ink-muted">
-              {filteredLessons.length}/{lessons.length}
-            </div>
           </div>
         </div>
       )}
