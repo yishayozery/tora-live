@@ -14,6 +14,7 @@ export function SiteFooter() {
           <ul className="space-y-1">
             <li><Link href="/rabbis" className="hover:text-ink transition">רבנים</Link></li>
             <li><Link href="/lessons" className="hover:text-ink transition">שיעורים</Link></li>
+            <li><Link href="/blog" className="hover:text-ink transition">מאמרים</Link></li>
             <li><Link href="/donate" className="hover:text-ink transition">תרומה</Link></li>
             <li><Link href="/contact" className="hover:text-ink transition">צור קשר</Link></li>
           </ul>

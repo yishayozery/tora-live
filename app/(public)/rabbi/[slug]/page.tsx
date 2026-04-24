@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 
-const SITE = "https://torah-live-rho.vercel.app";
+const SITE = "https://tora-live.co.il";
 
 // === SEO + Open Graph ===
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -13,18 +13,28 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   });
   if (!rabbi) return { title: "רב לא נמצא | TORA_LIVE" };
 
-  const title = `${rabbi.name} — שיעורי תורה אונליין | TORA_LIVE`;
-  const description = (rabbi.bio || `${rabbi._count.lessons} שיעורי תורה מאת ${rabbi.name} ב-TORA_LIVE — שידורים חיים והקלטות`).slice(0, 155);
+  const shortBio = (rabbi.bio ?? "").trim().slice(0, 80);
+  const title = `הרב ${rabbi.name} — שיעורי תורה בשידור חי | TORA_LIVE`.slice(0, 70);
+  const description = `האזינו לשיעורים של הרב ${rabbi.name} — ${shortBio || "שיעורי תורה, פרשת שבוע, הלכה ועוד"}. חינם, ללא הרשמה.`.slice(0, 160);
   const url = `${SITE}/rabbi/${params.slug}`;
   const image = rabbi.photoUrl || `${SITE}/og-default.png`;
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: {
+        he: url,
+        en: `${SITE}/en/rabbi/${params.slug}`,
+      },
+    },
     openGraph: {
-      title, description, url, type: "profile",
-      images: [{ url: image, alt: rabbi.name }],
+      title: `הרב ${rabbi.name} | TORA_LIVE`,
+      description,
+      url,
+      type: "profile",
+      images: [{ url: image, alt: `הרב ${rabbi.name}` }],
       locale: "he_IL",
       siteName: "TORA_LIVE",
     },
@@ -186,8 +196,42 @@ export default async function RabbiPage({
   const rabbiUrl = `${SITE}/rabbi/${rabbi.slug}`;
   const shareText = encodeURIComponent(`שיעורי תורה של ${rabbi.name} ב-TORA_LIVE:\n${rabbiUrl}`);
 
+  // === JSON-LD (Person + Teacher + ProfilePage) ===
+  const personSchema: any = {
+    "@context": "https://schema.org",
+    "@type": ["Person", "Teacher"],
+    name: `הרב ${rabbi.name}`,
+    honorificPrefix: "הרב",
+    jobTitle: "רב / מגיד שיעור",
+    url: rabbiUrl,
+    description: (rabbi.bio ?? "").slice(0, 500) || `שיעורי תורה מאת הרב ${rabbi.name}`,
+    knowsAbout: ["תורה", "הלכה", "פרשת שבוע", "תלמוד", "מחשבת ישראל"],
+    memberOf: {
+      "@type": "Organization",
+      name: "TORA_LIVE",
+      url: SITE,
+    },
+  };
+  if (rabbi.photoUrl) personSchema.image = rabbi.photoUrl;
+  const profilePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: rabbiUrl,
+    name: `הרב ${rabbi.name} — דף הרב ב-TORA_LIVE`,
+    inLanguage: "he-IL",
+    mainEntity: personSchema,
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
+      />
       {/* ===== Header ===== */}
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
         {rabbi.photoUrl ? (

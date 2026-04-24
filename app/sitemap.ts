@@ -1,10 +1,11 @@
 import { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { getAllBlogPosts } from "@/lib/blog";
 
-const SITE = "https://torah-live-rho.vercel.app";
+const SITE = "https://tora-live.co.il";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Static pages
+  // Static pages — with hreflang alternates
   const staticPages: MetadataRoute.Sitemap = [
     "", "/lessons", "/rabbis", "/donate", "/contact", "/about",
     "/accessibility", "/terms", "/login", "/register",
@@ -13,6 +14,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: path === "" ? "daily" as const : "weekly" as const,
     priority: path === "" ? 1.0 : 0.7,
+    alternates: {
+      languages: {
+        he: `${SITE}${path}`,
+        en: `${SITE}/en${path}`,
+      },
+    },
+  }));
+
+  // Blog index + posts (from content/blog/*.md)
+  const blogIndex: MetadataRoute.Sitemap = [{
+    url: `${SITE}/blog`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }];
+  const blogPages: MetadataRoute.Sitemap = getAllBlogPosts().map((p) => ({
+    url: `${SITE}/blog/${p.slug}`,
+    lastModified: p.publishedAt ? new Date(p.publishedAt) : new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
   }));
 
   // Dynamic: all approved lessons
@@ -41,5 +62,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...rabbiPages, ...lessonPages];
+  return [...staticPages, ...blogIndex, ...blogPages, ...rabbiPages, ...lessonPages];
 }

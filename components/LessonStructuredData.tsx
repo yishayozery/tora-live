@@ -13,7 +13,7 @@ type Lesson = {
   organizerName?: string | null;
 };
 
-const SITE = "https://torah-live-rho.vercel.app";
+const SITE = "https://tora-live.co.il";
 
 /**
  * JSON-LD structured data for Google rich results.
@@ -39,7 +39,8 @@ export function LessonStructuredData({ lesson }: { lesson: Lesson }) {
 
   if (lesson.posterUrl) data.thumbnailUrl = lesson.posterUrl;
   if (lesson.youtubeUrl) data.contentUrl = lesson.youtubeUrl;
-  if (lesson.liveEmbedUrl) data.embedUrl = lesson.liveEmbedUrl;
+  // Always include embedUrl pointing to our lesson page (required for VideoObject rich results)
+  data.embedUrl = lesson.liveEmbedUrl || url;
 
   if (data["@type"] === "VideoObject") {
     data.uploadDate = lesson.scheduledAt.toISOString();
@@ -48,12 +49,23 @@ export function LessonStructuredData({ lesson }: { lesson: Lesson }) {
       const totalMin = lesson.durationMin ?? 60;
       data.duration = `PT${Math.floor(totalMin / 60)}H${totalMin % 60}M`;
     }
+    data.isAccessibleForFree = true;
     data.publisher = {
       "@type": "Organization",
       name: "TORA_LIVE",
       url: SITE,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE}/logo.png`,
+      },
     };
-    data.author = { "@type": "Person", name: rabbiName };
+    data.author = lesson.rabbi
+      ? {
+          "@type": "Person",
+          name: `הרב ${rabbiName}`,
+          url: `${SITE}/rabbi/${lesson.rabbi.slug}`,
+        }
+      : { "@type": "Person", name: rabbiName };
     if (lesson.isLive) {
       data.publication = {
         "@type": "BroadcastEvent",

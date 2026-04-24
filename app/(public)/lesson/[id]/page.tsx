@@ -8,7 +8,7 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { LessonStructuredData } from "@/components/LessonStructuredData";
 import type { Metadata } from "next";
 
-const SITE_URL = "https://torah-live-rho.vercel.app";
+const SITE_URL = "https://tora-live.co.il";
 
 // === SEO + Open Graph + JSON-LD ===
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -18,15 +18,25 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   });
   if (!lesson) return { title: "שיעור לא נמצא | TORA_LIVE" };
   const rabbiName = lesson.rabbi?.name ?? lesson.organizerName ?? "שיעור תורה";
-  const title = `${lesson.title} — ${rabbiName} | TORA_LIVE`;
-  const description = (lesson.description || `שיעור תורה מאת ${rabbiName} ב-TORA_LIVE`).slice(0, 155);
+  const fullTitle = `${lesson.title} — הרב ${rabbiName} | TORA_LIVE`;
+  const title = fullTitle.length > 65 ? `${lesson.title} | TORA_LIVE`.slice(0, 65) : fullTitle;
+  const shortDesc = (lesson.description ?? "").trim().slice(0, 80);
+  const description = `האזינו לשיעור "${lesson.title}" מאת הרב ${rabbiName}. ${shortDesc || "שיעור תורה בחינם"}`.slice(0, 160);
   const url = `${SITE_URL}/lesson/${lesson.id}`;
   const image = lesson.posterUrl || `${SITE_URL}/og-default.png`;
   return {
     title, description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: {
+        he: url,
+        en: `${SITE_URL}/en/lesson/${lesson.id}`,
+      },
+    },
     openGraph: {
-      title, description, url,
+      title: fullTitle,
+      description,
+      url,
       type: lesson.isLive ? "video.other" : "article",
       images: [{ url: image, width: 1200, height: 630, alt: lesson.title }],
       locale: "he_IL", siteName: "TORA_LIVE",
@@ -153,6 +163,31 @@ export default async function LessonPage({ params }: { params: { id: string } })
         )}
       </div>
       <LessonStructuredData lesson={lesson as any} />
+      {/* BreadcrumbList JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "בית", item: SITE_URL },
+              { "@type": "ListItem", position: 2, name: "שיעורים", item: `${SITE_URL}/lessons` },
+              ...(lesson.rabbi
+                ? [
+                    {
+                      "@type": "ListItem",
+                      position: 3,
+                      name: `הרב ${lesson.rabbi.name}`,
+                      item: `${SITE_URL}/rabbi/${lesson.rabbi.slug}`,
+                    },
+                    { "@type": "ListItem", position: 4, name: lesson.title },
+                  ]
+                : [{ "@type": "ListItem", position: 3, name: lesson.title }]),
+            ],
+          }),
+        }}
+      />
       <h1 className="hebrew-serif text-4xl font-bold text-ink">{lesson.title}</h1>
       <div className="mt-2 text-ink-muted flex items-center gap-3 flex-wrap">
         <span>{formatHebrewDate(lesson.scheduledAt)} · {formatHebrewTime(lesson.scheduledAt)}</span>
@@ -201,7 +236,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
       {/* Share buttons */}
       <div className="mt-4 pt-4 border-t border-border">
         <ShareButtons
-          url={`https://torah-live-rho.vercel.app/lesson/${lesson.id}`}
+          url={`${SITE_URL}/lesson/${lesson.id}`}
           title={lesson.title}
           rabbiName={lesson.rabbi?.name ?? lesson.organizerName ?? undefined}
         />

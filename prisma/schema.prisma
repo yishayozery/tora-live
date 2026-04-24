@@ -250,6 +250,7 @@ model ContactRequest {
   requestedDate DateTime?
   requestedTime String?
   status        String @default("PENDING")
+  // אם הפנייה אושרה — מזהה השיעור שנוצר. מאפשר לתלמיד לקפוץ ישירות אליו
   approvedLessonId String?
   createdAt     DateTime      @default(now())
   repliedAt     DateTime?
@@ -337,21 +338,23 @@ model RabbiSource {
   @@index([enabled, lastCheckedAt])
 }
 
+// ---------- מועמד למקור (לפני אישור) ----------
+// מאוחסן כאן כדי שהאדמין יראה את כל המועמדים בממשק ויאשר אחד-אחד
 model SourceCandidate {
   id                 String    @id @default(cuid())
-  name               String
+  name               String    // שם הערוץ/הרב/הישיבה
   platform           String    @default("YOUTUBE")
-  handle             String?
+  handle             String?   // @handle או channel/ID
   channelUrl         String?
   facebookUrl        String?
-  category           String
+  category           String    // "yeshiva" | "rabbi" | "midrasha" | "org" | "facebook_only"
   priority           Int       @default(2)
-  content            String?
-  concerns           String?
-  recommendedStatus  String
-  reviewStatus       String    @default("PENDING")
+  content            String?   // תיאור התוכן + הערות
+  concerns           String?   // דגלים אדומים
+  recommendedStatus  String    // "approve_trusted" | "approve_pending" | "verify" | "reject"
+  reviewStatus       String    @default("PENDING") // "PENDING" | "APPROVED" | "REJECTED" | "DEFERRED"
   reviewNotes        String?
-  approvedSourceId   String?
+  approvedSourceId   String?   // אם אושר — איזה RabbiSource נוצר
   createdAt          DateTime  @default(now())
   reviewedAt         DateTime?
 
