@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Users, BookOpen } from "lucide-react";
+import { Search, Users, BookOpen, Heart } from "lucide-react";
 import { db } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const metadata = {
   title: "רבנים | TORA LIVE",
@@ -15,9 +17,28 @@ export const revalidate = 300;
 export default async function RabbisPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; follow?: string };
 }) {
   const q = (searchParams.q ?? "").trim();
+  const followFilter = searchParams.follow; // "yes" | "no" | undefined
+
+  // רבנים שהמשתמש (אם מחובר) עוקב אחריהם
+  const session = await getServerSession(authOptions);
+  let followedIds = new Set<string>();
+  if (session?.user?.id) {
+    const student = await db.student.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
+    if (student) {
+      const follows = await db.follow.findMany({
+        where: { studentId: student.id },
+        select: { rabbiId: true },
+      });
+      followedIds = new Set(follows.map((f) => f.rabbiId));
+    }
+  }
+  const isLoggedIn = !!session?.user;
 
   const rabbis = await db.rabbi.findMany({
     where: {
@@ -48,6 +69,15 @@ export default async function RabbisPage({
     orderBy: { name: "asc" },
   });
 
+  // סינון עוקב/לא-עוקב — רק אם המשתמש מחובר
+  const filteredRabbis = isLoggedIn
+    ? rabbis.filter((r) => {
+        if (followFilter === "yes") return followedIds.has(r.id);
+        if (followFilter === "no") return !followedIds.has(r.id);
+        return true;
+      })
+    : rabbis;
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-10 sm:py-14">
       <header className="text-center mb-10">
@@ -62,15 +92,13 @@ export default async function RabbisPage({
 
       <form
         method="GET"
-        className="mb-10 flex flex-col sm:flex-row gap-3 bg-white border border-border rounded-card shadow-soft p-3"
+        className="mb-6 flex flex-col sm:flex-row gap-3 bg-white border border-border rounded-card shadow-soft p-3"
         role="search"
         aria-label="חיפוש רבנים"
       >
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-muted pointer-events-none" />
-          <label htmlFor="rabbi-q" className="sr-only">
-            חיפוש רב
-          </label>
+          <label htmlFor="rabbi-q" className="sr-only">חיפוש רב</label>
           <input
             id="rabbi-q"
             type="search"
@@ -80,6 +108,7 @@ export default async function RabbisPage({
             className="w-full h-11 pr-10 pl-3 rounded-btn border border-border bg-paper-soft text-ink placeholder:text-ink-muted focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
           />
         </div>
+        {isLoggedIn && followFilter && <input type="hidden" name="follow" value={followFilter} />}
         <button
           type="submit"
           className="h-11 px-6 rounded-btn bg-primary text-white font-semibold hover:bg-primary-hover transition"
@@ -88,28 +117,60 @@ export default async function RabbisPage({
         </button>
       </form>
 
+      {/* Follow filter tabs — רק למשתמשים מחוברים */}
+      {isLoggedIn && (
+        <div className="mb-6 flex gap-2 flex-wrap items-center">
+          <span className="text-sm text-ink-muted">סינון:</span>
+          <Link
+            href={`/rabbis${q ? `?q=${encodeURIComponent(q)}` : ""}`}
+            className={`h-9 px-4 rounded-btn text-sm font-medium border transition ${!followFilter ? "bg-primary text-white border-primary" : "bg-white border-border text-ink-soft hover:border-primary hover:text-primary"}`}
+          >
+            הכל ({rabbis.length})
+          </Link>
+          <Link
+            href={`/rabbis?${new URLSearchParams({ ...(q ? { q } : {}), follow: "yes" }).toString()}`}
+            className={`h-9 px-4 rounded-btn text-sm font-medium border transition inline-flex items-center gap-1.5 ${followFilter === "yes" ? "bg-primary text-white border-primary" : "bg-white border-border text-ink-soft hover:border-primary hover:text-primary"}`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${followFilter === "yes" ? "fill-current" : ""}`} />
+            עוקב ({followedIds.size})
+          </Link>
+          <Link
+            href={`/rabbis?${new URLSearchParams({ ...(q ? { q } : {}), follow: "no" }).toString()}`}
+            className={`h-9 px-4 rounded-btn text-sm font-medium border transition ${followFilter === "no" ? "bg-primary text-white border-primary" : "bg-white border-border text-ink-soft hover:border-primary hover:text-primary"}`}
+          >
+            גלה חדשים ({rabbis.length - followedIds.size})
+          </Link>
+          <Link
+            href="/my/rabbis"
+            className="h-9 px-4 rounded-btn text-sm font-medium mr-auto text-primary hover:underline"
+          >
+            למעקב ושליחת הודעות ←
+          </Link>
+        </div>
+      )}
+
       <div className="mb-4 text-sm text-ink-muted">
-        {rabbis.length} רבנים נמצאו
+        {filteredRabbis.length} רבנים{followFilter === "yes" ? " שאתה עוקב" : followFilter === "no" ? " חדשים" : ""}
       </div>
 
-      {rabbis.length === 0 ? (
+      {filteredRabbis.length === 0 ? (
         <div className="text-center py-16 border border-dashed border-border rounded-card">
           <p className="text-ink-muted">
-            {q ? "לא נמצאו רבנים התואמים את החיפוש." : "עדיין אין רבנים רשומים."}
+            {q ? "לא נמצאו רבנים התואמים את החיפוש." : followFilter === "yes" ? "עוד אין רבנים שאתה עוקב." : "עדיין אין רבנים רשומים."}
           </p>
-          {q && (
+          {(q || followFilter) && (
             <Link
               href="/rabbis"
               className="mt-4 inline-block text-primary font-semibold hover:underline"
             >
-              נקה חיפוש
+              נקה סינון
             </Link>
           )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {rabbis.map((r) => (
-            <RabbiGalleryCard key={r.id} rabbi={r} />
+          {filteredRabbis.map((r) => (
+            <RabbiGalleryCard key={r.id} rabbi={r} isFollowing={followedIds.has(r.id)} />
           ))}
         </div>
       )}
@@ -126,7 +187,7 @@ type RabbiCardData = {
   _count: { lessons: number; followers: number };
 };
 
-function RabbiGalleryCard({ rabbi }: { rabbi: RabbiCardData }) {
+function RabbiGalleryCard({ rabbi, isFollowing }: { rabbi: RabbiCardData; isFollowing?: boolean }) {
   const initials = rabbi.name
     .replace("הרב ", "")
     .split(" ")
@@ -164,9 +225,17 @@ function RabbiGalleryCard({ rabbi }: { rabbi: RabbiCardData }) {
           </div>
         )}
         <div className="min-w-0 flex-1 pt-1">
-          <h2 className="hebrew-serif text-lg font-bold text-ink group-hover:text-primary transition leading-tight">
-            {rabbi.name}
-          </h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="hebrew-serif text-lg font-bold text-ink group-hover:text-primary transition leading-tight">
+              {rabbi.name}
+            </h2>
+            {isFollowing && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+                <Users className="w-2.5 h-2.5" />
+                עוקב
+              </span>
+            )}
+          </div>
           {/* Tagline — אישיות במשפט אחד */}
           <p className="text-xs text-ink-soft mt-1 line-clamp-1">{tagline}</p>
           <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
