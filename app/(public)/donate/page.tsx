@@ -1,4 +1,5 @@
 import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe } from "lucide-react";
+import { DedicationDateField } from "@/components/DedicationDateField";
 
 export const metadata = {
   title: "תרומה | TORA LIVE",
@@ -104,15 +105,9 @@ export default function DonatePage() {
               </div>
               <div>
                 <label htmlFor="dedicateDate" className="block text-sm font-semibold text-ink mb-1.5">
-                  תאריך
+                  תאריך השיעור
                 </label>
-                <input
-                  id="dedicateDate"
-                  name="dedicateDate"
-                  type="date"
-                  defaultValue={new Date().toISOString().slice(0, 10)}
-                  className="w-full h-11 px-3 rounded-btn border border-border bg-white text-ink focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
-                />
+                <DedicationDateField />
               </div>
               <div>
                 <label htmlFor="donorName" className="block text-sm font-semibold text-ink mb-1.5">

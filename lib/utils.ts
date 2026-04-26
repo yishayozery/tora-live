@@ -5,7 +5,32 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * תאריך עברי כראשי (Hebrew calendar via Intl), עם תאריך לועזי קטן בסוגריים.
+ * דוגמה: "כ״ה ניסן תשפ״ו · 24 באפריל 2026"
+ */
 export function formatHebrewDate(d: Date | string) {
+  const date = typeof d === "string" ? new Date(d) : d;
+  let hebrew = "";
+  try {
+    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  } catch {}
+  const gregorian = new Intl.DateTimeFormat("he-IL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+  return hebrew ? `${hebrew} · ${gregorian}` : gregorian;
+}
+
+/**
+ * תאריך לועזי בלבד — לשימושים טכניים (לוגים, ייצוא וכו׳).
+ */
+export function formatGregorianDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;
   return new Intl.DateTimeFormat("he-IL", {
     day: "numeric",

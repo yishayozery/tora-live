@@ -96,12 +96,12 @@ async function getHomeData() {
     language: l.language,
   }));
 
-  // לוח שנה שבועי — 14 יום קדימה
+  // לוח שנה — 30 יום קדימה (היה 14, הורחב כדי שלא יסתירו אישורים מאוחרים)
   const now = new Date();
-  const weekAhead = new Date(now.getTime() + 14 * 86400000);
+  const monthAhead = new Date(now.getTime() + 30 * 86400000);
   const dbCalendarLessons = await db.lesson.findMany({
     where: {
-      scheduledAt: { gte: now, lte: weekAhead },
+      scheduledAt: { gte: now, lte: monthAhead },
       isPublic: true,
       approvalStatus: "APPROVED",
       isSuspended: false,
@@ -115,7 +115,7 @@ async function getHomeData() {
       category: { select: { name: true } },
     },
     orderBy: { scheduledAt: "asc" },
-    take: 50,
+    take: 150,
   });
 
   const calendarLessons = dbCalendarLessons.map((l) => ({

@@ -151,7 +151,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-14 sm:py-20 scroll-mt-16">
+    <section className="relative overflow-hidden py-6 sm:py-10 scroll-mt-16">
       {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
         className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
@@ -164,38 +164,36 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
       <div className="relative">
       <div className="max-w-6xl mx-auto px-4">
-        {/* === מסגרת חיצונית: עוטפת את כל הסקציה (כותרת + חיפוש + קוביות) === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[20px] shadow-card p-5 sm:p-8 lg:p-10">
-        {/* === כותרת ממורכזת === */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-3 mb-2">
-            <span className="relative flex h-3 w-3">
+        {/* === מסגרת חיצונית: קומפקטית כדי שהשורה הראשונה תיכנס למסך === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[20px] shadow-card p-3 sm:p-5 lg:p-6">
+        {/* === כותרת קומפקטית === */}
+        <div className="text-center mb-3 sm:mb-4">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-live" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
             </span>
-            <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">שידורים חיים עכשיו</h2>
+            <h2 className="hebrew-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-ink leading-tight tracking-tight">שידורים חיים עכשיו</h2>
           </div>
-          <p className="text-base sm:text-lg text-ink-soft mt-3">
+          <p className="text-xs sm:text-sm text-ink-soft">
             {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
           </p>
         </div>
 
-        {/* === סרגל פילטרים — כרטיס בולט עם מסגרת ירוקה + Header צבעוני === */}
+        {/* === סרגל פילטרים קומפקטי === */}
         {broadcasts.length > 0 && (
-          <div className="max-w-5xl mx-auto mb-8 bg-white border-2 border-live/40 rounded-card shadow-card overflow-hidden">
-            {/* Header רצועה ירוקה */}
-            <div className="bg-gradient-to-l from-live/10 via-live/5 to-transparent border-b border-live/20 px-4 sm:px-5 py-2.5 flex items-center gap-2">
-              <div className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-live/15">
-                <Filter className="w-4 h-4 text-live" aria-hidden="true" />
-              </div>
-              <h3 className="text-sm font-bold text-ink">סינון וחיפוש שידורים</h3>
-              <span className="mr-auto inline-flex items-center gap-1 text-xs font-semibold text-live bg-live/10 border border-live/20 rounded-full px-2.5 py-1">
+          <div className="max-w-5xl mx-auto mb-3 sm:mb-4 bg-white border-2 border-live/40 rounded-card shadow-card overflow-hidden">
+            {/* Header רצועה ירוקה — דק יותר */}
+            <div className="bg-gradient-to-l from-live/10 via-live/5 to-transparent border-b border-live/20 px-3 sm:px-4 py-1.5 flex items-center gap-2">
+              <Filter className="w-3.5 h-3.5 text-live" aria-hidden="true" />
+              <h3 className="text-xs sm:text-sm font-bold text-ink">סינון וחיפוש שידורים</h3>
+              <span className="mr-auto inline-flex items-center gap-1 text-xs font-semibold text-live bg-live/10 border border-live/20 rounded-full px-2 py-0.5">
                 {filtered.length} / {broadcasts.length}
               </span>
             </div>
 
             {/* גוף הפילטרים */}
-            <div className="p-4 sm:p-5 space-y-3">
+            <div className="p-3 sm:p-4 space-y-2">
 
             {/* שורה 1: חיפוש קצר + chips לסוג שידור + toggle תצוגה */}
             <div className="flex gap-2 flex-wrap items-center">

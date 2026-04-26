@@ -79,6 +79,7 @@ export default function MyRequestsPage() {
   const [requestedDate, setRequestedDate] = useState("");
   const [requestedTime, setRequestedTime] = useState("");
   const [message, setMessage] = useState("");
+  const [preferredVisibility, setPreferredVisibility] = useState<"public" | "private" | "any">("any");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendOk, setSendOk] = useState(false);
@@ -126,11 +127,20 @@ export default function MyRequestsPage() {
     setSendOk(false);
 
     try {
+      // העדפת ציבורי/פרטי נשמרת כתוספת להודעה (הרב יראה בפנייה)
+      const visibilityNote =
+        preferredVisibility === "public"
+          ? "\n\n[העדפת התלמיד: שיעור ציבורי — שיופיע בלוח השיעורים של האתר.]"
+          : preferredVisibility === "private"
+          ? "\n\n[העדפת התלמיד: אירוע פרטי — לא לפרסם בלוח הציבורי.]"
+          : "";
+      const fullMessage = (message || topic) + visibilityNote;
+
       const res = await fetch(`/api/rabbi/${selectedRabbi}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: message || topic,
+          message: fullMessage,
           requestType,
           topic,
           requestedDate: requestedDate || undefined,
@@ -286,6 +296,40 @@ export default function MyRequestsPage() {
                   onChange={(e) => setRequestedTime(e.target.value)}
                   className={inputCls}
                 />
+              </div>
+            </div>
+
+            {/* העדפת ציבורי/פרטי */}
+            <div>
+              <label className="block text-sm text-ink-soft mb-2">העדפה: סוג השיעור</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {[
+                  { value: "any" as const, label: "לפי החלטת הרב", icon: "🤷‍♂️", desc: "הרב יחליט" },
+                  { value: "public" as const, label: "🌍 ציבורי", icon: "", desc: "פתוח לכל הקהל" },
+                  { value: "private" as const, label: "🔒 פרטי", icon: "", desc: "אירוע משפחתי/אישי" },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`flex flex-col items-start gap-0.5 cursor-pointer border rounded-btn px-3 py-2 transition ${
+                      preferredVisibility === opt.value
+                        ? "border-primary bg-primary-soft/40 text-primary"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <input
+                        type="radio"
+                        name="preferredVisibility"
+                        value={opt.value}
+                        checked={preferredVisibility === opt.value}
+                        onChange={() => setPreferredVisibility(opt.value)}
+                        className="accent-primary"
+                      />
+                      {opt.icon} {opt.label}
+                    </span>
+                    <span className="text-xs text-ink-muted mr-5">{opt.desc}</span>
+                  </label>
+                ))}
               </div>
             </div>
 

@@ -3,7 +3,7 @@
  */
 import { db } from "@/lib/db";
 import {
-  listUpcoming, listLive, listRecent, getVideos,
+  listUploadsViaPlaylist, getVideos,
   parseDurationMin, hasHebrew, guessBroadcastType, isBlockedContent,
   YouTubeQuotaError, YouTubeAuthError, YTVideo,
 } from "@/lib/youtube";
@@ -52,12 +52,14 @@ export async function runDiscovery(opts: { dryRun?: boolean; channelIdFilter?: s
     try {
       if (source.platform !== "YOUTUBE") continue;
 
-      // 1. גלה videos חדשים (live + recent). upcoming הוסר — משלם quota יקר ובכל מקרה נתפס כ-live כשמתחיל
-      const [live, recent] = await Promise.all([
-        listLive(source.channelId).catch((e) => { if (e instanceof YouTubeQuotaError) throw e; return []; }),
-        listRecent(source.channelId, 5).catch((e) => { if (e instanceof YouTubeQuotaError) throw e; return []; }),
-      ]);
-      const allIds = Array.from(new Set([...live, ...recent]));
+      // 1. גלה videos חדשים — דרך uploads playlist (1 unit במקום 100)
+      // הסרנו את search.list (live/recent) — היה 200 units לכל מקור
+      const recentIds = await listUploadsViaPlaylist(source.channelId, 15).catch((e) => {
+        if (e instanceof YouTubeQuotaError) throw e;
+        result.errors.push(`${source.channelTitle}:uploads:${e.message}`);
+        return [];
+      });
+      const allIds = Array.from(new Set(recentIds));
       if (allIds.length === 0) continue;
 
       const videos = await getVideos(allIds);
