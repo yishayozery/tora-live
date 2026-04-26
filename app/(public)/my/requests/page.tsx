@@ -26,6 +26,8 @@ type MyRequest = {
   requestedTime: string | null;
   status: string;
   approvedLessonId: string | null;
+  approvedLessonIsPublic: boolean | null;
+  approvedLessonScheduledAt: string | null;
   createdAt: string;
   repliedAt: string | null;
 };
@@ -383,9 +385,35 @@ export default function MyRequestsPage() {
                   </div>
                 )}
 
-                {/* כשהבקשה אושרה ויש שיעור — קישור ישיר */}
+                {/* כשהבקשה אושרה ויש שיעור — מידע מלא + קישור */}
                 {r.status === "APPROVED" && r.approvedLessonId && (
-                  <div className="border-t border-border pt-3 mt-3">
+                  <div className="border-t border-border pt-3 mt-3 space-y-2">
+                    {/* באנר ציבורי/פרטי */}
+                    {r.approvedLessonIsPublic !== null && (
+                      <div className={`text-xs px-3 py-2 rounded-btn border ${
+                        r.approvedLessonIsPublic
+                          ? "bg-live/10 border-live/30 text-ink"
+                          : "bg-paper-warm border-gold/30 text-ink"
+                      }`}>
+                        {r.approvedLessonIsPublic ? (
+                          <>
+                            🌍 <strong>השיעור ציבורי</strong> — מופיע בלוח השיעורים של האתר. כל אחד יכול להצטרף.
+                          </>
+                        ) : (
+                          <>
+                            🔒 <strong>אירוע פרטי</strong> — לא מופיע בלוח הציבורי. תקבל הזמנה אישית קרוב לתאריך.
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* תאריך השיעור */}
+                    {r.approvedLessonScheduledAt && (
+                      <p className="text-sm text-ink-soft">
+                        📅 <strong>{formatDate(r.approvedLessonScheduledAt)}</strong>
+                      </p>
+                    )}
+
                     <Link
                       href={`/lesson/${r.approvedLessonId}`}
                       className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn bg-live text-white text-sm font-semibold hover:bg-live/90 transition"

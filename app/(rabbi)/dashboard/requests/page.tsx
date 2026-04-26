@@ -58,6 +58,7 @@ export default function RabbiRequestsPage() {
   const [replyText, setReplyText] = useState("");
   const [sending, startSending] = useTransition();
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState<{ msg: string; lessonId: string | null } | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -108,6 +109,8 @@ export default function RabbiRequestsPage() {
     isPublic: boolean = false,
   ) {
     setActionLoading(requestId);
+    setError("");
+    setSuccess(null);
     try {
       const res = await fetch(`/api/rabbi/requests/${requestId}/status`, {
         method: "POST",
@@ -115,6 +118,21 @@ export default function RabbiRequestsPage() {
         body: JSON.stringify({ status, isPublic }),
       });
       if (res.ok) {
+        const data = await res.json();
+        // הודעת אישור גלויה
+        if (status === "APPROVED" && data.lessonId) {
+          const dateStr = data.scheduledAt
+            ? new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(data.scheduledAt))
+            : "";
+          setSuccess({
+            msg: isPublic
+              ? `✅ השיעור נוצר ופורסם בלוח השיעורים הציבורי — ${dateStr}. ${data.notified ? "התלמיד קיבל הודעה." : "⚠ ההתראה לתלמיד נכשלה."}`
+              : `✅ השיעור נוצר כאירוע פרטי — ${dateStr}. ${data.notified ? "התלמיד קיבל הודעה." : "⚠ ההתראה לתלמיד נכשלה."}`,
+            lessonId: data.lessonId,
+          });
+        } else if (status === "REJECTED") {
+          setSuccess({ msg: data.notified ? "הבקשה נדחתה. התלמיד קיבל הודעה." : "הבקשה נדחתה. ⚠ ההתראה לתלמיד נכשלה.", lessonId: null });
+        }
         await fetchRequests();
       } else {
         const data = await res.json().catch(() => ({}));
@@ -184,7 +202,29 @@ export default function RabbiRequestsPage() {
       </div>
 
       {error && (
-        <div className="text-sm text-danger bg-danger/10 rounded-btn px-3 py-2">{error}</div>
+        <div className="text-sm text-danger bg-danger/10 border border-danger/30 rounded-btn px-3 py-2">{error}</div>
+      )}
+      {success && (
+        <div className="text-sm bg-live/10 border border-live/40 text-ink rounded-btn px-4 py-3 flex items-start justify-between gap-3">
+          <div className="flex-1">{success.msg}</div>
+          {success.lessonId && (
+            <a
+              href={`/lesson/${success.lessonId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-primary font-semibold hover:underline whitespace-nowrap"
+            >
+              לדף השיעור ←
+            </a>
+          )}
+          <button
+            onClick={() => setSuccess(null)}
+            className="shrink-0 text-ink-muted hover:text-ink"
+            aria-label="סגור"
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {/* ========== תצוגת טבלה ========== */}

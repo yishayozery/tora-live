@@ -167,7 +167,10 @@
       "Bash(cp prisma/schema.prisma prisma/schema.sqlite.backup)",
       "Bash(cp prisma/schema.postgres.prisma prisma/schema.prisma)",
       "Bash(cp prisma/schema.sqlite.backup prisma/schema.prisma)",
-      "Bash(rm prisma/schema.sqlite.backup)"
+      "Bash(rm prisma/schema.sqlite.backup)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

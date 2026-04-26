@@ -25,21 +25,38 @@ export async function GET() {
     },
   });
 
-  const result = requests.map((r) => ({
-    id: r.id,
-    rabbiName: r.rabbi.name,
-    rabbiSlug: r.rabbi.slug,
-    message: r.message,
-    reply: r.reply,
-    requestType: r.requestType,
-    topic: r.topic,
-    requestedDate: r.requestedDate,
-    requestedTime: r.requestedTime,
-    status: r.status,
-    approvedLessonId: (r as any).approvedLessonId ?? null,
-    createdAt: r.createdAt,
-    repliedAt: r.repliedAt,
-  }));
+  // טעינת השיעורים המאושרים — כדי לדעת אם הם ציבוריים/פרטיים ומתי
+  const approvedLessonIds = requests.map((r) => (r as any).approvedLessonId).filter(Boolean) as string[];
+  const lessonsMap = new Map<string, { isPublic: boolean; scheduledAt: Date }>();
+  if (approvedLessonIds.length > 0) {
+    const lessons = await db.lesson.findMany({
+      where: { id: { in: approvedLessonIds } },
+      select: { id: true, isPublic: true, scheduledAt: true },
+    });
+    lessons.forEach((l) => lessonsMap.set(l.id, { isPublic: l.isPublic, scheduledAt: l.scheduledAt }));
+  }
+
+  const result = requests.map((r) => {
+    const lessonId = (r as any).approvedLessonId ?? null;
+    const lesson = lessonId ? lessonsMap.get(lessonId) : null;
+    return {
+      id: r.id,
+      rabbiName: r.rabbi.name,
+      rabbiSlug: r.rabbi.slug,
+      message: r.message,
+      reply: r.reply,
+      requestType: r.requestType,
+      topic: r.topic,
+      requestedDate: r.requestedDate,
+      requestedTime: r.requestedTime,
+      status: r.status,
+      approvedLessonId: lessonId,
+      approvedLessonIsPublic: lesson?.isPublic ?? null,
+      approvedLessonScheduledAt: lesson?.scheduledAt?.toISOString() ?? null,
+      createdAt: r.createdAt,
+      repliedAt: r.repliedAt,
+    };
+  });
 
   return NextResponse.json(result);
 }

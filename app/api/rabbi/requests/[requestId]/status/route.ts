@@ -58,6 +58,7 @@ export async function POST(
 
   // אם אישור — יצירת שיעור אוטומטית
   let createdLessonId: string | null = null;
+  let createdLessonScheduledAt: Date | null = null;
   if (newStatus === "APPROVED" && contactRequest.topic) {
     let scheduledAt: Date;
 
@@ -66,12 +67,29 @@ export async function POST(
       if (contactRequest.requestedTime) {
         const [hours, minutes] = contactRequest.requestedTime.split(":").map(Number);
         scheduledAt.setHours(hours, minutes, 0, 0);
+      } else {
+        // אין שעה ספציפית — ברירת מחדל 20:00 (שעת ערב טיפוסית לשיעור)
+        scheduledAt.setHours(20, 0, 0, 0);
       }
     } else {
-      // ברירת מחדל — שבוע מהיום ב-10:00
+      // ברירת מחדל — שבוע מהיום ב-20:00
       scheduledAt = new Date();
       scheduledAt.setDate(scheduledAt.getDate() + 7);
-      scheduledAt.setHours(10, 0, 0, 0);
+      scheduledAt.setHours(20, 0, 0, 0);
+    }
+
+    // הגנה: אם זמן השיעור עבר — דחה אוטומטית לאותה שעה מחר
+    const now = new Date();
+    if (scheduledAt < now) {
+      scheduledAt = new Date(now);
+      scheduledAt.setDate(scheduledAt.getDate() + 1);
+      // השאר את השעה שהיתה אם הייתה תקפה
+      if (contactRequest.requestedTime) {
+        const [hours, minutes] = contactRequest.requestedTime.split(":").map(Number);
+        scheduledAt.setHours(hours, minutes, 0, 0);
+      } else {
+        scheduledAt.setHours(20, 0, 0, 0);
+      }
     }
 
     const lesson = await db.lesson.create({
@@ -80,12 +98,14 @@ export async function POST(
         title: contactRequest.topic,
         description: contactRequest.message || "",
         scheduledAt,
+        durationMin: 60, // ברירת מחדל סבירה
         broadcastType: "LESSON",
         isPublic, // נבחר בממשק הרב — ציבורי (יופיע בלוח) או פרטי (רק ביומן הרב)
         approvalStatus: "APPROVED",
       },
     });
     createdLessonId = lesson.id;
+    createdLessonScheduledAt = scheduledAt;
     // קישור הפנייה לשיעור — כדי שהתלמיד יוכל ללחוץ ישירות
     await db.contactRequest.update({
       where: { id: contactRequest.id },
@@ -95,16 +115,36 @@ export async function POST(
 
   // התראה לתלמיד
   const statusText = newStatus === "APPROVED" ? "אושרה" : "נדחתה";
-  const approvalBody = isPublic
-    ? `הרב אישר את בקשת השיעור, והוא פורסם בלוח השיעורים הציבורי של האתר.`
-    : `הרב אישר את בקשת השיעור כאירוע פרטי. תקבל הזמנה אישית לפני השיעור.`;
-  await notifyStudent({
-    studentId: contactRequest.studentId,
-    kind: "CONTACT_REPLY" as any,
-    title: `הבקשה שלך ${statusText} ע״י הרב ${rabbi.name}`,
-    body: newStatus === "APPROVED" ? approvalBody : "הרב דחה את הבקשה.",
-    link: createdLessonId ? `/lesson/${createdLessonId}` : "/my/requests",
-  });
+  let approvalBody = "";
+  if (newStatus === "APPROVED") {
+    const dateStr = createdLessonScheduledAt
+      ? new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(createdLessonScheduledAt)
+      : "";
+    approvalBody = isPublic
+      ? `הרב אישר את בקשת השיעור — ${contactRequest.topic}.\nתאריך: ${dateStr}\nהשיעור פורסם בלוח השיעורים הציבורי באתר.`
+      : `הרב אישר את בקשת השיעור — ${contactRequest.topic} — כאירוע פרטי.\nתאריך: ${dateStr}\nהאירוע נשמר ביומן שלך, אך לא בלוח הציבורי.`;
+  } else {
+    approvalBody = `הרב דחה את בקשת השיעור.${contactRequest.topic ? ` (נושא: ${contactRequest.topic})` : ""}`;
+  }
+  let notificationOk = true;
+  try {
+    await notifyStudent({
+      studentId: contactRequest.studentId,
+      kind: "CONTACT_REPLY" as any,
+      title: `הבקשה שלך ${statusText} ע״י הרב ${rabbi.name}`,
+      body: approvalBody,
+      link: createdLessonId ? `/lesson/${createdLessonId}` : "/my/requests",
+    });
+  } catch (e) {
+    console.error("[notify] failed to send to student:", e);
+    notificationOk = false;
+  }
 
-  return NextResponse.json({ ...updated, lessonId: createdLessonId, isPublic });
+  return NextResponse.json({
+    ...updated,
+    lessonId: createdLessonId,
+    scheduledAt: createdLessonScheduledAt?.toISOString() ?? null,
+    isPublic,
+    notified: notificationOk,
+  });
 }

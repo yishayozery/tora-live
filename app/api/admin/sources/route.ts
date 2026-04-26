@@ -34,19 +34,43 @@ export async function POST(req: Request) {
     if (!rabbi) return NextResponse.json({ error: "רב לא נמצא" }, { status: 400 });
   }
 
+  // אם channelTitle נראה כמו channelId (כי האדמין הכניס רק ID) — ננסה לפתור את השם
+  let channelTitle = data.channelTitle;
+  let channelUrl = data.channelUrl;
+  const looksLikeId = channelTitle === data.channelId || /^UC[a-zA-Z0-9_-]{20,}$/.test(channelTitle);
+  if (looksLikeId && process.env.YOUTUBE_API_KEY) {
+    try {
+      const url = new URL("https://www.googleapis.com/youtube/v3/channels");
+      url.searchParams.set("part", "snippet");
+      url.searchParams.set("id", data.channelId);
+      url.searchParams.set("key", process.env.YOUTUBE_API_KEY);
+      const res = await fetch(url.toString());
+      if (res.ok) {
+        const json: any = await res.json();
+        const item = json.items?.[0];
+        if (item?.snippet?.title) {
+          channelTitle = item.snippet.title;
+          channelUrl = `https://www.youtube.com/channel/${data.channelId}`;
+        }
+      }
+    } catch (e) {
+      console.warn("[admin/sources] failed to resolve channel title:", e);
+    }
+  }
+
   try {
     const source = await db.rabbiSource.create({
       data: {
         platform: data.platform,
         channelId: data.channelId,
-        channelTitle: data.channelTitle,
-        channelUrl: data.channelUrl,
+        channelTitle,
+        channelUrl,
         rabbiName: data.rabbiName || null,
         rabbiId: data.rabbiId || null,
         notes: data.notes || null,
       },
     });
-    return NextResponse.json({ ok: true, id: source.id });
+    return NextResponse.json({ ok: true, id: source.id, resolvedTitle: channelTitle !== data.channelTitle ? channelTitle : null });
   } catch (e: any) {
     if (e.code === "P2002") {
       return NextResponse.json({ error: "הערוץ הזה כבר קיים" }, { status: 409 });
