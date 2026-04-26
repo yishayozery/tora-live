@@ -348,15 +348,22 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          <div className={`flex-1 ${
-            filtered.length === 1
-              ? "max-w-4xl mx-auto w-full flex flex-col justify-center"
-              : filtered.length === 2
-                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto w-full content-center"
+          filtered.length === 1 ? (
+            // שידור יחיד — קובייה יחידה במרכז שממלאת את הגובה הזמין
+            <div className="flex-1 min-h-0 flex items-stretch justify-center">
+              <div className="w-full max-w-5xl flex flex-col">
+                <LiveCardGrid b={filtered[0]} hero />
+              </div>
+            </div>
+          ) : (
+            <div className={`flex-1 ${
+              filtered.length === 2
+                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto w-full content-start"
                 : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 content-start"
-          }`}>
-            {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
-          </div>
+            }`}>
+              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
+            </div>
+          )
         ) : (
           <div className="max-w-4xl mx-auto space-y-3 flex-1 w-full">
             {filtered.map((b) => <LiveCardList key={b.id} b={b} />)}
@@ -370,14 +377,20 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 }
 
 /* ============= GRID VIEW ============= */
-function LiveCardGrid({ b }: { b: LiveBroadcast }) {
+function LiveCardGrid({ b, hero = false }: { b: LiveBroadcast; hero?: boolean }) {
   const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
 
   return (
-    <article className="rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition">
-      <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
+    <article className={`rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition ${hero ? "flex flex-col w-full max-h-full" : ""}`}>
+      <div
+        className={hero
+          ? "relative w-full bg-black flex-1 min-h-0"
+          : "relative w-full bg-black"
+        }
+        style={hero ? undefined : { paddingBottom: "56.25%" }}
+      >
         {embedUrl && platform === "youtube" ? (
           <iframe
             src={`${embedUrl}?autoplay=0&mute=1&controls=1&modestbranding=1`}
