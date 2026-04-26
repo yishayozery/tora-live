@@ -163,11 +163,11 @@ async function getHomeData() {
     durationMin: l.durationMin ?? null,
   })));
 
-  // טרנדינג — טופ 6 קטגוריות לפי מספר שיעורים בשבועיים הקרובים
+  // טרנדינג — טופ 6 קטגוריות לפי מספר שיעורים בחודש הקרוב
   const trendingCategories = await db.lesson.groupBy({
     by: ["categoryId"],
     where: {
-      scheduledAt: { gte: now, lte: weekAhead },
+      scheduledAt: { gte: now, lte: monthAhead },
       approvalStatus: "APPROVED",
       isPublic: true,
       isSuspended: false,

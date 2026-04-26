@@ -165,18 +165,18 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
       <div className="relative">
       <div className="max-w-6xl mx-auto px-4">
-        {/* === מסגרת חיצונית קומפקטית === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[18px] shadow-card p-2.5 sm:p-3.5 lg:p-4">
-        {/* === כותרת קומפקטית בשורה אחת === */}
-        <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
-          <span className="relative flex h-2.5 w-2.5">
+        {/* === מסגרת חיצונית מינימלית === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-2 sm:p-3">
+        {/* === כותרת מינימלית === */}
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
           </span>
-          <h2 className="hebrew-serif text-xl sm:text-2xl lg:text-3xl font-bold text-ink leading-none tracking-tight">שידורים חיים עכשיו</h2>
+          <h2 className="hebrew-serif text-base sm:text-lg lg:text-xl font-bold text-ink leading-none">שידורים חיים עכשיו</h2>
           {broadcasts.length > 0 && (
             <span className="text-xs text-ink-muted">
-              ({pluralize(broadcasts.length, "שידור", "שידורים")})
+              · {broadcasts.length}
             </span>
           )}
         </div>
