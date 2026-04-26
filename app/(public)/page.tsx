@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
 import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@/components/LiveBroadcastsSection";
 import { LessonsCounter } from "@/components/LessonsCounter";
@@ -37,18 +35,6 @@ async function getHomeData() {
     },
     take: 10,
   });
-
-  // chat permissions — תלוי בסשן
-  const session = await getServerSession(authOptions);
-  let canChat = false;
-  let isChatBlocked = false;
-  if (session?.user?.id) {
-    const student = await db.student.findUnique({ where: { userId: session.user.id } });
-    if (student) {
-      if (student.isBlocked) isChatBlocked = true;
-      else canChat = true;
-    }
-  }
 
   // השיעור החי הבא — להציג כשאין שיעור חי כרגע
   let nextLive: { id: string; title: string; rabbiName: string; rabbiSlug: string; scheduledAt: string; posterUrl: string | null } | null = null;
