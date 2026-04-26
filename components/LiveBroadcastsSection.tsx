@@ -152,7 +152,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 min-h-[calc(100vh-100px)] flex flex-col">
+    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16">
       {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
         className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
@@ -163,10 +163,10 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       />
       {/* Overlay בהיר לקריאות — paper-warm semi-transparent */}
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
-      <div className="relative flex-1 flex flex-col">
-      <div className="max-w-6xl mx-auto px-4 flex-1 flex flex-col w-full">
-        {/* === מסגרת חיצונית — ממלאה את הגובה === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5 flex-1 flex flex-col">
+      <div className="relative">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* === מסגרת חיצונית === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5">
         {/* === כותרת === */}
         <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
           <span className="relative flex h-2.5 w-2.5">
@@ -348,19 +348,17 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
+          // קובייה יחידה — אם רק שידור אחד, ממורכזת עם רוחב מוגבל לפי גובה ה-viewport
           filtered.length === 1 ? (
-            // שידור יחיד — קובייה יחידה במרכז שממלאת את הגובה הזמין
-            <div className="flex-1 min-h-0 flex items-stretch justify-center">
-              <div className="w-full max-w-5xl flex flex-col">
-                <LiveCardGrid b={filtered[0]} hero />
-              </div>
+            <div className="mx-auto w-full" style={{ maxWidth: "min(100%, calc((100vh - 320px) * 16 / 9))" }}>
+              <LiveCardGrid b={filtered[0]} />
             </div>
           ) : (
-            <div className={`flex-1 ${
+            <div className={
               filtered.length === 2
-                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto w-full content-start"
-                : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 content-start"
-            }`}>
+                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto"
+                : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            }>
               {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
             </div>
           )
@@ -377,20 +375,14 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 }
 
 /* ============= GRID VIEW ============= */
-function LiveCardGrid({ b, hero = false }: { b: LiveBroadcast; hero?: boolean }) {
+function LiveCardGrid({ b }: { b: LiveBroadcast }) {
   const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
 
   return (
-    <article className={`rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition ${hero ? "flex flex-col w-full max-h-full" : ""}`}>
-      <div
-        className={hero
-          ? "relative w-full bg-black flex-1 min-h-0"
-          : "relative w-full bg-black"
-        }
-        style={hero ? undefined : { paddingBottom: "56.25%" }}
-      >
+    <article className="rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition">
+      <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
         {embedUrl && platform === "youtube" ? (
           <iframe
             src={`${embedUrl}?autoplay=0&mute=1&controls=1&modestbranding=1`}
