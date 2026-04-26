@@ -348,15 +348,15 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          // קובייה יחידה — אם רק שידור אחד, ממורכזת עם רוחב מוגבל לפי גובה ה-viewport
+          // שידור יחיד — קובייה במידה דומה לזו שהייתה קודם (כמו פריט בודד ברשת 3 עמודות)
           filtered.length === 1 ? (
-            <div className="mx-auto w-full" style={{ maxWidth: "min(100%, calc((100vh - 320px) * 16 / 9))" }}>
+            <div className="max-w-md sm:max-w-lg lg:max-w-xl mx-auto">
               <LiveCardGrid b={filtered[0]} />
             </div>
           ) : (
             <div className={
               filtered.length === 2
-                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto"
+                ? "grid gap-4 sm:grid-cols-2 max-w-3xl mx-auto"
                 : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
             }>
               {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
