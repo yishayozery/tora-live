@@ -268,9 +268,9 @@ export default async function RabbiDashboardPage() {
                   </div>
                   <div className="flex items-center gap-1 text-xs text-ink-muted shrink-0">
                     <Clock className="w-3 h-3" />
-                    {new Intl.DateTimeFormat("he-IL", {
+                    {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
                       day: "numeric",
-                      month: "short",
+                      month: "long",
                     }).format(r.createdAt)}
                   </div>
                 </div>

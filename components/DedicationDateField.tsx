@@ -13,7 +13,7 @@ export function DedicationDateField() {
   let gregorian = "";
   try {
     const d = new Date(value);
-    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       weekday: "long",
       day: "numeric",
       month: "long",

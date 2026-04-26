@@ -151,12 +151,7 @@ export default async function SchedulePage() {
                       <div className="text-xs text-ink-muted mt-0.5">{n.body}</div>
                     </div>
                     <div className="text-xs text-ink-subtle shrink-0">
-                      {new Intl.DateTimeFormat("he-IL", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }).format(n.createdAt)}
+                      {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(n.createdAt)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(n.createdAt)}
                     </div>
                   </div>
                 </Card>

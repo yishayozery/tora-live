@@ -225,7 +225,7 @@ export default async function LessonsPage({
                     <span className="font-medium text-ink-soft">{rabbiName}</span>
                     <span className="flex items-center gap-1">
                       <CalIcon className="w-3 h-3" />
-                      {new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
+                      {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(l.scheduledAt)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
                     </span>
                     {l.durationMin && (
                       <span className="flex items-center gap-1">

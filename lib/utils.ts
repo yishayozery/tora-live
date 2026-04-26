@@ -6,19 +6,29 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * תאריך עברי כראשי (Hebrew calendar via Intl), עם תאריך לועזי קטן בסוגריים.
- * דוגמה: "כ״ה ניסן תשפ״ו · 24 באפריל 2026"
+ * תאריך עברי כראשי — אותיות עבריות (לא מספרים).
+ * דוגמה: "כ״ה בניסן תשפ״ו · 24 באפריל 2026"
  */
 export function formatHebrewDate(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;
   let hebrew = "";
   try {
-    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+    // u-ca-hebrew = לוח עברי, u-nu-hebr = ספרות בעברית (כ״ה במקום 25)
+    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
       month: "long",
       year: "numeric",
     }).format(date);
-  } catch {}
+  } catch {
+    // fallback אם הדפדפן לא תומך — נסיון ללא nu-hebr
+    try {
+      hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(date);
+    } catch {}
+  }
   const gregorian = new Intl.DateTimeFormat("he-IL", {
     day: "numeric",
     month: "long",

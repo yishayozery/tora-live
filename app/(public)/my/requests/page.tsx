@@ -169,20 +169,21 @@ export default function MyRequestsPage() {
   }
 
   function formatDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL", {
+    // לוח עברי באותיות + שעה
+    const d = new Date(dateStr);
+    const hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
-      month: "short",
+      month: "long",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateStr));
+    }).format(d);
+    const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
+    return `${hebrew} · ${time}`;
   }
 
   function formatShortDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL", {
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
-      month: "short",
-      year: "numeric",
+      month: "long",
     }).format(new Date(dateStr));
   }
 

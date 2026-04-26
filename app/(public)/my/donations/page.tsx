@@ -35,9 +35,10 @@ export default function DonationsPage() {
   }, []);
 
   function formatDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL", {
+    // לוח עברי באותיות (לדוגמה: "כ״ה ניסן תשפ״ו")
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
-      month: "short",
+      month: "long",
       year: "numeric",
     }).format(new Date(dateStr));
   }

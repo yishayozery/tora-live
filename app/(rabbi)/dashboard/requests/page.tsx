@@ -122,7 +122,12 @@ export default function RabbiRequestsPage() {
         // הודעת אישור גלויה
         if (status === "APPROVED" && data.lessonId) {
           const dateStr = data.scheduledAt
-            ? new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(data.scheduledAt))
+            ? (() => {
+                const d = new Date(data.scheduledAt);
+                const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(d);
+                const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
+                return `${heb} ב-${time}`;
+              })()
             : "";
           setSuccess({
             msg: isPublic
@@ -146,19 +151,20 @@ export default function RabbiRequestsPage() {
   }
 
   function formatDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL", {
+    const d = new Date(dateStr);
+    const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
-      month: "short",
+      month: "long",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateStr));
+    }).format(d);
+    const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
+    return `${heb} · ${time}`;
   }
 
   function formatShortDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL", {
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
       day: "numeric",
-      month: "short",
+      month: "long",
     }).format(new Date(dateStr));
   }
 
