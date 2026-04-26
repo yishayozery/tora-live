@@ -89,6 +89,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   const [languageFilter, setLanguageFilter] = useState<string>("");
   const [durationFilter, setDurationFilter] = useState<"" | "short" | "mid" | "long">("");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // tick every minute for "time since broadcast started"
   const [, setTick] = useState(0);
@@ -151,7 +152,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-6 sm:py-10 scroll-mt-16">
+    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16">
       {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
         className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
@@ -164,52 +165,43 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
       <div className="relative">
       <div className="max-w-6xl mx-auto px-4">
-        {/* === מסגרת חיצונית: קומפקטית כדי שהשורה הראשונה תיכנס למסך === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[20px] shadow-card p-3 sm:p-5 lg:p-6">
-        {/* === כותרת קומפקטית === */}
-        <div className="text-center mb-3 sm:mb-4">
-          <div className="inline-flex items-center gap-2 mb-1">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
+        {/* === מסגרת חיצונית קומפקטית === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-[18px] shadow-card p-2.5 sm:p-3.5 lg:p-4">
+        {/* === כותרת קומפקטית בשורה אחת === */}
+        <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
+          </span>
+          <h2 className="hebrew-serif text-xl sm:text-2xl lg:text-3xl font-bold text-ink leading-none tracking-tight">שידורים חיים עכשיו</h2>
+          {broadcasts.length > 0 && (
+            <span className="text-xs text-ink-muted">
+              ({pluralize(broadcasts.length, "שידור", "שידורים")})
             </span>
-            <h2 className="hebrew-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-ink leading-tight tracking-tight">שידורים חיים עכשיו</h2>
-          </div>
-          <p className="text-xs sm:text-sm text-ink-soft">
-            {broadcasts.length === 0 ? "אין כרגע שידורים חיים" : pluralize(broadcasts.length, "שידור חי", "שידורים חיים")}
-          </p>
+          )}
         </div>
 
-        {/* === סרגל פילטרים קומפקטי === */}
+        {/* === סרגל פילטרים בשורה אחת — מתקפל למתקדם === */}
         {broadcasts.length > 0 && (
-          <div className="max-w-5xl mx-auto mb-3 sm:mb-4 bg-white border-2 border-live/40 rounded-card shadow-card overflow-hidden">
-            {/* Header רצועה ירוקה — דק יותר */}
-            <div className="bg-gradient-to-l from-live/10 via-live/5 to-transparent border-b border-live/20 px-3 sm:px-4 py-1.5 flex items-center gap-2">
-              <Filter className="w-3.5 h-3.5 text-live" aria-hidden="true" />
-              <h3 className="text-xs sm:text-sm font-bold text-ink">סינון וחיפוש שידורים</h3>
-              <span className="mr-auto inline-flex items-center gap-1 text-xs font-semibold text-live bg-live/10 border border-live/20 rounded-full px-2 py-0.5">
-                {filtered.length} / {broadcasts.length}
-              </span>
-            </div>
+          <div className="max-w-5xl mx-auto mb-2 sm:mb-3 bg-white border-2 border-live/40 rounded-card shadow-card">
+            {/* שורה אחת: אייקון + חיפוש + chips + count + מתקדם + תצוגה */}
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 flex-wrap">
+              <Filter className="w-4 h-4 text-live shrink-0" aria-hidden="true" />
 
-            {/* גוף הפילטרים */}
-            <div className="p-3 sm:p-4 space-y-2">
-
-            {/* שורה 1: חיפוש קצר + chips לסוג שידור + toggle תצוגה */}
-            <div className="flex gap-2 flex-wrap items-center">
-              <div className="relative w-full sm:w-48 shrink-0">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
+              {/* חיפוש */}
+              <div className="relative flex-1 min-w-[140px] max-w-xs">
+                <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted pointer-events-none" />
                 <input
                   type="search"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
                   placeholder="חיפוש..."
-                  className="w-full h-10 pr-10 pl-3 rounded-btn border border-border bg-white text-sm focus:border-primary focus:outline-none shadow-soft"
+                  className="w-full h-8 pr-8 pl-2 rounded-btn border border-border bg-paper-soft text-sm focus:border-primary focus:bg-white focus:outline-none"
                 />
               </div>
 
               {/* Chips סוג שידור */}
-              <div className="flex gap-1 flex-wrap overflow-x-auto">
+              <div className="flex gap-1">
                 {BROADCAST_TYPES.map((t) => {
                   const active = typeFilter === t.value;
                   return (
@@ -217,9 +209,9 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                       key={t.value}
                       type="button"
                       onClick={() => setTypeFilter(active ? "" : t.value)}
-                      className={`h-10 px-3 rounded-full text-sm font-medium border transition ${
+                      className={`h-8 px-2.5 rounded-full text-xs font-medium border transition ${
                         active
-                          ? "bg-primary text-white border-primary shadow-soft"
+                          ? "bg-primary text-white border-primary"
                           : "bg-white border-border text-ink-soft hover:border-primary hover:text-primary"
                       }`}
                       aria-pressed={active}
@@ -230,66 +222,87 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                 })}
               </div>
 
-              <div className="flex gap-1 p-1 bg-white rounded-btn border border-border shadow-soft mr-auto" role="group" aria-label="תצוגה">
-                <button type="button" onClick={() => setView("grid")}
-                  className={`h-8 w-8 inline-flex items-center justify-center rounded-btn transition ${view === "grid" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"}`}
-                  aria-label="רשת" aria-pressed={view === "grid"}><LayoutGrid className="w-4 h-4" /></button>
-                <button type="button" onClick={() => setView("list")}
-                  className={`h-8 w-8 inline-flex items-center justify-center rounded-btn transition ${view === "list" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"}`}
-                  aria-label="רשימה" aria-pressed={view === "list"}><List className="w-4 h-4" /></button>
+              {/* Count */}
+              <span className="text-xs font-semibold text-live bg-live/10 border border-live/20 rounded-full px-2 py-0.5">
+                {filtered.length}/{broadcasts.length}
+              </span>
+
+              <div className="mr-auto flex items-center gap-1.5">
+                {/* מתקדם */}
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  className={`h-8 px-2.5 rounded-btn text-xs font-medium border transition inline-flex items-center gap-1 ${
+                    showAdvanced || hasActiveFilter ? "bg-primary-soft text-primary border-primary/30" : "bg-white border-border text-ink-soft hover:text-ink"
+                  }`}
+                  aria-expanded={showAdvanced}
+                >
+                  מתקדם {showAdvanced ? "▴" : "▾"}
+                </button>
+
+                {hasActiveFilter && (
+                  <button type="button" onClick={clearAll}
+                    className="h-8 px-2 rounded-btn text-xs text-primary hover:underline font-medium">
+                    נקה
+                  </button>
+                )}
+
+                {/* Toggle תצוגה */}
+                <div className="flex gap-0.5 p-0.5 bg-paper-soft rounded-btn border border-border" role="group" aria-label="תצוגה">
+                  <button type="button" onClick={() => setView("grid")}
+                    className={`h-7 w-7 inline-flex items-center justify-center rounded-btn transition ${view === "grid" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"}`}
+                    aria-label="רשת" aria-pressed={view === "grid"}><LayoutGrid className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={() => setView("list")}
+                    className={`h-7 w-7 inline-flex items-center justify-center rounded-btn transition ${view === "list" ? "bg-primary text-white" : "text-ink-muted hover:text-ink"}`}
+                    aria-label="רשימה" aria-pressed={view === "list"}><List className="w-3.5 h-3.5" /></button>
+                </div>
               </div>
             </div>
 
-            {/* שורה 2: רב · נושא · שפה · משך · נקה */}
-            <div className="flex gap-2 flex-wrap items-center">
-              <select value={rabbiFilter} onChange={(e) => setRabbiFilter(e.target.value)}
-                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                aria-label="רב">
-                <option value="">רב · כולם</option>
-                {rabbiOptions.map(([name, count]) => (
-                  <option key={name} value={name}>{name} ({count})</option>
-                ))}
-              </select>
-
-              {categoryOptions.length > 0 && (
-                <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
-                  className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                  aria-label="נושא">
-                  <option value="">נושא · הכל</option>
-                  {categoryOptions.map(([cat, count]) => (
-                    <option key={cat} value={cat}>{cat} ({count})</option>
+            {/* פילטרים מתקדמים — נפתחים בלחיצה */}
+            {showAdvanced && (
+              <div className="border-t border-border px-2.5 sm:px-3 py-2 flex items-center gap-2 flex-wrap bg-paper-soft/50">
+                <select value={rabbiFilter} onChange={(e) => setRabbiFilter(e.target.value)}
+                  className={`h-8 px-2 rounded-btn border text-xs bg-white transition ${rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                  aria-label="רב">
+                  <option value="">רב · כולם</option>
+                  {rabbiOptions.map(([name, count]) => (
+                    <option key={name} value={name}>{name} ({count})</option>
                   ))}
                 </select>
-              )}
 
-              {availableLanguages.length > 1 && (
-                <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}
-                  className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${languageFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                  aria-label="שפה">
-                  <option value="">שפה · הכל</option>
-                  {availableLanguages.map((code) => (
-                    <option key={code} value={code}>{languageLabel(code) || code}</option>
-                  ))}
+                {categoryOptions.length > 0 && (
+                  <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
+                    className={`h-8 px-2 rounded-btn border text-xs bg-white transition ${categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                    aria-label="נושא">
+                    <option value="">נושא · הכל</option>
+                    {categoryOptions.map(([cat, count]) => (
+                      <option key={cat} value={cat}>{cat} ({count})</option>
+                    ))}
+                  </select>
+                )}
+
+                {availableLanguages.length > 1 && (
+                  <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}
+                    className={`h-8 px-2 rounded-btn border text-xs bg-white transition ${languageFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                    aria-label="שפה">
+                    <option value="">שפה · הכל</option>
+                    {availableLanguages.map((code) => (
+                      <option key={code} value={code}>{languageLabel(code) || code}</option>
+                    ))}
+                  </select>
+                )}
+
+                <select value={durationFilter} onChange={(e) => setDurationFilter(e.target.value as any)}
+                  className={`h-8 px-2 rounded-btn border text-xs bg-white transition ${durationFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                  aria-label="משך">
+                  <option value="">משך · הכל</option>
+                  <option value="short">התחיל עכשיו</option>
+                  <option value="mid">באמצע</option>
+                  <option value="long">זמן רב</option>
                 </select>
-              )}
-
-              <select value={durationFilter} onChange={(e) => setDurationFilter(e.target.value as any)}
-                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${durationFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                aria-label="משך">
-                <option value="">משך · הכל</option>
-                <option value="short">התחיל עכשיו</option>
-                <option value="mid">באמצע</option>
-                <option value="long">זמן רב</option>
-              </select>
-
-              {hasActiveFilter && (
-                <button type="button" onClick={clearAll}
-                  className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium mr-auto">
-                  נקה סינון
-                </button>
-              )}
-            </div>
-            </div>
+              </div>
+            )}
           </div>
         )}
 
