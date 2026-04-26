@@ -152,7 +152,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16">
+    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 min-h-[calc(100vh-100px)] flex flex-col">
       {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
         className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
@@ -163,19 +163,19 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       />
       {/* Overlay בהיר לקריאות — paper-warm semi-transparent */}
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
-      <div className="relative">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* === מסגרת חיצונית מינימלית === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-2 sm:p-3">
-        {/* === כותרת מינימלית === */}
-        <div className="flex items-center justify-center gap-2 mb-1.5">
-          <span className="relative flex h-2 w-2">
+      <div className="relative flex-1 flex flex-col">
+      <div className="max-w-6xl mx-auto px-4 flex-1 flex flex-col w-full">
+        {/* === מסגרת חיצונית — ממלאה את הגובה === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5 flex-1 flex flex-col">
+        {/* === כותרת === */}
+        <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
+          <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
           </span>
-          <h2 className="hebrew-serif text-base sm:text-lg lg:text-xl font-bold text-ink leading-none">שידורים חיים עכשיו</h2>
+          <h2 className="hebrew-serif text-lg sm:text-2xl lg:text-3xl font-bold text-ink leading-none">שידורים חיים עכשיו</h2>
           {broadcasts.length > 0 && (
-            <span className="text-xs text-ink-muted">
+            <span className="text-sm text-ink-muted">
               · {broadcasts.length}
             </span>
           )}
@@ -348,11 +348,17 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className={`flex-1 ${
+            filtered.length === 1
+              ? "max-w-4xl mx-auto w-full flex flex-col justify-center"
+              : filtered.length === 2
+                ? "grid gap-4 sm:grid-cols-2 max-w-5xl mx-auto w-full content-center"
+                : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 content-start"
+          }`}>
             {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto space-y-3">
+          <div className="max-w-4xl mx-auto space-y-3 flex-1 w-full">
             {filtered.map((b) => <LiveCardList key={b.id} b={b} />)}
           </div>
         )}
