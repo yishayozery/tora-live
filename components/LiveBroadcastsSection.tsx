@@ -152,7 +152,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16">
+    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 min-h-[calc(100vh-100px)] flex flex-col">
       {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
       <div
         className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
@@ -163,10 +163,10 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
       />
       {/* Overlay בהיר לקריאות — paper-warm semi-transparent */}
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
-      <div className="relative">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* === מסגרת חיצונית === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5">
+      <div className="relative flex-1 flex flex-col">
+      <div className="max-w-6xl mx-auto px-4 flex-1 flex flex-col w-full">
+        {/* === מסגרת חיצונית — ממלאה את הגובה === */}
+        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5 flex-1 flex flex-col">
         {/* === כותרת === */}
         <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
           <span className="relative flex h-2.5 w-2.5">
@@ -348,9 +348,19 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          // תמיד 3 עמודות. 1 שידור = קובייה אחת ב-1/3, 4+ = שורה שנייה למטה
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
+          // גריד רספונסיבי לכמות + ממלא את כל הגובה הזמין
+          <div className={`flex-1 grid gap-3 sm:gap-4 auto-rows-fr ${
+            filtered.length === 1
+              ? "grid-cols-1"
+              : filtered.length === 2
+                ? "grid-cols-1 sm:grid-cols-2"
+                : filtered.length === 3
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  : filtered.length === 4
+                    ? "grid-cols-1 sm:grid-cols-2"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+          }`}>
+            {filtered.map((b) => <LiveCardGrid key={b.id} b={b} fill />)}
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-3 flex-1 w-full">
@@ -365,14 +375,17 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 }
 
 /* ============= GRID VIEW ============= */
-function LiveCardGrid({ b }: { b: LiveBroadcast }) {
+function LiveCardGrid({ b, fill = false }: { b: LiveBroadcast; fill?: boolean }) {
   const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
 
   return (
-    <article className="rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition">
-      <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
+    <article className={`rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition ${fill ? "h-full flex flex-col" : ""}`}>
+      <div
+        className={fill ? "relative w-full bg-black flex-1 min-h-0" : "relative w-full bg-black"}
+        style={fill ? undefined : { paddingBottom: "56.25%" }}
+      >
         {embedUrl && platform === "youtube" ? (
           <iframe
             src={`${embedUrl}?autoplay=0&mute=1&controls=1&modestbranding=1`}
