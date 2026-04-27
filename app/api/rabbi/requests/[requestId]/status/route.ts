@@ -118,7 +118,12 @@ export async function POST(
   let approvalBody = "";
   if (newStatus === "APPROVED") {
     const dateStr = createdLessonScheduledAt
-      ? new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(createdLessonScheduledAt)
+      ? (() => {
+          const d = createdLessonScheduledAt;
+          const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long", year: "numeric" }).format(d);
+          const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
+          return `${heb} ב-${time}`;
+        })()
       : "";
     approvalBody = isPublic
       ? `הרב אישר את בקשת השיעור — ${contactRequest.topic}.\nתאריך: ${dateStr}\nהשיעור פורסם בלוח השיעורים הציבורי באתר.`

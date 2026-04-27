@@ -4,13 +4,19 @@ import type { MockLesson } from "@/lib/mock-data";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { LogoIcon } from "@/components/Logo";
 
-const fmt = new Intl.DateTimeFormat("he-IL", {
+// תאריך עברי באותיות + שעה
+const dateFmt = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
   weekday: "short",
   day: "numeric",
-  month: "short",
+  month: "long",
+});
+const timeFmt = new Intl.DateTimeFormat("he-IL", {
   hour: "2-digit",
   minute: "2-digit",
 });
+const fmt = {
+  format: (d: Date) => `${dateFmt.format(d)} · ${timeFmt.format(d)}`,
+};
 
 export function LessonCard({ lesson }: { lesson: MockLesson & { posterUrl?: string | null } }) {
   return (

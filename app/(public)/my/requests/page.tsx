@@ -285,7 +285,7 @@ export default function MyRequestsPage() {
                 />
                 {requestedDate && (
                   <p className="text-xs text-primary mt-1 font-medium">
-                    📅 {new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(requestedDate))}
+                    📅 {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(requestedDate))}
                   </p>
                 )}
               </div>

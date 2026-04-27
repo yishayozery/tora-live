@@ -17,9 +17,11 @@ export default async function SettingsPage() {
         המידע כאן מוצג בדף הרב הציבורי שלך: <span dir="ltr" className="font-mono text-xs">/rabbi/{rabbi.slug}</span>
       </p>
       <RabbiProfileForm
+        rabbiName={rabbi.name}
         initial={{
           bio: rabbi.bio ?? "",
           slug: rabbi.slug,
+          photoUrl: rabbi.photoUrl ?? null,
           liveMode: (rabbi.liveMode as "OWN" | "PLATFORM") ?? "OWN",
           media: {
             youtube: media.youtube ?? "",

@@ -12,6 +12,8 @@ const updateSchema = z.object({
     .max(60)
     .regex(/^[a-z0-9-]+$/, "כתובת באנגלית באותיות קטנות ומקפים בלבד")
     .optional(),
+  // תמונת פרופיל — base64 data URL או URL רגיל. אורך מקסימום ~1MB base64
+  photoUrl: z.string().max(2_000_000).nullable().optional(),
   media: mediaLinksSchema.optional(),
   liveMode: z.enum(["OWN", "PLATFORM"]).optional(),
   autoReplyEnabled: z.boolean().optional(),
@@ -25,7 +27,7 @@ export async function PUT(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
-  const { bio, slug, media, liveMode, autoReplyEnabled, autoReplyMessage } =
+  const { bio, slug, photoUrl, media, liveMode, autoReplyEnabled, autoReplyMessage } =
     parsed.data;
 
   // אימות slug ייחודי אם השתנה
@@ -42,9 +44,10 @@ export async function PUT(req: Request) {
   const data: any = {
     bio,
     ...(slug ? { slug } : {}),
+    ...(photoUrl !== undefined ? { photoUrl } : {}),
     mediaLinks: cleanMedia && Object.keys(cleanMedia).length ? JSON.stringify(cleanMedia) : null,
     ...(liveMode ? { liveMode } : {}),
-    profileCompleted: bio.length >= 20,
+    profileCompleted: bio.length >= 20 && !!photoUrl,
   };
   if (typeof autoReplyEnabled === "boolean") {
     data.autoReplyEnabled = autoReplyEnabled;

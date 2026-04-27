@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Youtube, Music, Globe, Facebook, Link as LinkIcon, Radio, Video, MessageSquareReply } from "lucide-react";
+import { PhotoUploadField } from "@/components/PhotoUploadField";
 
 type LiveMode = "OWN" | "PLATFORM";
 
 type Initial = {
   bio: string;
   slug: string;
+  photoUrl: string | null;
   liveMode: LiveMode;
   media: {
     youtube: string;
@@ -35,10 +37,11 @@ const MEDIA_FIELDS: { key: keyof Initial["media"]; label: string; icon: any; pla
   { key: "other", label: "קישור נוסף", icon: LinkIcon, placeholder: "https://..." },
 ];
 
-export function RabbiProfileForm({ initial }: { initial: Initial }) {
+export function RabbiProfileForm({ initial, rabbiName }: { initial: Initial; rabbiName?: string }) {
   const router = useRouter();
   const [bio, setBio] = useState(initial.bio);
   const [slug, setSlug] = useState(initial.slug);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(initial.photoUrl);
   const [liveMode, setLiveMode] = useState<LiveMode>(initial.liveMode);
   const [media, setMedia] = useState(initial.media);
   const [autoReplyEnabled, setAutoReplyEnabled] = useState(initial.autoReplyEnabled);
@@ -46,6 +49,14 @@ export function RabbiProfileForm({ initial }: { initial: Initial }) {
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const initials = (rabbiName ?? "")
+    .replace("הרב ", "")
+    .split(" ")
+    .map((w) => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +69,7 @@ export function RabbiProfileForm({ initial }: { initial: Initial }) {
       body: JSON.stringify({
         bio,
         slug,
+        photoUrl,
         liveMode,
         media,
         autoReplyEnabled,
@@ -80,6 +92,13 @@ export function RabbiProfileForm({ initial }: { initial: Initial }) {
       <Card>
         <h2 className="hebrew-serif text-xl font-bold mb-4">דף הרב</h2>
         <div className="space-y-4">
+          {/* תמונת פרופיל */}
+          <PhotoUploadField
+            value={photoUrl}
+            onChange={setPhotoUrl}
+            label="תמונת פרופיל (תוצג בדף הרב, בקוביות שיעורים, ובכל מקום באתר)"
+            initials={initials}
+          />
           <div>
             <label className="block text-sm text-ink-soft mb-1 font-medium">תיאור / אודות</label>
             <textarea

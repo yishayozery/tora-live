@@ -57,16 +57,13 @@ export async function SiteHeader() {
             <>
               <NavLink href="/rabbis" variant="header">רבנים</NavLink>
               <NavLink href="/lessons" variant="header">שיעורים</NavLink>
+              <NavLink href="/ask-rabbi" variant="header">
+                <span className="text-primary font-medium">פנייה לרב</span>
+              </NavLink>
               {isLoggedIn && (
                 <NavLink href="/my/schedule" variant="header">הלוח שלי</NavLink>
               )}
-              {isLoggedIn && (
-                <NavLink href="/propose-event" variant="header">
-                  <span className="text-gold hover:text-gold/80 font-medium">הצעת יום עיון</span>
-                </NavLink>
-              )}
               <NavLink href="/donate" variant="header">תרומה</NavLink>
-              <NavLink href="/contact" variant="header">צור קשר</NavLink>
             </>
           )}
         </nav>
