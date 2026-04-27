@@ -37,10 +37,10 @@ function LoginForm() {
       setErr("פרטי כניסה שגויים או חשבון חסום");
       return;
     }
-    // Redirect based on role
-    const callbackUrl = sp.get("callbackUrl");
-    if (callbackUrl) {
-      router.push(callbackUrl);
+    // Redirect based on role — תומך גם ב-?next= וגם ב-?callbackUrl=
+    const next = sp.get("next") || sp.get("callbackUrl");
+    if (next && next.startsWith("/")) {
+      router.push(next);
     } else {
       // Fetch session to know role
       const sessionRes = await fetch("/api/auth/session");
