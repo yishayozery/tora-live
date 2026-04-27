@@ -348,19 +348,21 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          // גריד רספונסיבי לכמות + ממלא את כל הגובה הזמין
-          <div className={`flex-1 grid gap-3 sm:gap-4 auto-rows-fr ${
-            filtered.length === 1
-              ? "grid-cols-1"
-              : filtered.length === 2
-                ? "grid-cols-1 sm:grid-cols-2"
-                : filtered.length === 3
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                  : filtered.length === 4
-                    ? "grid-cols-1 sm:grid-cols-2"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-          }`}>
-            {filtered.map((b) => <LiveCardGrid key={b.id} b={b} fill />)}
+          // הקוביות שומרות על יחס 16:9. הגריד ממורכז אנכית באזור האפור.
+          <div className="flex-1 flex items-center justify-center w-full py-2">
+            <div className={`w-full grid gap-3 sm:gap-4 ${
+              filtered.length === 1
+                ? "grid-cols-1 max-w-2xl mx-auto"
+                : filtered.length === 2
+                  ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
+                  : filtered.length === 3
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    : filtered.length === 4
+                      ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
+                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            }`}>
+              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
+            </div>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-3 flex-1 w-full">
@@ -375,17 +377,14 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 }
 
 /* ============= GRID VIEW ============= */
-function LiveCardGrid({ b, fill = false }: { b: LiveBroadcast; fill?: boolean }) {
+function LiveCardGrid({ b }: { b: LiveBroadcast }) {
   const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
 
   return (
-    <article className={`rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition ${fill ? "h-full flex flex-col" : ""}`}>
-      <div
-        className={fill ? "relative w-full bg-black flex-1 min-h-0" : "relative w-full bg-black"}
-        style={fill ? undefined : { paddingBottom: "56.25%" }}
-      >
+    <article className="rounded-card border border-live/30 bg-white shadow-card overflow-hidden group hover:shadow-soft transition">
+      <div className="relative w-full bg-black" style={{ paddingBottom: "56.25%" }}>
         {embedUrl && platform === "youtube" ? (
           <iframe
             src={`${embedUrl}?autoplay=0&mute=1&controls=1&modestbranding=1`}
