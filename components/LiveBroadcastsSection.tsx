@@ -348,24 +348,10 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          // התאמת רוחב הגריד לפי כמות — שידור יחיד מקבל רוחב סביר, רבים ב-4 עמודות
-          filtered.length === 1 ? (
-            <div className="max-w-2xl mx-auto">
-              <LiveCardGrid b={filtered[0]} />
-            </div>
-          ) : filtered.length === 2 ? (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto">
-              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
-            </div>
-          ) : filtered.length === 3 ? (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
-            </div>
-          ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
-            </div>
-          )
+          // תמיד 3 עמודות. 1 שידור = קובייה אחת ב-1/3, 4+ = שורה שנייה למטה
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
+          </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-3 flex-1 w-full">
             {filtered.map((b) => <LiveCardList key={b.id} b={b} />)}
