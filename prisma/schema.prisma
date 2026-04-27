@@ -52,6 +52,7 @@ model Rabbi {
 
   categories   Category[]
   lessons      Lesson[]
+  recurringTemplates RecurringLessonTemplate[]
   requests     ContactRequest[]
   followers    Follow[]
   createdAt    DateTime     @default(now())
@@ -120,6 +121,11 @@ model Lesson {
   isRecurring     Boolean   @default(false)
   recurringRule   String?
   recurringGroupId String?
+  // אם השיעור נוצר מ-template של שיעור קבוע
+  templateId      String?
+  template        RecurringLessonTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  // אם השיעור עודכן ידנית (שינוי חד-פעמי) — לא לדרוס בעדכון template
+  manuallyEdited  Boolean   @default(false)
 
   youtubeUrl      String?
   spotifyUrl      String?
@@ -158,6 +164,39 @@ model Lesson {
 
   @@index([rabbiId, scheduledAt])
   @@index([recurringGroupId])
+  @@index([templateId])
+}
+
+// ---------- שיעור קבוע (תבנית) ----------
+// תלמיד הרב מציין מה השעות לכל יום — המערכת יוצרת שיעורים אוטומטית.
+// שבת + חגים מדולגים אוטומטית.
+model RecurringLessonTemplate {
+  id              String   @id @default(cuid())
+  rabbiId         String
+  rabbi           Rabbi    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String   @default("")
+  categoryId      String?
+  language        String   @default("he")
+  broadcastType   String   @default("LESSON")
+  isPublic        Boolean  @default(true)
+
+  // JSON: { sun: { enabled: true, time: "20:00", durationMin: 60 }, mon: {...}, ..., sat: { enabled: false } }
+  schedule        String   // JSON.stringified
+
+  startDate       DateTime
+  endDate         DateTime // ברירת מחדל: startDate + 6 חודשים
+  lastGeneratedUntil DateTime?
+
+  status          String   @default("ACTIVE") // ACTIVE | PAUSED | CANCELLED
+
+  lessons         Lesson[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([rabbiId, status])
 }
 
 // ---------- מקור PDF (Live Follow) ----------

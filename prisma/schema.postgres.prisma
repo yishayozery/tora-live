@@ -52,6 +52,7 @@ model Rabbi {
 
   categories   Category[]
   lessons      Lesson[]
+  recurringTemplates RecurringLessonTemplate[]
   requests     ContactRequest[]
   followers    Follow[]
   createdAt    DateTime     @default(now())
@@ -120,6 +121,9 @@ model Lesson {
   isRecurring     Boolean   @default(false)
   recurringRule   String?
   recurringGroupId String?
+  templateId      String?
+  template        RecurringLessonTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  manuallyEdited  Boolean   @default(false)
 
   youtubeUrl      String?
   spotifyUrl      String?
@@ -158,6 +162,36 @@ model Lesson {
 
   @@index([rabbiId, scheduledAt])
   @@index([recurringGroupId])
+  @@index([templateId])
+}
+
+// ---------- שיעור קבוע (תבנית) ----------
+model RecurringLessonTemplate {
+  id              String   @id @default(cuid())
+  rabbiId         String
+  rabbi           Rabbi    @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String   @default("") @db.Text
+  categoryId      String?
+  language        String   @default("he")
+  broadcastType   String   @default("LESSON")
+  isPublic        Boolean  @default(true)
+
+  schedule        String   @db.Text // JSON
+
+  startDate       DateTime
+  endDate         DateTime
+  lastGeneratedUntil DateTime?
+
+  status          String   @default("ACTIVE")
+
+  lessons         Lesson[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([rabbiId, status])
 }
 
 // ---------- מקור PDF (Live Follow) ----------
