@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Trash2, Pause, Play, Globe, Lock } from "lucide-react";
+import Link from "next/link";
+import { Trash2, Pause, Play, Globe, Lock, Edit3 } from "lucide-react";
 import type { WeekSchedule } from "@/lib/recurring-lessons";
 import { formatHebrewDateLetters } from "@/lib/utils";
 
@@ -124,6 +125,13 @@ export function RecurringTemplateCard({ template }: { template: Template }) {
 
         {!isCancelled && (
           <div className="flex flex-col gap-1.5 shrink-0">
+            <Link
+              href={`/dashboard/lessons/recurring/${template.id}/edit`}
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-btn bg-primary text-white text-xs font-medium hover:bg-primary-hover transition"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              ערוך
+            </Link>
             <Button size="sm" variant="secondary" onClick={toggleStatus} disabled={busy}>
               {isActive ? <><Pause className="w-3.5 h-3.5" /> השהה</> : <><Play className="w-3.5 h-3.5" /> הפעל</>}
             </Button>

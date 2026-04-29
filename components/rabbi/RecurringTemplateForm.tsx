@@ -22,20 +22,42 @@ type DaySchedule = { enabled: boolean; time: string; durationMin: number };
 const DEFAULT_DAY: DaySchedule = { enabled: true, time: "20:00", durationMin: 60 };
 const FRIDAY_DAY: DaySchedule = { enabled: true, time: "13:00", durationMin: 45 };
 
+type FormInitial = {
+  title: string;
+  description: string;
+  categoryId: string;
+  language: string;
+  broadcastType: string;
+  isPublic: boolean;
+  schedule: Record<string, DaySchedule>;
+  startDate: string;
+  endDate: string;
+};
+
 export function RecurringTemplateForm({
   categories,
+  mode = "create",
+  templateId,
+  initial,
 }: {
   categories: { id: string; name: string }[];
+  mode?: "create" | "edit";
+  templateId?: string;
+  initial?: FormInitial;
 }) {
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [language, setLanguage] = useState("he");
-  const [broadcastType, setBroadcastType] = useState("LESSON");
-  const [isPublic, setIsPublic] = useState(true);
 
-  const [schedule, setSchedule] = useState<Record<string, DaySchedule>>({
+  const today = new Date();
+  const sixMonthsLater = new Date(today.getTime() + 180 * 86400_000);
+
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
+  const [language, setLanguage] = useState(initial?.language ?? "he");
+  const [broadcastType, setBroadcastType] = useState(initial?.broadcastType ?? "LESSON");
+  const [isPublic, setIsPublic] = useState(initial?.isPublic ?? true);
+
+  const [schedule, setSchedule] = useState<Record<string, DaySchedule>>(initial?.schedule ?? {
     sun: { ...DEFAULT_DAY },
     mon: { ...DEFAULT_DAY },
     tue: { ...DEFAULT_DAY },
@@ -44,10 +66,8 @@ export function RecurringTemplateForm({
     fri: { ...FRIDAY_DAY },
   });
 
-  const today = new Date();
-  const sixMonthsLater = new Date(today.getTime() + 180 * 86400_000);
-  const [startDate, setStartDate] = useState(today.toISOString().slice(0, 10));
-  const [endDate, setEndDate] = useState(sixMonthsLater.toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(initial?.startDate ?? today.toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(initial?.endDate ?? sixMonthsLater.toISOString().slice(0, 10));
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,8 +91,11 @@ export function RecurringTemplateForm({
     setBusy(true);
 
     try {
-      const res = await fetch("/api/rabbi/recurring", {
-        method: "POST",
+      const isEdit = mode === "edit" && templateId;
+      const url = isEdit ? `/api/rabbi/recurring/${templateId}` : "/api/rabbi/recurring";
+      const method = isEdit ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -88,10 +111,12 @@ export function RecurringTemplateForm({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "שגיאה ביצירה");
+        setError(data.error ?? "שגיאה ב" + (isEdit ? "עדכון" : "יצירה"));
         return;
       }
-      const summary = `נוצרו ${data.created} שיעורים. דולגו ${data.skippedShabbat} שבתות + ${data.skippedHoliday} חגים.`;
+      const summary = isEdit
+        ? `התבנית עודכנה. נמחקו ${data.deletedFutureLessons ?? 0} שיעורים עתידיים, נוצרו ${data.created ?? 0} חדשים לפי הלוח החדש.`
+        : `נוצרו ${data.created} שיעורים. דולגו ${data.skippedShabbat} שבתות + ${data.skippedHoliday} חגים.`;
       alert("✅ " + summary);
       router.push("/dashboard/lessons/recurring");
       router.refresh();
@@ -112,10 +137,13 @@ export function RecurringTemplateForm({
           <ArrowRight className="w-3 h-3" /> חזרה לרשימה
         </Link>
         <h1 className="hebrew-serif text-3xl font-bold flex items-center gap-2">
-          <Repeat className="w-7 h-7 text-primary" /> תבנית שיעור קבוע
+          <Repeat className="w-7 h-7 text-primary" />
+          {mode === "edit" ? "עריכת תבנית שיעור קבוע" : "תבנית שיעור קבוע"}
         </h1>
         <p className="text-sm text-ink-soft mt-1">
-          קבע שעות לכל יום בשבוע. המערכת תיצור את השיעורים אוטומטית ל-6 חודשים קדימה. שבת וחגים מדולגים אוטומטית.
+          {mode === "edit"
+            ? "שינויים יחולו על שיעורים עתידיים שלא נערכו ידנית. שיעורים שעודכנו ידנית או שכבר התקיימו — יישארו כמו שהם."
+            : "קבע שעות לכל יום בשבוע. המערכת תיצור את השיעורים אוטומטית ל-6 חודשים קדימה. שבת וחגים מדולגים אוטומטית."}
         </p>
       </header>
 
@@ -299,7 +327,9 @@ export function RecurringTemplateForm({
 
         <div className="flex gap-2">
           <Button type="submit" disabled={busy}>
-            {busy ? "יוצר שיעורים..." : "צור תבנית"}
+            {busy
+              ? (mode === "edit" ? "מעדכן..." : "יוצר שיעורים...")
+              : (mode === "edit" ? "שמור שינויים" : "צור תבנית")}
           </Button>
           <Link
             href="/dashboard/lessons/recurring"
