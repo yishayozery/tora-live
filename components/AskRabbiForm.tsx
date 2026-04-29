@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Send, CheckCircle2, Globe, Lock } from "lucide-react";
 import { formatHebrewDateWithWeekday } from "@/lib/utils";
+import { HebrewDatePicker } from "@/components/HebrewDatePicker";
 
 const REQUEST_TYPES = [
   { value: "SINGLE_LESSON", label: "שיעור בודד" },
@@ -165,17 +166,13 @@ export function AskRabbiForm({
       <Card>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label htmlFor="reqDate" className="block text-sm font-semibold text-ink mb-1">תאריך מבוקש</label>
-            <input
-              id="reqDate"
-              type="date"
+            <label className="block text-sm font-semibold text-ink mb-1">תאריך מבוקש</label>
+            <HebrewDatePicker
               value={requestedDate}
-              onChange={(e) => setRequestedDate(e.target.value)}
-              className={inputCls}
+              onChange={setRequestedDate}
+              minDate={new Date().toISOString().slice(0, 10)}
+              placeholder="בחר תאריך מבוקש"
             />
-            {hebrewDatePreview && (
-              <p className="text-xs text-primary mt-1.5 font-medium">📅 {hebrewDatePreview}</p>
-            )}
           </div>
           <div>
             <label htmlFor="reqTime" className="block text-sm font-semibold text-ink mb-1">שעה מבוקשת</label>

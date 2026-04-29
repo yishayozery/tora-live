@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Globe, Lock, Repeat, ArrowRight } from "lucide-react";
 import { BROADCAST_TYPES, LANGUAGES } from "@/lib/enums";
+import { HebrewDatePicker } from "@/components/HebrewDatePicker";
 
 const DAYS = [
   { key: "sun", label: "יום ראשון" },
@@ -298,23 +299,22 @@ export function RecurringTemplateForm({
         {/* טווח תאריכים */}
         <Card>
           <h3 className="font-bold text-sm mb-3">טווח תאריכים</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-ink-soft mb-1">מתאריך</label>
-              <input
-                type="date"
+              <HebrewDatePicker
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className={inputCls}
+                onChange={setStartDate}
+                placeholder="בחר תאריך התחלה"
               />
             </div>
             <div>
               <label className="block text-xs text-ink-soft mb-1">עד תאריך</label>
-              <input
-                type="date"
+              <HebrewDatePicker
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className={inputCls}
+                onChange={setEndDate}
+                placeholder="בחר תאריך סיום"
+                minDate={startDate}
               />
             </div>
           </div>

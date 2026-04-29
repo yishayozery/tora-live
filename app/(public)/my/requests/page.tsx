@@ -14,6 +14,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { formatHebrewDateLetters, formatHebrewDateWithWeekday } from "@/lib/utils";
+import { HebrewDatePicker } from "@/components/HebrewDatePicker";
 
 type MyRequest = {
   id: string;
@@ -270,17 +271,12 @@ export default function MyRequestsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm text-ink-soft mb-1">תאריך מבוקש</label>
-                <input
-                  type="date"
+                <HebrewDatePicker
                   value={requestedDate}
-                  onChange={(e) => setRequestedDate(e.target.value)}
-                  className={inputCls}
+                  onChange={setRequestedDate}
+                  minDate={new Date().toISOString().slice(0, 10)}
+                  placeholder="בחר תאריך מבוקש"
                 />
-                {requestedDate && (
-                  <p className="text-xs text-primary mt-1 font-medium">
-                    📅 {formatHebrewDateWithWeekday(new Date(requestedDate), true)}
-                  </p>
-                )}
               </div>
               <div>
                 <label className="block text-sm text-ink-soft mb-1">שעה מבוקשת</label>
