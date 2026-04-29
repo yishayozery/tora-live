@@ -9,6 +9,19 @@
 4. **נגישות** — WCAG 2.1 AA: קונטרסט 4.5:1, `focus-visible`, תוויות aria, HTML סמנטי.
 5. **חסימה היא חוויה, לא שגיאה** — תלמיד חסום רואה הודעה ברורה, לא 500.
 6. **ביצועים** — `next/image` לכל תמונה, lazy לסרטונים ו-PDFs.
+7. **תאריכים עבריים תמיד באותיות** (`ט׳ באייר תשפ״ו`, לא `9 אייר 5786`). השתמש ב-`formatHebrewDateLetters()` או `formatHebrewDate()` מ-`lib/utils.ts` — Intl `nu-hebr` הוא no-op ב-Node ב-Vercel.
+
+## Git workflow — Feature branches (חובה!)
+**אסור push ישיר ל-main**. כל משימה בענף נפרד עם PR:
+```bash
+git checkout -b feature/short-description
+# עבודה + commits מקומיים
+git push -u origin feature/short-description
+gh pr create --title "..." --body "..."
+# המשתמש סוקר ועושה merge בעצמו
+```
+שמות branch: `feature/X`, `fix/X`, `refactor/X`, `docs/X`.
+לאחר merge — `git checkout main && git pull && git branch -D feature/X`.
 
 ## Stack
 Next.js 14 (App Router) · TypeScript · Tailwind · Prisma + PostgreSQL (Supabase) · NextAuth (credentials).
