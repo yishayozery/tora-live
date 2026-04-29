@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Trash2, Pause, Play, Globe, Lock } from "lucide-react";
 import type { WeekSchedule } from "@/lib/recurring-lessons";
+import { formatHebrewDateLetters } from "@/lib/utils";
 
 const DAY_LABELS: Record<string, string> = {
   sun: "א׳",
@@ -60,12 +61,7 @@ export function RecurringTemplateCard({ template }: { template: Template }) {
     if (res.ok) router.refresh();
   }
 
-  const fmtDate = (iso: string) =>
-    new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(new Date(iso));
+  const fmtDate = (iso: string) => formatHebrewDateLetters(new Date(iso), true);
 
   // ימים פעילים בלבד
   const activeDays = Object.entries(template.schedule)

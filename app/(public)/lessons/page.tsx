@@ -6,6 +6,7 @@ import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { broadcastTypeMeta, BROADCAST_TYPES, LANGUAGES } from "@/lib/enums";
 import { db } from "@/lib/db";
 import { Clock, Calendar as CalIcon } from "lucide-react";
+import { formatHebrewDateLetters } from "@/lib/utils";
 
 export const metadata = {
   title: "שיעורים | TORA LIVE",
@@ -225,7 +226,7 @@ export default async function LessonsPage({
                     <span className="font-medium text-ink-soft">{rabbiName}</span>
                     <span className="flex items-center gap-1">
                       <CalIcon className="w-3 h-3" />
-                      {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(l.scheduledAt)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
+                      {formatHebrewDateLetters(l.scheduledAt, false)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(l.scheduledAt)}
                     </span>
                     {l.durationMin && (
                       <span className="flex items-center gap-1">

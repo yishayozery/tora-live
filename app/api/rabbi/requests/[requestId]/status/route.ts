@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notifyStudent } from "@/lib/notify";
+import { formatHebrewDateLetters } from "@/lib/utils";
 
 const statusSchema = z.object({
   status: z.enum(["APPROVED", "REJECTED"]),
@@ -120,7 +121,7 @@ export async function POST(
     const dateStr = createdLessonScheduledAt
       ? (() => {
           const d = createdLessonScheduledAt;
-          const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long", year: "numeric" }).format(d);
+          const heb = formatHebrewDateLetters(d, true);
           const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
           return `${heb} ב-${time}`;
         })()

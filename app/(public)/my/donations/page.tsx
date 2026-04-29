@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardDescription } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { HandHeart, Receipt } from "lucide-react";
+import { formatHebrewDateLetters } from "@/lib/utils";
 
 type MyDonation = {
   id: string;
@@ -36,11 +37,7 @@ export default function DonationsPage() {
 
   function formatDate(dateStr: string) {
     // לוח עברי באותיות (לדוגמה: "כ״ה ניסן תשפ״ו")
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(new Date(dateStr));
+    return formatHebrewDateLetters(new Date(dateStr), true);
   }
 
   function formatAmount(amountInCents: number) {

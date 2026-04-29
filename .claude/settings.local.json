@@ -171,7 +171,13 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(curl -sL \"https://torah-live-rho.vercel.app/rabbi/rabbi-david-tzadik-test\")",
+      "Bash(grep -oE \"[א-ת]{1,3}׳?\\\\s+ב?\\(תשרי|חשון|כסלו|טבת|שבט|אדר|ניסן|אייר|סיון|תמוז|אב|אלול\\)\")",
+      "Bash(curl -sL \"https://torah-live-rho.vercel.app/rabbi/rabbi-david-tzadik-test\" -o /tmp/page.html)",
+      "Bash(grep -oE \"[^>]{0,30}אייר[^<]{0,30}\" /tmp/page.html)",
+      "Bash(grep -oE \"[^>]{0,30}אדר[^<]{0,30}\" /tmp/page.html)",
+      "Bash(grep -oE \"[^>]{0,30}סיון[^<]{0,30}\" /tmp/page.html)"
     ]
   }
 }

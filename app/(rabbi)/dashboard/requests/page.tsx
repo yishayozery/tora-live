@@ -15,7 +15,7 @@ import {
   Globe,
   Lock,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatHebrewDateLetters } from "@/lib/utils";
 
 type ContactReq = {
   id: string;
@@ -124,7 +124,7 @@ export default function RabbiRequestsPage() {
           const dateStr = data.scheduledAt
             ? (() => {
                 const d = new Date(data.scheduledAt);
-                const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(d);
+                const heb = formatHebrewDateLetters(d, false);
                 const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
                 return `${heb} ב-${time}`;
               })()
@@ -152,20 +152,13 @@ export default function RabbiRequestsPage() {
 
   function formatDate(dateStr: string) {
     const d = new Date(dateStr);
-    const heb = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(d);
+    const heb = formatHebrewDateLetters(d, true);
     const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
     return `${heb} · ${time}`;
   }
 
   function formatShortDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-    }).format(new Date(dateStr));
+    return formatHebrewDateLetters(new Date(dateStr), false);
   }
 
   const pending = requests.filter((r) => r.status === "PENDING");

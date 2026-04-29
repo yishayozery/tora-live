@@ -13,6 +13,7 @@ import {
   XCircle,
   ThumbsUp,
 } from "lucide-react";
+import { formatHebrewDateLetters, formatHebrewDateWithWeekday } from "@/lib/utils";
 
 type MyRequest = {
   id: string;
@@ -169,22 +170,14 @@ export default function MyRequestsPage() {
   }
 
   function formatDate(dateStr: string) {
-    // לוח עברי באותיות + שעה
     const d = new Date(dateStr);
-    const hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(d);
+    const hebrew = formatHebrewDateLetters(d, true);
     const time = new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(d);
     return `${hebrew} · ${time}`;
   }
 
   function formatShortDate(dateStr: string) {
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-    }).format(new Date(dateStr));
+    return formatHebrewDateLetters(new Date(dateStr), false);
   }
 
   if (loading) {
@@ -285,7 +278,7 @@ export default function MyRequestsPage() {
                 />
                 {requestedDate && (
                   <p className="text-xs text-primary mt-1 font-medium">
-                    📅 {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(requestedDate))}
+                    📅 {formatHebrewDateWithWeekday(new Date(requestedDate), true)}
                   </p>
                 )}
               </div>

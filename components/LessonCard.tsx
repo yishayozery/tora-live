@@ -5,17 +5,14 @@ import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
 import { LogoIcon } from "@/components/Logo";
 
 // תאריך עברי באותיות + שעה
-const dateFmt = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-  weekday: "short",
-  day: "numeric",
-  month: "long",
-});
+import { formatHebrewDateLetters } from "@/lib/utils";
 const timeFmt = new Intl.DateTimeFormat("he-IL", {
   hour: "2-digit",
   minute: "2-digit",
 });
+const wdFmt = new Intl.DateTimeFormat("he-IL", { weekday: "short" });
 const fmt = {
-  format: (d: Date) => `${dateFmt.format(d)} · ${timeFmt.format(d)}`,
+  format: (d: Date) => `${wdFmt.format(d)} · ${formatHebrewDateLetters(d, false)} · ${timeFmt.format(d)}`,
 };
 
 export function LessonCard({ lesson }: { lesson: MockLesson & { posterUrl?: string | null } }) {

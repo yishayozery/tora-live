@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Clock,
 } from "lucide-react";
+import { formatHebrewDateLetters } from "@/lib/utils";
 
 /** סוגי שידור שנחשבים "אירוע אישי" (לא שיעור רגיל) */
 const EVENT_BROADCAST_TYPES = new Set([
@@ -268,10 +269,7 @@ export default async function RabbiDashboardPage() {
                   </div>
                   <div className="flex items-center gap-1 text-xs text-ink-muted shrink-0">
                     <Clock className="w-3 h-3" />
-                    {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-                      day: "numeric",
-                      month: "long",
-                    }).format(r.createdAt)}
+                    {formatHebrewDateLetters(r.createdAt, false)}
                   </div>
                 </div>
                 <p className="text-sm text-ink-soft line-clamp-2">{r.message}</p>

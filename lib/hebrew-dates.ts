@@ -3,6 +3,7 @@
  * מילון חגים וצומות עבריים לשנים 2026-2027 (תשפ"ו-תשפ"ז-תשפ"ח)
  * הנתונים hardcoded — לא צריך ספרייה חיצונית.
  */
+import { toHebrewNumeral, formatHebrewDateLetters } from "./utils";
 
 type HolidayEntry = {
   /** Gregorian YYYY-MM-DD */
@@ -157,18 +158,11 @@ export function getHebrewHoliday(date: Date): string | null {
 }
 
 /**
- * פורמט תאריך עברי מ-Intl API.
- * מחזיר מחרוזת כמו "י״ג ניסן".
+ * פורמט תאריך עברי מ-Intl API + גימטריה ידנית.
+ * מחזיר מחרוזת כמו "ט׳ באייר".
  */
 export function formatHebrewCalendarDate(date: Date): string {
-  try {
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-    }).format(date);
-  } catch {
-    return "";
-  }
+  return formatHebrewDateLetters(date, false);
 }
 
 /**
@@ -176,7 +170,10 @@ export function formatHebrewCalendarDate(date: Date): string {
  */
 export function formatHebrewDayOnly(date: Date): string {
   try {
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric" }).format(date);
+    const dayStr = new Intl.DateTimeFormat("en-US-u-ca-hebrew", { day: "numeric" }).format(date);
+    const day = parseInt(dayStr, 10);
+    if (!isFinite(day)) return String(date.getDate());
+    return toHebrewNumeral(day);
   } catch {
     return String(date.getDate());
   }
@@ -187,7 +184,7 @@ export function formatHebrewDayOnly(date: Date): string {
  */
 export function formatHebrewMonthOnly(date: Date): string {
   try {
-    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { month: "long" }).format(date);
+    return new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { month: "long" }).format(date);
   } catch {
     return "";
   }
@@ -201,11 +198,7 @@ export function formatHebrewDateFull(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   try {
     const day = new Intl.DateTimeFormat("he-IL", { weekday: "long" }).format(d);
-    const hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(d);
+    const hebrew = formatHebrewDateLetters(d, true);
     return `יום ${day}, ${hebrew}`;
   } catch {
     return "";

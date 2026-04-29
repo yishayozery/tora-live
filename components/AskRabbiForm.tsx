@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Send, CheckCircle2, Globe, Lock } from "lucide-react";
+import { formatHebrewDateWithWeekday } from "@/lib/utils";
 
 const REQUEST_TYPES = [
   { value: "SINGLE_LESSON", label: "שיעור בודד" },
@@ -41,12 +42,7 @@ export function AskRabbiForm({
 
   // תצוגת תאריך עברי באותיות
   const hebrewDatePreview = requestedDate
-    ? new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(new Date(requestedDate))
+    ? formatHebrewDateWithWeekday(new Date(requestedDate), true)
     : "";
 
   async function submit(e: React.FormEvent) {

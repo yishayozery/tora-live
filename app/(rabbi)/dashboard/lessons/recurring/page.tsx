@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Calendar, Plus, Repeat } from "lucide-react";
 import { RecurringTemplateCard } from "@/components/rabbi/RecurringTemplateCard";
 import { getUpcomingHolidayConflicts } from "@/lib/recurring-lessons";
+import { formatHebrewDateWithWeekday } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -52,11 +53,7 @@ export default async function RecurringLessonsPage() {
               </p>
               <ul className="space-y-1.5 text-sm">
                 {conflicts.map((c, i) => {
-                  const dateHe = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                  }).format(c.date);
+                  const dateHe = formatHebrewDateWithWeekday(c.date, false);
                   return (
                     <li key={i} className="flex items-center gap-2 text-ink">
                       <span className="text-gold font-bold">•</span>

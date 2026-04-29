@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatHebrewDateWithWeekday } from "@/lib/utils";
 
 /**
  * שדה תאריך עם הצגת התאריך העברי כראשי.
@@ -13,12 +14,7 @@ export function DedicationDateField() {
   let gregorian = "";
   try {
     const d = new Date(value);
-    hebrew = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(d);
+    hebrew = formatHebrewDateWithWeekday(d, true);
     gregorian = new Intl.DateTimeFormat("he-IL", {
       day: "numeric",
       month: "long",

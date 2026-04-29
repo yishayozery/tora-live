@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
-import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
+import { formatHebrewDate, formatHebrewTime, formatHebrewDateLetters } from "@/lib/utils";
 import { Bell, Users, Sparkles } from "lucide-react";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { MarkAllRead } from "@/components/MarkAllRead";
@@ -151,7 +151,7 @@ export default async function SchedulePage() {
                       <div className="text-xs text-ink-muted mt-0.5">{n.body}</div>
                     </div>
                     <div className="text-xs text-ink-subtle shrink-0">
-                      {new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", { day: "numeric", month: "long" }).format(n.createdAt)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(n.createdAt)}
+                      {formatHebrewDateLetters(n.createdAt, false)} · {new Intl.DateTimeFormat("he-IL", { hour: "2-digit", minute: "2-digit" }).format(n.createdAt)}
                     </div>
                   </div>
                 </Card>
