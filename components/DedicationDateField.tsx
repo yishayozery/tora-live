@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatHebrewDateWithWeekday } from "@/lib/utils";
+import { HebrewDatePicker } from "@/components/HebrewDatePicker";
 
 /**
  * שדה תאריך עם הצגת התאריך העברי כראשי.
@@ -24,26 +25,20 @@ export function DedicationDateField() {
 
   return (
     <div>
-      {/* תצוגה עברית בולטת */}
-      {hebrew && (
-        <div className="rounded-btn border-2 border-gold/40 bg-gold-soft/40 px-3 py-2.5 mb-2">
-          <div className="hebrew-serif text-lg font-bold text-ink leading-tight">
-            📅 {hebrew}
-          </div>
-          {gregorian && (
-            <div className="text-xs text-ink-muted mt-0.5">{gregorian}</div>
-          )}
-        </div>
-      )}
+      <HebrewDatePicker
+        value={value}
+        onChange={setValue}
+        placeholder="בחר תאריך הקדשה"
+      />
+      {/* hidden input ל-form serialization */}
       <input
         id="dedicateDate"
         name="dedicateDate"
-        type="date"
+        type="hidden"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="w-full h-11 px-3 rounded-btn border border-border bg-white text-ink focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition text-sm"
+        readOnly
       />
-      <p className="text-xs text-ink-muted mt-1">בחר תאריך מהלוח</p>
+      <p className="text-xs text-ink-muted mt-1">לחץ לפתיחת לוח עברי</p>
     </div>
   );
 }

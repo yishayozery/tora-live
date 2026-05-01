@@ -183,6 +183,7 @@ model RecurringLessonTemplate {
   startDate       DateTime
   endDate         DateTime
   lastGeneratedUntil DateTime?
+  lastHolidayWarningAt DateTime?
 
   status          String   @default("ACTIVE")
 

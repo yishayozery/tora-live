@@ -188,6 +188,7 @@ model RecurringLessonTemplate {
   startDate       DateTime
   endDate         DateTime // ברירת מחדל: startDate + 6 חודשים
   lastGeneratedUntil DateTime?
+  lastHolidayWarningAt DateTime? // מתי נשלחה התראת חגים אחרונה (כדי לא לשלוח כפול תוך 7 ימים)
 
   status          String   @default("ACTIVE") // ACTIVE | PAUSED | CANCELLED
 

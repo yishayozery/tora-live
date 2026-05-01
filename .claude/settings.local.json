@@ -177,7 +177,14 @@
       "Bash(curl -sL \"https://torah-live-rho.vercel.app/rabbi/rabbi-david-tzadik-test\" -o /tmp/page.html)",
       "Bash(grep -oE \"[^>]{0,30}אייר[^<]{0,30}\" /tmp/page.html)",
       "Bash(grep -oE \"[^>]{0,30}אדר[^<]{0,30}\" /tmp/page.html)",
-      "Bash(grep -oE \"[^>]{0,30}סיון[^<]{0,30}\" /tmp/page.html)"
+      "Bash(grep -oE \"[^>]{0,30}סיון[^<]{0,30}\" /tmp/page.html)",
+      "Bash(git checkout *)",
+      "Bash(gh pr create --title 'Session 2026-04-29: Recurring lessons + Hebrew dates + /ask-rabbi flow' --body ' *)",
+      "Bash(git branch *)",
+      "Bash(gh pr create --title 'Switch to feature-branch workflow + document Hebrew letter rule' --body ' *)",
+      "Bash(vercel project *)",
+      "Bash(yes)",
+      "Bash(git pull *)"
     ]
   }
 }
