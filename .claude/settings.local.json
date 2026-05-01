@@ -184,7 +184,9 @@
       "Bash(gh pr create --title 'Switch to feature-branch workflow + document Hebrew letter rule' --body ' *)",
       "Bash(vercel project *)",
       "Bash(yes)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(gh pr create --title 'Recurring lessons maintenance + edit + Hebrew calendar picker everywhere' --body ' *)",
+      "Bash(gh pr *)"
     ]
   }
 }
