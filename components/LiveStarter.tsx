@@ -100,11 +100,10 @@ export function LiveStarter({
           <div className="grid gap-3">
             <BigChoiceButton
               icon={<Video className="w-6 h-6" />}
-              title="שדר מהדפדפן (בקרוב)"
-              desc="בלי התקנות. המצלמה שלך ישירות באתר. — בבנייה, יושק בקרוב."
-              variant="secondary"
-              disabled
-              onClick={() => {}}
+              title="שדר מהדפדפן"
+              desc="בלי התקנות. המצלמה שלך נשלחת ישירות לצופים דרך Cloudflare."
+              variant="primary"
+              onClick={() => setStep("preview")}
             />
             <BigChoiceButton
               icon={<LinkIcon className="w-6 h-6" />}

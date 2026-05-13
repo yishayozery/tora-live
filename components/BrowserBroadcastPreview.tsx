@@ -37,6 +37,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
   // מעבר ל-studio
   const [studioMode, setStudioMode] = useState(false);
   const [studioStartedAt, setStudioStartedAt] = useState<Date | null>(null);
+  const [whipUrl, setWhipUrl] = useState<string | undefined>(undefined);
 
   // ---- Cleanup של המצלמה/מיקרופון ----
   function stopTracks() {
@@ -131,6 +132,9 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
           const data = await res.json().catch(() => ({}));
           throw new Error(data?.error || "שגיאה בהתחלת השידור");
         }
+        const data = await res.json().catch(() => ({}));
+        // ה-API מחזיר whipUrl (Cloudflare WHIP endpoint). נשמור ונעביר ל-Studio.
+        setWhipUrl(typeof data?.whipUrl === "string" ? data.whipUrl : undefined);
 
         // 2) אם הרב הדביק לינק למקור — יוצר LessonSource
         const trimmed = sourceUrl.trim();
@@ -165,6 +169,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
         lessonTitle={lessonTitle}
         stream={streamRef.current}
         startedAt={studioStartedAt}
+        whipUrl={whipUrl}
         onEnded={() => {
           streamRef.current = null;
           setStudioMode(false);
