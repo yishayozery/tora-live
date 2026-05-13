@@ -142,6 +142,9 @@ model Lesson {
   recordingExpiry DateTime?
   liveEmbedUrl    String?
 
+  // קוד פתיחת שידור — מאפשר לעוזר/תלמיד להעלות ללייב בלי התחברות.
+  streamCode      String?
+
   viewCount       Int       @default(0)
   syncToCalendar  Boolean   @default(false)
   calendarEventId String?

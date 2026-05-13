@@ -5,6 +5,7 @@ import { lessonSchema } from "@/lib/validators";
 import { notifyStudent } from "@/lib/notify";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { generateOccurrences, type RecurringRule } from "@/lib/recurring";
+import { randomStreamCode } from "@/lib/streamCode";
 
 export async function POST(req: Request) {
   const { rabbi } = await requireApprovedRabbi();
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
     otherUrl: data.otherUrl || null,
     sourcesPdfUrl: data.sourcesPdfUrl || null,
     syncToCalendar: data.syncToCalendar ?? false,
+    streamCode: randomStreamCode(),
   };
 
   if (data.isRecurring && data.recurringRule) {

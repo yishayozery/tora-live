@@ -6,6 +6,7 @@
  */
 import { db } from "@/lib/db";
 import { getHebrewHoliday } from "@/lib/hebrew-dates";
+import { randomStreamCode } from "@/lib/streamCode";
 
 export type DaySchedule = {
   enabled: boolean;
@@ -136,6 +137,7 @@ export async function generateLessonsForTemplate(
         categoryId: template.categoryId,
         isRecurring: true,
         templateId: template.id,
+        streamCode: randomStreamCode(),
       } as any,
     });
     created++;

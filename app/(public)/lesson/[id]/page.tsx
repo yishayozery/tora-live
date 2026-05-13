@@ -52,6 +52,8 @@ import { LessonChat } from "@/components/LessonChat";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { ReportLessonButton } from "@/components/ReportLessonButton";
 import { Radio, FileText, AlertTriangle } from "lucide-react";
+import { StartLiveByCode } from "@/components/StartLiveByCode";
+import { isWithinStreamWindow } from "@/lib/streamCode";
 
 export default async function LessonPage({ params }: { params: { id: string } }) {
   const lesson = await db.lesson.findUnique({
@@ -230,6 +232,9 @@ export default async function LessonPage({ params }: { params: { id: string } })
           >
             <FileText className="w-4 h-4" /> דף מקורות
           </a>
+        )}
+        {!isOwner && !lesson.isLive && (lesson as any).streamCode && isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin) && (
+          <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
         )}
       </div>
 

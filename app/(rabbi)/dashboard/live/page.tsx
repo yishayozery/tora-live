@@ -5,6 +5,7 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LiveStarter } from "@/components/LiveStarter";
 import { RecordingsList } from "@/components/RecordingsList";
+import { StreamCodeBadge } from "@/components/StreamCodeBadge";
 import { Radio, Video, Download, Plus } from "lucide-react";
 
 export default async function LivePage() {
@@ -107,8 +108,8 @@ export default async function LivePage() {
           <div className="space-y-3">
             {upcoming.map((l) => (
               <Card key={l.id}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="min-w-0 flex-1">
                     <CardTitle>{l.title}</CardTitle>
                     <div className="text-sm text-ink-muted">
                       {formatHebrewDate(l.scheduledAt)} · {formatHebrewTime(l.scheduledAt)}
@@ -121,6 +122,15 @@ export default async function LivePage() {
                     isLive={false}
                   />
                 </div>
+                {(l as any).streamCode && (
+                  <div className="mt-3">
+                    <StreamCodeBadge
+                      code={(l as any).streamCode}
+                      lessonTitle={l.title}
+                      lessonUrl={`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/lesson/${l.id}`}
+                    />
+                  </div>
+                )}
               </Card>
             ))}
           </div>

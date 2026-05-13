@@ -144,6 +144,10 @@ model Lesson {
   recordingExpiry DateTime?
   liveEmbedUrl    String?
 
+  // קוד פתיחת שידור — מאפשר לעוזר/תלמיד להעלות ללייב בלי התחברות.
+  // הרב מקבל את הקוד עם הקמת השיעור (WhatsApp/מייל) ומשתף עם מי שמתפעל בפועל.
+  streamCode      String?
+
   viewCount       Int       @default(0)
   syncToCalendar  Boolean   @default(false)
   calendarEventId String?
