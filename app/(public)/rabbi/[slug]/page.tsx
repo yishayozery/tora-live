@@ -65,10 +65,12 @@ import {
   Mail,
   Play,
   Star,
+  Download,
 } from "lucide-react";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { BROADCAST_TYPES } from "@/lib/enums";
 import { LogoIcon } from "@/components/Logo";
+import { ExpirationCountdown } from "@/components/ExpirationCountdown";
 
 const MEDIA_META: Record<string, { label: string; icon: typeof Youtube }> = {
   youtube: { label: "YouTube", icon: Youtube },
@@ -186,6 +188,12 @@ export default async function RabbiPage({
       lessons: pastLessons.filter((l) => l.categoryId === cat.id),
     }))
     .filter((cat) => cat.lessons.length > 0);
+
+  // --- "ספרייה" — שיעורים שהוקלטו ועדיין בתוקף (recording זמין להורדה/צפייה) ---
+  const recordingsAvailable = pastLessons
+    .filter((l: any) => l.recordingExpiry && new Date(l.recordingExpiry) > now && (l.recordingUrl || l.playbackUrl))
+    .sort((a: any, b: any) => new Date(a.recordingExpiry).getTime() - new Date(b.recordingExpiry).getTime())
+    .slice(0, 8); // נציג עד 8 בולטים
 
   const uncategorizedPast = pastLessons.filter((l) => !l.categoryId);
 
@@ -424,6 +432,36 @@ export default async function RabbiPage({
           );
         })()}
       </section>
+
+      {/* ===== ספרייה — הקלטות עדיין זמינות ===== */}
+      {recordingsAvailable.length > 0 && (
+        <section className="mb-10">
+          <h2 className="hebrew-serif text-2xl font-bold text-ink mb-1 flex items-center gap-2">
+            <Download className="w-6 h-6 text-gold" /> ספרייה — הקלטות זמינות
+          </h2>
+          <p className="text-sm text-ink-muted mb-4">
+            השיעורים האחרונים שהוקלטו. כל הקלטה זמינה לזמן מוגבל — אחרי שהיא פגה היא נמחקת אוטומטית.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {recordingsAvailable.map((l: any) => (
+              <Link
+                key={l.id}
+                href={`/lesson/${l.id}`}
+                className="group block rounded-card border border-border bg-white p-4 hover:border-gold/40 hover:shadow-soft transition"
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-bold text-ink line-clamp-2 flex-1">{l.title}</h3>
+                  <ExpirationCountdown expiresAt={l.recordingExpiry} variant="chip" />
+                </div>
+                <div className="text-xs text-ink-muted">
+                  {formatHebrewDate(l.scheduledAt)} · {formatHebrewTime(l.scheduledAt)}
+                  {l.durationMin && <> · {l.durationMin} דק׳</>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ===== Archive (past lessons with filters) ===== */}
       <section className="mb-10">

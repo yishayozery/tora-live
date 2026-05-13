@@ -6,6 +6,7 @@ import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LiveStarter } from "@/components/LiveStarter";
 import { RecordingsList } from "@/components/RecordingsList";
 import { StreamCodeBadge } from "@/components/StreamCodeBadge";
+import { ExpirationCountdown } from "@/components/ExpirationCountdown";
 import { Radio, Video, Download, Plus } from "lucide-react";
 
 export default async function LivePage() {
@@ -86,9 +87,15 @@ export default async function LivePage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle>{l.title}</CardTitle>
-                    <div className="text-sm text-ink-muted">
-                      {formatHebrewDate(l.scheduledAt)}
-                      {l.recordingExpiry && <> · נמחק ב-{formatHebrewDate(l.recordingExpiry)}</>}
+                    <div className="text-sm text-ink-muted flex items-center gap-2 flex-wrap">
+                      <span>{formatHebrewDate(l.scheduledAt)}</span>
+                      {l.recordingExpiry && (
+                        <>
+                          <span>·</span>
+                          <span>יימחק:</span>
+                          <ExpirationCountdown expiresAt={l.recordingExpiry} variant="chip" />
+                        </>
+                      )}
                     </div>
                   </div>
                   <RecordingsList lessonId={l.id} />

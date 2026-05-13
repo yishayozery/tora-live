@@ -112,3 +112,20 @@ export async function getRecordings(inputId: string): Promise<any[]> {
     return [];
   }
 }
+
+/**
+ * בקשה ל-MP4 download של ההקלטה (Cloudflare צריך לאפשר את הדגל).
+ * מחזיר { url, status } כש-status הוא "ready" / "inprogress" / וכו'.
+ * Docs: https://developers.cloudflare.com/stream/viewing-videos/download-videos/
+ */
+export async function requestMp4Download(videoId: string): Promise<{ url: string; status: string }> {
+  if (!CF_ACCOUNT || !CF_TOKEN) {
+    return { url: "", status: "ready" }; // stub לסביבת פיתוח
+  }
+  const result = await cfFetch(`/${videoId}/downloads`, { method: "POST" });
+  const dl = result?.default;
+  return {
+    url: typeof dl?.url === "string" ? dl.url : "",
+    status: typeof dl?.status === "string" ? dl.status : "unknown",
+  };
+}

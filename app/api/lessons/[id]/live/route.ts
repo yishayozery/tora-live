@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
 import { createLiveInput, getPlaybackUrl, getEmbedUrl } from "@/lib/stream";
+import { emitShiurCreated } from "@/lib/events";
 
 const startSchema = z.object({
   isLive: z.boolean(),
@@ -84,6 +85,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       // playbackUrl נשאר — ההקלטה זמינה 5 ימים
     },
   });
+
+  // טריגר ל-side-effects (תמלול, סיכום וכו') רק כשיש הקלטה.
+  if (lesson.streamId) {
+    await emitShiurCreated({
+      lesson: {
+        id: lesson.id,
+        rabbiId: lesson.rabbiId ?? null,
+        title: lesson.title,
+        recordingUrl: lesson.recordingUrl ?? null,
+      },
+    });
+  }
 
   return NextResponse.json({ ok: true, isLive: false, recordingExpiry: recordingExpiry.toISOString() });
 }
