@@ -53,6 +53,7 @@ import { VideoEmbed } from "@/components/VideoEmbed";
 import { ReportLessonButton } from "@/components/ReportLessonButton";
 import { Radio, FileText, AlertTriangle } from "lucide-react";
 import { StartLiveByCode } from "@/components/StartLiveByCode";
+import { StartLiveAsHelper } from "@/components/StartLiveAsHelper";
 import { isWithinStreamWindow } from "@/lib/streamCode";
 
 export default async function LessonPage({ params }: { params: { id: string } }) {
@@ -99,6 +100,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
   let canBookmark = false;
   let canSendChat = false;
   let isChatBlocked = false;
+  let isStreamHelper = false; // המשתמש הנוכחי הוא עוזר שידור של הרב
   let existingBookmark: { remindBeforeMin: number } | null = null;
   if (session?.user?.id) {
     const student = await db.student.findUnique({ where: { userId: session.user.id } });
@@ -112,6 +114,14 @@ export default async function LessonPage({ params }: { params: { id: string } })
           where: { studentId_lessonId: { studentId: student.id, lessonId: lesson.id } },
           select: { remindBeforeMin: true },
         });
+        // בדיקה אם המשתמש סומן כעוזר שידור של הרב של השיעור
+        if (lesson.rabbiId) {
+          const follow = await db.follow.findUnique({
+            where: { studentId_rabbiId: { studentId: student.id, rabbiId: lesson.rabbiId } },
+            select: { isStreamHelper: true } as any,
+          });
+          isStreamHelper = !!(follow && (follow as any).isStreamHelper);
+        }
       }
     }
   }
@@ -233,8 +243,14 @@ export default async function LessonPage({ params }: { params: { id: string } })
             <FileText className="w-4 h-4" /> דף מקורות
           </a>
         )}
-        {!isOwner && !lesson.isLive && (lesson as any).streamCode && isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin) && (
-          <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
+        {!isOwner && !lesson.isLive && isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin, (lesson as any).prepBeforeMin) && (
+          <>
+            {isStreamHelper ? (
+              <StartLiveAsHelper lessonId={lesson.id} lessonTitle={lesson.title} />
+            ) : (
+              (lesson as any).streamCode && <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
+            )}
+          </>
         )}
       </div>
 

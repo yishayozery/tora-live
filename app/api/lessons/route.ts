@@ -43,6 +43,7 @@ export async function POST(req: Request) {
     sourcesPdfUrl: data.sourcesPdfUrl || null,
     syncToCalendar: data.syncToCalendar ?? false,
     streamCode: randomStreamCode(),
+    prepBeforeMin: data.prepBeforeMin ?? null,
   };
 
   if (data.isRecurring && data.recurringRule) {

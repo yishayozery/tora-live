@@ -48,7 +48,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const lesson = await db.lesson.findUnique({
     where: { id: params.id },
     select: {
-      id: true, scheduledAt: true, durationMin: true,
+      id: true, scheduledAt: true, durationMin: true, prepBeforeMin: true,
       streamCode: true, isLive: true, isSuspended: true, isPublic: true,
     },
   });
@@ -61,8 +61,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   if (!lesson.streamCode) {
     return NextResponse.json({ error: "לשיעור זה אין קוד שידור. הרב צריך לפתוח את השידור מהדשבורד." }, { status: 400 });
   }
-  if (!isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin)) {
-    return NextResponse.json({ error: "ניתן לפתוח שידור רק בסמוך לזמן השיעור (±שעה)." }, { status: 403 });
+  if (!isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin, lesson.prepBeforeMin)) {
+    return NextResponse.json({ error: "ניתן לפתוח שידור רק בסמוך לזמן השיעור." }, { status: 403 });
   }
   if (!streamCodeMatches(lesson.streamCode, parsed.data.code)) {
     return NextResponse.json({ error: "קוד שגוי" }, { status: 401 });

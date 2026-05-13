@@ -107,4 +107,21 @@ describe("isWithinStreamWindow", () => {
     const t = new Date(Date.now() - 150 * minute);
     expect(isWithinStreamWindow(t, 180)).toBe(true);
   });
+
+  // === prepBeforeMin extends only the pre-window, never shrinks below 60 min ===
+  it("with prepBeforeMin=120, allows opening 90 min before scheduled (which 60-min default rejects)", () => {
+    const t = new Date(Date.now() + 90 * minute);
+    expect(isWithinStreamWindow(t, 60)).toBe(false);
+    expect(isWithinStreamWindow(t, 60, 120)).toBe(true);
+  });
+
+  it("with prepBeforeMin=15, still uses the 60-min default (never shrinks below 60)", () => {
+    const t = new Date(Date.now() + 50 * minute);
+    expect(isWithinStreamWindow(t, 60, 15)).toBe(true);
+  });
+
+  it("with prepBeforeMin=null behaves like no third arg", () => {
+    const t = new Date(Date.now() + 30 * minute);
+    expect(isWithinStreamWindow(t, 60, null)).toBe(true);
+  });
 });

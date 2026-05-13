@@ -28,10 +28,17 @@ export function streamCodeMatches(stored: string, attempt: string): boolean {
   return normalizeStreamCode(stored) === normalizeStreamCode(attempt);
 }
 
-// חלון זמן: ±60 דק' סביב scheduledAt (קודם לכן הרב לא מתחיל; אחרי — השיעור עבר)
-export function isWithinStreamWindow(scheduledAt: Date, durationMin: number | null | undefined): boolean {
+// חלון זמן לפתיחת שידור.
+// לפני: max(60 דק', prepBeforeMin) לפני scheduledAt.
+// אחרי: durationMin + 30 דק' grace.
+export function isWithinStreamWindow(
+  scheduledAt: Date,
+  durationMin: number | null | undefined,
+  prepBeforeMin: number | null | undefined = null,
+): boolean {
   const now = Date.now();
-  const start = scheduledAt.getTime() - 60 * 60_000;
+  const preMinutes = Math.max(60, prepBeforeMin ?? 0);
+  const start = scheduledAt.getTime() - preMinutes * 60_000;
   const end = scheduledAt.getTime() + (durationMin ?? 60) * 60_000 + 30 * 60_000;
   return now >= start && now <= end;
 }

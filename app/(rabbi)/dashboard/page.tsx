@@ -176,9 +176,10 @@ export default async function RabbiDashboardPage() {
         </Link>
       </div>
 
-      {/* סקציה עליונה — כרטיסי סטטיסטיקה */}
+      {/* סקציה עליונה — כרטיסי סטטיסטיקה (קליקים → לעמודים המתאימים) */}
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-        <Card className="flex items-start gap-3">
+        <Link href="/dashboard/lessons" className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary rounded-card">
+        <Card className="flex items-start gap-3 hover:border-primary/40 hover:shadow-soft transition cursor-pointer">
           <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center shrink-0">
             <BookOpen className="w-5 h-5" />
           </div>
@@ -189,20 +190,27 @@ export default async function RabbiDashboardPage() {
             </div>
           </div>
         </Card>
+        </Link>
 
-        <Card className="flex items-start gap-3">
+        <Link href="/dashboard/requests" className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary rounded-card">
+        <Card className={"flex items-start gap-3 hover:border-gold/40 hover:shadow-soft transition cursor-pointer " + (pendingRequestsCount > 0 ? "border-gold/40" : "")}>
           <div className="w-10 h-10 rounded-full bg-gold-soft text-gold flex items-center justify-center shrink-0">
             <MessageSquare className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs text-ink-muted">פניות ממתינות</div>
+            <div className="text-xs text-ink-muted flex items-center gap-1">
+              פניות ממתינות
+              {pendingRequestsCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" aria-hidden />}
+            </div>
             <div className="text-2xl font-bold mt-0.5">
               {pendingRequestsCount.toLocaleString("he-IL")}
             </div>
           </div>
         </Card>
+        </Link>
 
-        <Card className="flex items-start gap-3">
+        <Link href="/dashboard/lessons" className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary rounded-card">
+        <Card className="flex items-start gap-3 hover:border-live/40 hover:shadow-soft transition cursor-pointer">
           <div className="w-10 h-10 rounded-full bg-live/10 text-live flex items-center justify-center shrink-0">
             <Eye className="w-5 h-5" />
           </div>
@@ -213,8 +221,10 @@ export default async function RabbiDashboardPage() {
             </div>
           </div>
         </Card>
+        </Link>
 
-        <Card className="flex items-start gap-3">
+        <Link href="/dashboard/community" className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary rounded-card">
+        <Card className="flex items-start gap-3 hover:border-purple-300 hover:shadow-soft transition cursor-pointer">
           <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
             <Users className="w-5 h-5" />
           </div>
@@ -225,6 +235,7 @@ export default async function RabbiDashboardPage() {
             </div>
           </div>
         </Card>
+        </Link>
       </div>
 
       {/* סקציה ראשית — לוח שנה */}

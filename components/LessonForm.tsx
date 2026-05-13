@@ -48,6 +48,7 @@ export function LessonForm({
     categoryId: initial?.categoryId ?? "",
     scheduledAt: initial?.scheduledAt ? new Date(initial.scheduledAt).toISOString().slice(0, 16) : "",
     durationMin: initial?.durationMin ?? 60,
+    prepBeforeMin: (initial as any)?.prepBeforeMin ?? 0,
     language: initial?.language ?? "he",
     broadcastType: initial?.broadcastType ?? "LESSON",
     youtubeUrl: initial?.youtubeUrl ?? "",
@@ -197,6 +198,38 @@ export function LessonForm({
             <input type="number" min={1} value={form.durationMin} onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })} className="input" />
           </F>
         </div>
+
+        <F label="חלון הכנה לפני השיעור (אופציונלי)">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: 0, label: "ללא" },
+              { value: 15, label: "15 דק׳" },
+              { value: 30, label: "30 דק׳" },
+              { value: 60, label: "שעה" },
+            ].map((opt) => {
+              const selected = form.prepBeforeMin === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setForm({ ...form, prepBeforeMin: opt.value })}
+                  aria-pressed={selected}
+                  className={
+                    "h-10 px-4 rounded-btn border text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary " +
+                    (selected
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-ink-soft border-border hover:border-primary hover:text-primary")
+                  }
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">
+            דקות לפני השיעור שבהן יהיה אפשר לפתוח את הלייב (חימום מצלמה, בדיקת קול וכו׳).
+          </p>
+        </F>
         {/* מחזוריות — רק ביצירה חדשה */}
         {!lessonId && (
           <div className={`rounded-card border p-4 transition ${form.isRecurring ? "border-gold bg-gold-soft/30" : "border-border"}`}>
