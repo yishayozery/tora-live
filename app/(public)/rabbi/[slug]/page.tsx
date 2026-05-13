@@ -355,7 +355,7 @@ export default async function RabbiPage({
       )}
 
       {/* ===== Mini dashboard ===== */}
-      <div className="grid grid-cols-3 gap-3 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10">
         <Card className="text-center">
           <div className="text-2xl font-bold text-ink">
             {totalHours.toFixed(0)}

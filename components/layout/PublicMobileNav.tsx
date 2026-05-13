@@ -37,10 +37,10 @@ export function PublicMobileNav({ isLoggedIn, isRabbi }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="md:hidden p-2 -ml-1 rounded-btn hover:bg-paper-soft"
+        className="md:hidden inline-flex items-center justify-center w-11 h-11 -ml-2 rounded-btn hover:bg-paper-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
         aria-label="פתח תפריט"
       >
-        <Menu className="w-5 h-5 text-ink" />
+        <Menu className="w-6 h-6 text-ink" />
       </button>
 
       {/* backdrop */}

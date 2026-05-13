@@ -90,7 +90,8 @@ export function PersonalAssistant({ role = "guest", userName }: { role?: Role; u
         type="button"
         onClick={() => setOpen(!open)}
         aria-label={open ? "סגור עוזר" : "פתח עוזר אישי"}
-        className={`fixed bottom-5 left-5 z-40 w-14 h-14 rounded-full shadow-card transition-all flex items-center justify-center ${
+        style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}
+        className={`fixed left-5 z-40 w-14 h-14 rounded-full shadow-card transition-all flex items-center justify-center ${
           open
             ? "bg-ink text-white scale-90"
             : "bg-primary text-white hover:bg-primary-hover hover:scale-105 hover:shadow-soft"
@@ -108,7 +109,8 @@ export function PersonalAssistant({ role = "guest", userName }: { role?: Role; u
           ref={panelRef}
           role="dialog"
           aria-label="עוזר אישי"
-          className="fixed bottom-24 left-5 z-40 w-[calc(100vw-2.5rem)] sm:w-96 max-h-[80vh] bg-white rounded-card border border-border shadow-card overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 duration-200"
+          style={{ bottom: "calc(6rem + env(safe-area-inset-bottom, 0px))" }}
+          className="fixed left-5 z-40 w-[calc(100vw-2.5rem)] sm:w-96 max-h-[80vh] bg-white rounded-card border border-border shadow-card overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 duration-200"
         >
           {/* Header */}
           <header className="bg-gradient-to-l from-primary to-primary-hover text-white px-5 py-4">
@@ -173,24 +175,24 @@ export function PersonalAssistant({ role = "guest", userName }: { role?: Role; u
                 href={WHATSAPP_HREF}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-1.5 h-9 rounded-btn bg-[#25D366] text-white text-xs font-medium hover:opacity-90"
+                className="flex items-center justify-center gap-1.5 h-11 rounded-btn bg-[#25D366] text-white text-xs font-semibold hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
-                <MessageCircle className="w-3.5 h-3.5" />
+                <MessageCircle className="w-4 h-4" />
                 WhatsApp
               </a>
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-1.5 h-9 rounded-btn bg-primary text-white text-xs font-medium hover:bg-primary-hover"
+                className="flex items-center justify-center gap-1.5 h-11 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-4 h-4" />
                 טופס
               </Link>
               <a
                 href="mailto:info@tora-live.co.il"
-                className="flex items-center justify-center gap-1.5 h-9 rounded-btn border border-border bg-white text-ink-soft text-xs font-medium hover:text-ink"
+                className="flex items-center justify-center gap-1.5 h-11 rounded-btn border border-border bg-white text-ink-soft text-xs font-semibold hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
-                <Mail className="w-3.5 h-3.5" />
+                <Mail className="w-4 h-4" />
                 מייל
               </a>
             </div>
