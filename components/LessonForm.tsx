@@ -77,19 +77,13 @@ export function LessonForm({
     e.preventDefault();
     setErr(null);
     setLoading(true);
+    // הטופס הזה רק לשיעור חד-פעמי. שיעור קבוע — בעמוד /dashboard/lessons/recurring/new.
     const payload: any = {
       ...form,
-      scheduledAt: form.isRecurring ? new Date().toISOString() : new Date(form.scheduledAt).toISOString(),
+      scheduledAt: new Date(form.scheduledAt).toISOString(),
       categoryId: form.categoryId || null,
+      isRecurring: false,
     };
-    if (form.isRecurring) {
-      payload.recurringRule = {
-        freq: form.recurringFreq,
-        dayOfWeek: form.recurringFreq === "WEEKLY" ? form.recurringDay : undefined,
-        hour: form.recurringHour,
-        minute: form.recurringMinute,
-      };
-    }
     const url = lessonId ? `/api/lessons/${lessonId}` : "/api/lessons";
     const res = await fetch(url, {
       method: lessonId ? "PUT" : "POST",
@@ -103,7 +97,7 @@ export function LessonForm({
       return;
     }
 
-    // אירוע הכנה — אם המשתמש מילא תאריך (גם בשיעור חוזר וגם רגיל), ניצור lesson נפרד פרטי
+    // אירוע הכנה — אם המשתמש מילא תאריך, ניצור lesson נפרד פרטי
     // broadcastType=PREP כדי שלא יופיע כ"שיעור" ב-listings. עדיין יופיע בלוח של הרב.
     if (!lessonId && form.prepEventAt && form.prepEventAt.trim()) {
       try {
@@ -253,53 +247,31 @@ export function LessonForm({
           />
           <HebrewDateHint value={form.prepEventAt} />
         </div>
-        {/* מחזוריות — רק ביצירה חדשה */}
+        <F label="תאריך ושעה">
+          <input type="datetime-local" required value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} className="input" />
+          <HebrewDateHint value={form.scheduledAt} />
+        </F>
+
+        {/* שיעור קבוע — כעת בעמוד נפרד עם תמיכה מלאה בשעה לכל יום */}
         {!lessonId && (
-          <div className={`rounded-card border p-4 transition ${form.isRecurring ? "border-gold bg-gold-soft/30" : "border-border"}`}>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.isRecurring}
-                onChange={(e) => setForm({ ...form, isRecurring: e.target.checked })}
-                className="w-5 h-5 accent-gold"
-              />
-              <div>
-                <span className="font-semibold text-ink">שיעור מחזורי קבוע</span>
-                <span className="text-xs text-ink-muted mr-2">— ייצור 12 מופעים אוטומטית</span>
+          <div className="rounded-card border border-gold/30 bg-gold-soft/20 p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl" aria-hidden>📅</span>
+              <div className="flex-1">
+                <div className="font-bold text-ink mb-1">רוצה להגדיר שיעור קבוע (חזרתי)?</div>
+                <p className="text-sm text-ink-soft mb-3">
+                  לשיעור קבוע יש דף הגדרה ייעודי — שם תוכל לקבוע שעה שונה לכל יום בשבוע
+                  (לדוגמה: ראשון 20:00, שלישי 21:30) ולקבל מופעים אוטומטיים ל-6 חודשים קדימה.
+                </p>
+                <a
+                  href="/dashboard/lessons/recurring/new"
+                  className="inline-flex items-center gap-1.5 h-10 px-4 rounded-btn bg-gold text-white hover:bg-gold/90 text-sm font-semibold"
+                >
+                  הגדר שיעור קבוע ←
+                </a>
               </div>
-            </label>
-            {form.isRecurring && (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <F label="תדירות">
-                  <select value={form.recurringFreq} onChange={(e) => setForm({ ...form, recurringFreq: e.target.value as any })} className="input">
-                    <option value="WEEKLY">שבועי</option>
-                    <option value="DAILY">יומי</option>
-                  </select>
-                </F>
-                {form.recurringFreq === "WEEKLY" && (
-                  <F label="יום">
-                    <select value={form.recurringDay} onChange={(e) => setForm({ ...form, recurringDay: Number(e.target.value) })} className="input">
-                      {["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"].map((d, i) => (
-                        <option key={i} value={i}>{d}</option>
-                      ))}
-                    </select>
-                  </F>
-                )}
-                <F label="שעה">
-                  <input type="number" min={0} max={23} value={form.recurringHour} onChange={(e) => setForm({ ...form, recurringHour: Number(e.target.value) })} className="input" />
-                </F>
-                <F label="דקה">
-                  <input type="number" min={0} max={59} step={5} value={form.recurringMinute} onChange={(e) => setForm({ ...form, recurringMinute: Number(e.target.value) })} className="input" />
-                </F>
-              </div>
-            )}
+            </div>
           </div>
-        )}
-        {!form.isRecurring && (
-          <F label="תאריך ושעה">
-            <input type="datetime-local" required={!form.isRecurring} value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} className="input" />
-            <HebrewDateHint value={form.scheduledAt} />
-          </F>
         )}
 
         {/* מיקום פיזי (אופציונלי) */}
