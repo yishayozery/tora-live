@@ -82,15 +82,19 @@ async function getHomeData() {
     language: l.language,
   }));
 
-  // לוח שנה — 30 יום קדימה (היה 14, הורחב כדי שלא יסתירו אישורים מאוחרים)
+  // לוח שנה — מתחילת היום (כדי לא לפספס שיעורים שהשעה שלהם זה עתה עברה) עד 30 יום קדימה
   const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
   const monthAhead = new Date(now.getTime() + 30 * 86400000);
   const dbCalendarLessons = await db.lesson.findMany({
     where: {
-      scheduledAt: { gte: now, lte: monthAhead },
+      scheduledAt: { gte: startOfToday, lte: monthAhead },
       isPublic: true,
       approvalStatus: "APPROVED",
       isSuspended: false,
+      // אירועי הכנה לא צריכים להופיע ציבורית (כבר מסומנים isPublic:false אבל ליתר ביטחון)
+      broadcastType: { not: "PREP" },
       OR: [
         { rabbi: { status: "APPROVED", isBlocked: false } },
         { rabbiId: null }, // אירועים ללא רב (הצעות משתמשים)

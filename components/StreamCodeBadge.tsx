@@ -6,7 +6,7 @@ import { Copy, Check, Share2, KeyRound } from "lucide-react";
 type Props = {
   code: string;
   lessonTitle: string;
-  lessonUrl: string; // קישור מלא לעמוד השיעור (לשיתוף)
+  lessonUrl: string; // נתיב יחסי לעמוד השיעור (למשל /lesson/abc) — נהפוך לאבסולוטי בצד הלקוח
 };
 
 export function StreamCodeBadge({ code, lessonTitle, lessonUrl }: Props) {
@@ -19,8 +19,14 @@ export function StreamCodeBadge({ code, lessonTitle, lessonUrl }: Props) {
     });
   }
 
+  // בונים URL אבסולוטי בצד-לקוח, כדי שב-WhatsApp הלינק יהיה לחיץ.
+  // אם lessonUrl כבר מתחיל ב-http, משאירים כמו שהוא; אחרת מוסיפים origin של הדפדפן.
+  const fullUrl = typeof window !== "undefined" && !/^https?:\/\//i.test(lessonUrl)
+    ? `${window.location.origin}${lessonUrl.startsWith("/") ? lessonUrl : `/${lessonUrl}`}`
+    : lessonUrl;
+
   const waText = encodeURIComponent(
-    `שלום! קוד פתיחת השידור לשיעור "${lessonTitle}":\n\n${code}\n\nקישור לעמוד השיעור:\n${lessonUrl}\n\nכניסה לעמוד → "התחל שידור" → הזנת הקוד.`,
+    `שלום! קוד פתיחת השידור לשיעור "${lessonTitle}":\n\n${code}\n\nקישור לעמוד השיעור:\n${fullUrl}\n\nכניסה לעמוד → "התחל שידור" → הזנת הקוד.`,
   );
 
   return (

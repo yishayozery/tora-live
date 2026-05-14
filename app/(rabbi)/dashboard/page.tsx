@@ -121,7 +121,7 @@ export default async function RabbiDashboardPage() {
         isLive: l.isLive,
         broadcastType: (l as any).broadcastType ?? "LESSON",
         variant,
-        href: `/dashboard/lessons/${l.id}`,
+        href: `/dashboard/lessons/${l.id}/edit`,
         canStartBroadcast: !l.isLive && isWithinBroadcastWindow(l.scheduledAt),
       };
     }),

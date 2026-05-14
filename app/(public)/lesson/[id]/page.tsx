@@ -169,7 +169,8 @@ export default async function LessonPage({ params }: { params: { id: string } })
         {lesson.category && <span className="text-ink-muted"> · {lesson.category.name}</span>}
       </div>
       <div className="mt-1 mb-2 flex items-center gap-2">
-        <BroadcastTypeBadge value={(lesson as any).broadcastType} />
+        {/* סוג שידור מוצג רק לבעלים (פנימי, לא מעניין לצופה) */}
+        {isOwner && <BroadcastTypeBadge value={(lesson as any).broadcastType} />}
         {session?.user?.id && !isOwner && (
           <ReportLessonButton lessonId={lesson.id} />
         )}
@@ -253,6 +254,26 @@ export default async function LessonPage({ params }: { params: { id: string } })
           </>
         )}
       </div>
+
+      {/* CTA לאורחים — דחיפה להרשמה כדי לסמן ולקבל התראות */}
+      {!session?.user?.id && !isOwner && (
+        <Link
+          href={`/register?next=/lesson/${lesson.id}`}
+          className="mt-5 block rounded-card bg-gradient-to-l from-primary/10 to-gold/10 border border-primary/20 p-4 hover:border-primary/40 transition group"
+        >
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-ink mb-1">רוצה לקבל התראות על שיעורים של {lesson.rabbi?.name ?? "הרב"}?</div>
+              <div className="text-sm text-ink-soft">
+                הרשם בחינם בלחיצה — סמן שיעורים ללוח שלך, קבל התראה לפני שמתחילים, ובנה לוח לימוד אישי.
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 h-10 px-4 rounded-btn bg-primary text-white font-semibold text-sm group-hover:bg-primary-hover transition shrink-0">
+              הרשמה חינם ←
+            </span>
+          </div>
+        </Link>
+      )}
 
       {/* Share buttons */}
       <div className="mt-4 pt-4 border-t border-border">
