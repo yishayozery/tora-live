@@ -38,19 +38,38 @@ export function ReportLessonButton({ lessonId }: { lessonId: string }) {
     }
     setBusy(true);
     setError(null);
-    const res = await fetch(`/api/lessons/${lessonId}/report`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, description }),
-    });
+    setInfo(null);
+
+    let res: Response;
+    try {
+      res = await fetch(`/api/lessons/${lessonId}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, description }),
+      });
+    } catch (e: any) {
+      setBusy(false);
+      setError("בעיית רשת. בדוק חיבור אינטרנט ונסה שוב.");
+      return;
+    }
     setBusy(false);
-    const json = await res.json().catch(() => ({}));
+
+    // ייתכן שהשרת מחזיר HTML (למשל redirect ל-login) — נטפל בעדינות
+    const contentType = res.headers.get("content-type") || "";
+    const json = contentType.includes("application/json")
+      ? await res.json().catch(() => ({}))
+      : {};
+
+    if (res.status === 401) {
+      setError(json?.error || "צריך להתחבר מחדש כדי לדווח.");
+      return;
+    }
     if (res.status === 409) {
       setInfo(json?.error || "כבר דיווחת על שיעור זה — הדיווח שלך עדיין בטיפול");
       return;
     }
     if (!res.ok) {
-      setError(json?.error || "שגיאה בשליחה");
+      setError(json?.error || `שגיאה בשליחה (${res.status})`);
       return;
     }
     setDone(true);
