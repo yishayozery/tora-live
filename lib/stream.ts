@@ -57,7 +57,9 @@ export async function createLiveInput(name: string): Promise<LiveInput> {
     body: JSON.stringify({
       meta: { name },
       recording: { mode: "automatic", timeoutSeconds: 300 }, // auto-stop after 5 min silence
-      deleteRecordingAfterDays: 5,
+      // Cloudflare דורש 30-1096. אנו מגדירים 30 כ-safety-net.
+      // הניקוי בפועל אחרי 5 ימים נעשה ע"י cron `cleanup-expired-recordings` לפי recordingExpiry.
+      deleteRecordingAfterDays: 30,
     }),
   });
 }
