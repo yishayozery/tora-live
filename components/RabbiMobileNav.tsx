@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Archive, LayoutDashboard, MessageSquare, Settings, LogOut, Radio, Plus, Users } from "lucide-react";
+import { Menu, X, Archive, LayoutDashboard, MessageSquare, Settings, LogOut, Radio, Plus, Users, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/lessons/new", icon: Plus, label: "הקמת שיעור" },
   { href: "/dashboard/live", icon: Radio, label: "התחלת שיעור בשידור חי" },
   { href: "/dashboard/lessons", icon: Archive, label: "ארכיון השיעורים" },
+  { href: "/dashboard/messages", icon: Megaphone, label: "הודעות לתלמידים" },
   { href: "/dashboard/community", icon: Users, label: "הקהילה שלי" },
   { href: "/dashboard/requests", icon: MessageSquare, label: "פניות" },
   { href: "/dashboard/settings", icon: Settings, label: "הגדרות פרופיל" },

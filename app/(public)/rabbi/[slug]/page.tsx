@@ -71,6 +71,11 @@ import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { BROADCAST_TYPES } from "@/lib/enums";
 import { LogoIcon } from "@/components/Logo";
 import { ExpirationCountdown } from "@/components/ExpirationCountdown";
+import { HeroBlock } from "@/components/rabbi-profile/HeroBlock";
+import { MessagesSlideshow } from "@/components/rabbi-profile/MessagesSlideshow";
+import { AboutCard } from "@/components/rabbi-profile/AboutCard";
+import { WhatYouCanDo } from "@/components/rabbi-profile/WhatYouCanDo";
+import { StickyFollowCTA } from "@/components/rabbi-profile/StickyFollowCTA";
 
 const MEDIA_META: Record<string, { label: string; icon: typeof Youtube }> = {
   youtube: { label: "YouTube", icon: Youtube },
@@ -113,6 +118,15 @@ export default async function RabbiPage({
         },
       },
       _count: { select: { followers: true } },
+      messages: {
+        where: {
+          published: true,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, content: true, createdAt: true },
+        take: 30,
+      },
     },
   });
 
@@ -240,91 +254,67 @@ export default async function RabbiPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
       />
-      {/* ===== Header ===== */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
-        {rabbi.photoUrl ? (
-          rabbi.photoUrl.startsWith("data:") ? (
-            // base64 — next/image לא תומך, נשאיר native
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={rabbi.photoUrl} alt={rabbi.name} className="w-32 h-32 rounded-full object-cover border-4 border-gold-soft" />
-          ) : (
-            <Image
-              src={rabbi.photoUrl}
-              alt={rabbi.name}
-              width={128}
-              height={128}
-              className="w-32 h-32 rounded-full object-cover border-4 border-gold-soft"
-              priority
-            />
-          )
-        ) : (
-          <div className="w-32 h-32 rounded-full bg-primary-soft flex items-center justify-center hebrew-serif text-4xl text-primary">
-            {rabbi.name.charAt(0)}
-          </div>
-        )}
-        <div className="text-center sm:text-right flex-1">
-          <h1 className="hebrew-serif text-4xl font-bold text-ink">
-            {rabbi.name}
-          </h1>
+      {/* ===== New Hero ===== */}
+      <HeroBlock
+        rabbi={{
+          id: rabbi.id,
+          name: rabbi.name,
+          slug: rabbi.slug,
+          photoUrl: rabbi.photoUrl ?? null,
+          bio: rabbi.bio ?? null,
+        }}
+        stats={{
+          lessons: totalLessons,
+          hours: totalHours,
+          followers: rabbi._count.followers,
+        }}
+        follow={{ canFollow, isFollowing }}
+        contact={{ canContact, isBlocked: isContactBlocked, userInfo }}
+        shareText={shareText}
+      />
 
-          {rabbi.bio && rabbi.bio.trim() !== "" && (
-            <p className="text-ink-soft mt-2 max-w-2xl whitespace-pre-line">
-              {rabbi.bio}
-            </p>
-          )}
+      {rabbi.messages.length > 0 && (
+        <MessagesSlideshow
+          messages={rabbi.messages.map((m) => ({
+            id: m.id,
+            content: m.content,
+            createdAt: m.createdAt.toISOString(),
+          }))}
+          rabbiName={rabbi.name}
+        />
+      )}
 
-          <div className="mt-4 flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-            <FollowButton
-              rabbiId={rabbi.id}
-              initialFollowing={isFollowing}
-              canFollow={canFollow}
-            />
-            <ContactRabbiButton
-              rabbiId={rabbi.id}
-              canSend={canContact}
-              isBlocked={isContactBlocked}
-              userInfo={userInfo}
-            />
-            <a
-              href={`https://wa.me/?text=${shareText}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-btn border border-border bg-white text-sm font-medium text-ink-soft hover:border-primary hover:text-primary transition"
-              aria-label={`שתף את ${rabbi.name} ב-WhatsApp`}
-            >
-              <Share2 className="w-4 h-4" />
-              שתף
-            </a>
-            <span className="text-sm text-ink-muted self-center">
-              {rabbi._count.followers.toLocaleString("he-IL")} עוקבים
-            </span>
-          </div>
+      <AboutCard bio={rabbi.bio} rabbiName={rabbi.name} />
 
-          {mediaEntries.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
-              {mediaEntries.map(([key, url]) => {
-                const meta = MEDIA_META[key] ?? {
-                  label: key,
-                  icon: LinkIcon,
-                };
-                const Icon = meta.icon;
-                return (
-                  <a
-                    key={key}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border bg-white text-xs text-ink-soft hover:border-primary hover:text-primary transition"
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {meta.label}
-                  </a>
-                );
-              })}
-            </div>
-          )}
+      <WhatYouCanDo />
+
+      {mediaEntries.length > 0 && (
+        <div className="mb-8 flex flex-wrap gap-2 justify-center sm:justify-start">
+          {mediaEntries.map(([key, url]) => {
+            const meta = MEDIA_META[key] ?? { label: key, icon: LinkIcon };
+            const Icon = meta.icon;
+            return (
+              <a
+                key={key}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border bg-white text-xs text-ink-soft hover:border-primary hover:text-primary transition"
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {meta.label}
+              </a>
+            );
+          })}
         </div>
-      </div>
+      )}
+
+      <StickyFollowCTA
+        rabbiName={rabbi.name}
+        canFollow={canFollow}
+        initialFollowing={isFollowing}
+        rabbiSlug={rabbi.slug}
+      />
 
       {/* ===== Featured Lesson — Social Proof / Top hit ===== */}
       {featuredLesson && (

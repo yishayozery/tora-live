@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireRabbi } from "@/lib/session";
-import { BookOpen, LayoutDashboard, MessageSquare, Settings, Radio, Archive, Users, Plus } from "lucide-react";
+import { BookOpen, LayoutDashboard, MessageSquare, Settings, Radio, Archive, Users, Plus, Megaphone } from "lucide-react";
 import { RabbiMobileNav } from "@/components/RabbiMobileNav";
 import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
@@ -22,6 +22,7 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
           <NavLink href="/dashboard/lessons/new"><Plus className="w-4 h-4" /> הקמת שיעור</NavLink>
           <NavLink href="/dashboard/live"><Radio className="w-4 h-4" /> התחלת שיעור בשידור חי</NavLink>
           <NavLink href="/dashboard/lessons" exact><Archive className="w-4 h-4" /> ארכיון השיעורים</NavLink>
+          <NavLink href="/dashboard/messages"><Megaphone className="w-4 h-4" /> הודעות לתלמידים</NavLink>
           <NavLink href="/dashboard/community"><Users className="w-4 h-4" /> הקהילה שלי</NavLink>
           <NavLink href="/dashboard/requests"><MessageSquare className="w-4 h-4" /> פניות</NavLink>
           <NavLink href="/dashboard/settings"><Settings className="w-4 h-4" /> הגדרות פרופיל</NavLink>
