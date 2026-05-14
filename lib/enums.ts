@@ -72,10 +72,11 @@ const LEGACY_TYPE_LABELS: Record<string, string> = {
 
 export type BroadcastType = (typeof BROADCAST_TYPES)[number]["value"];
 
-export const BROADCAST_TYPE_VALUES = BROADCAST_TYPES.map((b) => b.value) as [
-  BroadcastType,
-  ...BroadcastType[]
-];
+// כולל "PREP" — סוג פנימי לאירועי הכנה (לא מופיע ב-BROADCAST_TYPES picker, רק בולידציה).
+export const BROADCAST_TYPE_VALUES = [
+  ...BROADCAST_TYPES.map((b) => b.value),
+  "PREP" as const,
+] as unknown as [BroadcastType | "PREP", ...(BroadcastType | "PREP")[]];
 
 const DEFAULT_BROADCAST_META: BroadcastTypeMeta = BROADCAST_TYPES[0];
 

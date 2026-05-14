@@ -103,8 +103,9 @@ export function LessonForm({
       return;
     }
 
-    // אירוע הכנה — אם המשתמש מילא תאריך + לא שיעור חוזר ולא עריכת קיים, ניצור lesson נפרד פרטי
-    if (!lessonId && !form.isRecurring && form.prepEventAt && form.prepEventAt.trim()) {
+    // אירוע הכנה — אם המשתמש מילא תאריך (גם בשיעור חוזר וגם רגיל), ניצור lesson נפרד פרטי
+    // broadcastType=PREP כדי שלא יופיע כ"שיעור" ב-listings. עדיין יופיע בלוח של הרב.
+    if (!lessonId && form.prepEventAt && form.prepEventAt.trim()) {
       try {
         await fetch("/api/lessons", {
           method: "POST",
@@ -115,7 +116,7 @@ export function LessonForm({
             description: `אירוע הכנה לשיעור "${form.title}". פרטי בלבד — תלמידים לא רואים.`,
             scheduledAt: new Date(form.prepEventAt).toISOString(),
             durationMin: 30,
-            broadcastType: "LESSON",
+            broadcastType: "PREP",
             isPublic: false,
             isRecurring: false,
             categoryId: null,
@@ -233,20 +234,25 @@ export function LessonForm({
           </F>
         </div>
 
-        <F label="אירוע הכנה לשיעור (אופציונלי — רק אתה רואה)">
+        {/* === אירוע הכנה — מודגש, אופציונלי === */}
+        <div className="rounded-card border-2 border-purple-300 bg-purple-50/40 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-block w-3 h-3 rounded-full bg-purple-400" aria-hidden />
+            <h3 className="font-bold text-purple-900 text-base">⏰ אירוע הכנה לשיעור — רק אתה רואה</h3>
+          </div>
+          <p className="text-xs text-purple-900/70 mb-3">
+            תוסיף אירוע פרטי בלוח שלך כדי להזכיר לעצמך מתי להכין את השיעור. התלמידים לא יראו את זה — לא בעמוד הציבורי ולא ב"שיעורים קרובים".
+          </p>
           <input
             type="datetime-local"
             value={form.prepEventAt}
             onChange={(e) => setForm({ ...form, prepEventAt: e.target.value })}
             className="input"
-            max={form.scheduledAt || undefined}
+            max={form.isRecurring ? undefined : (form.scheduledAt || undefined)}
+            placeholder="אופציונלי — בחר תאריך ושעה"
           />
           <HebrewDateHint value={form.prepEventAt} />
-          <p className="mt-2 text-xs text-ink-muted">
-            מתי אתה רוצה להכין את השיעור? יווצר אירוע נפרד בלוח שלך בלבד (לא ציבורי, התלמידים לא יראו).
-            השאר ריק אם אין צורך.
-          </p>
-        </F>
+        </div>
         {/* מחזוריות — רק ביצירה חדשה */}
         {!lessonId && (
           <div className={`rounded-card border p-4 transition ${form.isRecurring ? "border-gold bg-gold-soft/30" : "border-border"}`}>

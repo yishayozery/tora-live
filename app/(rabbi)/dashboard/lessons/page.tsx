@@ -20,14 +20,23 @@ export default async function LessonsPage() {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
+  // אירועי הכנה (broadcastType=PREP) לא נכללים ב-"שיעורים שלי" — הם רק בלוח השנה
   const [upcoming, past] = await Promise.all([
     db.lesson.findMany({
-      where: { rabbiId: rabbi.id, scheduledAt: { gte: startOfToday } },
+      where: {
+        rabbiId: rabbi.id,
+        scheduledAt: { gte: startOfToday },
+        broadcastType: { not: "PREP" },
+      },
       orderBy: { scheduledAt: "asc" },
       include: { category: true },
     }),
     db.lesson.findMany({
-      where: { rabbiId: rabbi.id, scheduledAt: { lt: startOfToday } },
+      where: {
+        rabbiId: rabbi.id,
+        scheduledAt: { lt: startOfToday },
+        broadcastType: { not: "PREP" },
+      },
       orderBy: { scheduledAt: "desc" },
       include: { category: true },
     }),

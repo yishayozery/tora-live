@@ -17,6 +17,8 @@ export default async function LivePage() {
     where: {
       rabbiId: rabbi.id,
       scheduledAt: { gte: new Date(now.getTime() - 24 * 3600000) },
+      // אירועי הכנה הם פרטיים — לא משדרים אותם
+      broadcastType: { not: "PREP" },
     },
     orderBy: { scheduledAt: "asc" },
     take: 30,
