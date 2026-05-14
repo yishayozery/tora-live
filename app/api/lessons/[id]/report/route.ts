@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireSession } from "@/lib/session";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { REPORT_THRESHOLD } from "@/lib/config";
 import { notifyStudent } from "@/lib/notify";
@@ -14,7 +15,14 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await requireSession();
+  // בדיקת session ידנית — אם פג, מחזירים JSON ברור (לא redirect, שלא ייהפך ל-307 שה-fetch לא יבין)
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "פג תוקף החיבור. רענן את הדף והתחבר מחדש כדי לדווח." },
+      { status: 401 },
+    );
+  }
 
   // תלמיד חסום לא יכול לדווח
   const student = await db.student.findUnique({

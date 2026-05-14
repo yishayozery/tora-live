@@ -52,6 +52,13 @@ import { LessonChat } from "@/components/LessonChat";
 import { VideoEmbed } from "@/components/VideoEmbed";
 import { ReportLessonButton } from "@/components/ReportLessonButton";
 import { Radio, FileText, AlertTriangle } from "lucide-react";
+import { StartLiveByCode } from "@/components/StartLiveByCode";
+import { StartLiveAsHelper } from "@/components/StartLiveAsHelper";
+import { isWithinStreamWindow } from "@/lib/streamCode";
+import { HeroBlock } from "@/components/lesson/HeroBlock";
+import { LessonRabbiCard } from "@/components/lesson/RabbiCard";
+import { GuestCTA } from "@/components/lesson/GuestCTA";
+import { RelatedLessons } from "@/components/lesson/RelatedLessons";
 
 export default async function LessonPage({ params }: { params: { id: string } }) {
   const lesson = await db.lesson.findUnique({
@@ -97,6 +104,9 @@ export default async function LessonPage({ params }: { params: { id: string } })
   let canBookmark = false;
   let canSendChat = false;
   let isChatBlocked = false;
+  let isStreamHelper = false; // המשתמש הנוכחי הוא עוזר שידור של הרב
+  let isFollowingRabbi = false;
+  let canFollow = false;
   let existingBookmark: { remindBeforeMin: number } | null = null;
   if (session?.user?.id) {
     const student = await db.student.findUnique({ where: { userId: session.user.id } });
@@ -106,13 +116,40 @@ export default async function LessonPage({ params }: { params: { id: string } })
       } else {
         canBookmark = true;
         canSendChat = true;
+        canFollow = true;
         existingBookmark = await db.bookmark.findUnique({
           where: { studentId_lessonId: { studentId: student.id, lessonId: lesson.id } },
           select: { remindBeforeMin: true },
         });
+        // בדיקה אם המשתמש סומן כעוזר שידור של הרב של השיעור + מצב follow
+        if (lesson.rabbiId) {
+          const follow = await db.follow.findUnique({
+            where: { studentId_rabbiId: { studentId: student.id, rabbiId: lesson.rabbiId } },
+            select: { isStreamHelper: true } as any,
+          });
+          isFollowingRabbi = !!follow;
+          isStreamHelper = !!(follow && (follow as any).isStreamHelper);
+        }
       }
     }
   }
+
+  // שיעורים קרובים נוספים של אותו רב — לדחיפת engagement
+  const relatedLessons = lesson.rabbiId && !isSuspendedForViewer
+    ? await db.lesson.findMany({
+        where: {
+          rabbiId: lesson.rabbiId,
+          scheduledAt: { gte: new Date() },
+          id: { not: lesson.id },
+          isPublic: true,
+          approvalStatus: "APPROVED",
+          isSuspended: false,
+        },
+        orderBy: { scheduledAt: "asc" },
+        take: 6,
+        select: { id: true, title: true, scheduledAt: true, isLive: true },
+      })
+    : [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -144,23 +181,15 @@ export default async function LessonPage({ params }: { params: { id: string } })
         </Card>
       ) : (
       <>
-      <div className="mb-2 text-sm">
-        {lesson.rabbi ? (
-          <Link href={`/rabbi/${lesson.rabbi.slug}`} className="text-primary">
-            {lesson.rabbi.name}
-          </Link>
-        ) : (
+      <div className="mb-3 text-sm flex items-center gap-2 flex-wrap">
+        {!lesson.rabbi && (
           <span className="text-ink-muted">
             מארגן: <span className="text-ink">{lesson.organizerName ?? "—"}</span>
           </span>
         )}
-        {lesson.category && <span className="text-ink-muted"> · {lesson.category.name}</span>}
-      </div>
-      <div className="mt-1 mb-2 flex items-center gap-2">
-        <BroadcastTypeBadge value={(lesson as any).broadcastType} />
-        {session?.user?.id && !isOwner && (
-          <ReportLessonButton lessonId={lesson.id} />
-        )}
+        {lesson.category && <span className="text-ink-muted">{lesson.category.name}</span>}
+        {/* סוג שידור מוצג רק לבעלים (פנימי, לא מעניין לצופה) */}
+        {isOwner && <BroadcastTypeBadge value={(lesson as any).broadcastType} />}
       </div>
       <LessonStructuredData lesson={lesson as any} />
       {/* BreadcrumbList JSON-LD */}
@@ -188,108 +217,89 @@ export default async function LessonPage({ params }: { params: { id: string } })
           }),
         }}
       />
-      <h1 className="hebrew-serif text-4xl font-bold text-ink">{lesson.title}</h1>
-      <div className="mt-2 text-ink-muted flex items-center gap-3 flex-wrap">
-        <span>{formatHebrewDate(lesson.scheduledAt)} · {formatHebrewTime(lesson.scheduledAt)}</span>
-        {lesson.durationMin && <span>· {lesson.durationMin} דק׳</span>}
-        {lesson.isLive && (
-          <span className="inline-flex items-center gap-1 text-live bg-live/10 rounded-full px-2 py-0.5 text-xs">
-            <Radio className="w-3 h-3" /> משדר עכשיו
-          </span>
-        )}
-      </div>
+      {/* HERO — תצוגה מותאמת לפי מצב (LIVE/EXTERNAL/UPCOMING/ENDED_REC) */}
+      <HeroBlock lesson={lesson as any} rabbi={lesson.rabbi} />
 
-      {/* מיקום פיזי */}
-      {(lesson as any).locationName && (
-        <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn">
-          📍 <span>{(lesson as any).locationName}</span>
-          {(lesson as any).locationUrl && (
-            <a
-              href={(lesson as any).locationUrl}
-              target="_blank" rel="noreferrer"
-              className="text-primary text-xs hover:underline"
-            >
-              במפה ←
-            </a>
+      {/* כותרת + מטא */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr,280px]">
+        <div className="min-w-0">
+          <h1 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink leading-tight">{lesson.title}</h1>
+          <div className="mt-2 text-ink-muted flex items-center gap-3 flex-wrap text-sm">
+            <span>{formatHebrewDate(lesson.scheduledAt)} · {formatHebrewTime(lesson.scheduledAt)}</span>
+            {lesson.durationMin && <span>· {lesson.durationMin} דק׳</span>}
+          </div>
+
+          {/* מיקום פיזי */}
+          {(lesson as any).locationName && (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn">
+              <span aria-hidden>📍</span>
+              <span>{(lesson as any).locationName}</span>
+              {(lesson as any).locationUrl && (
+                <a
+                  href={(lesson as any).locationUrl}
+                  target="_blank" rel="noreferrer"
+                  className="text-primary text-xs hover:underline"
+                >
+                  במפה ←
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* כפתורי פעולה */}
+          <div className="mt-5 flex flex-wrap gap-3 items-center">
+            <BookmarkButton
+              lessonId={lesson.id}
+              initialBookmarked={!!existingBookmark}
+              initialRemindBefore={existingBookmark?.remindBeforeMin}
+              canBookmark={canBookmark}
+            />
+            {!isOwner && !lesson.isLive && isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin, (lesson as any).prepBeforeMin) && (
+              <>
+                {isStreamHelper ? (
+                  <StartLiveAsHelper lessonId={lesson.id} lessonTitle={lesson.title} />
+                ) : (
+                  (lesson as any).streamCode && <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
+                )}
+              </>
+            )}
+          </div>
+
+          {/* CTA לאורחים — בנה לוח לימוד אישי */}
+          {!session?.user?.id && !isOwner && (
+            <div className="mt-5">
+              <GuestCTA lessonId={lesson.id} />
+            </div>
+          )}
+
+          {/* Share buttons */}
+          <div className="mt-4 pt-4 border-t border-border">
+            <ShareButtons
+              url={`${SITE_URL}/lesson/${lesson.id}`}
+              title={lesson.title}
+              rabbiName={lesson.rabbi?.name ?? lesson.organizerName ?? undefined}
+            />
+          </div>
+
+          {/* תיאור השיעור */}
+          {lesson.description && (
+            <div className="mt-8 prose prose-slate max-w-none whitespace-pre-line">
+              {lesson.description}
+            </div>
           )}
         </div>
-      )}
 
-      <div className="mt-5 flex flex-wrap gap-3 items-center">
-        <BookmarkButton
-          lessonId={lesson.id}
-          initialBookmarked={!!existingBookmark}
-          initialRemindBefore={existingBookmark?.remindBeforeMin}
-          canBookmark={canBookmark}
-        />
-        {lesson.sourcesPdfUrl && (
-          <a
-            href={lesson.sourcesPdfUrl}
-            target="_blank" rel="noreferrer"
-            className="h-10 px-4 inline-flex items-center gap-2 rounded-btn border border-border bg-white text-ink text-sm"
-          >
-            <FileText className="w-4 h-4" /> דף מקורות
-          </a>
+        {/* SIDEBAR — כרטיס רב (במובייל נופל למטה) */}
+        {lesson.rabbi && (
+          <div className="lg:sticky lg:top-4 self-start">
+            <LessonRabbiCard
+              rabbi={lesson.rabbi}
+              upcomingCount={relatedLessons.length}
+              isFollowing={isFollowingRabbi}
+              canFollow={canFollow}
+            />
+          </div>
         )}
-      </div>
-
-      {/* Share buttons */}
-      <div className="mt-4 pt-4 border-t border-border">
-        <ShareButtons
-          url={`${SITE_URL}/lesson/${lesson.id}`}
-          title={lesson.title}
-          rabbiName={lesson.rabbi?.name ?? lesson.organizerName ?? undefined}
-        />
-      </div>
-
-      {/* Video Embed — שידור חי (HLS/YouTube/External) */}
-      {lesson.isLive && (lesson.playbackUrl || lesson.liveEmbedUrl) && (
-        <div className="mt-8">
-          {lesson.liveMethod === "BROWSER" && lesson.playbackUrl ? (
-            <div className="rounded-card overflow-hidden border border-live shadow-soft">
-              <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-                <iframe
-                  src={lesson.liveEmbedUrl || lesson.playbackUrl}
-                  title={lesson.title}
-                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                />
-              </div>
-            </div>
-          ) : lesson.liveEmbedUrl ? (
-            <VideoEmbed url={lesson.liveEmbedUrl} title={lesson.title} />
-          ) : null}
-        </div>
-      )}
-      {/* הקלטה זמינה (אחרי שידור מהדפדפן) */}
-      {!lesson.isLive && lesson.playbackUrl && lesson.recordingExpiry && new Date(lesson.recordingExpiry) > new Date() && (
-        <div className="mt-8">
-          <div className="rounded-card border border-gold/30 bg-gold-soft/20 p-4 mb-4 flex items-center justify-between">
-            <span className="text-sm text-ink">הקלטת השידור זמינה לצפייה (עד {new Date(lesson.recordingExpiry).toLocaleDateString("he-IL")})</span>
-          </div>
-          <div className="rounded-card overflow-hidden border border-border shadow-soft">
-            <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-              <iframe
-                src={lesson.liveEmbedUrl || lesson.playbackUrl}
-                title={`${lesson.title} — הקלטה`}
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-      {/* YouTube embed רגיל (לא שידור חי) */}
-      {!lesson.isLive && !lesson.playbackUrl && lesson.youtubeUrl && (
-        <div className="mt-8">
-          <VideoEmbed url={lesson.youtubeUrl} title={lesson.title} />
-        </div>
-      )}
-
-      <div className="mt-8 prose prose-slate max-w-none whitespace-pre-line">
-        {lesson.description}
       </div>
 
       {(lesson.youtubeUrl || lesson.spotifyUrl || lesson.applePodcastUrl || lesson.otherUrl) && (
@@ -319,11 +329,40 @@ export default async function LessonPage({ params }: { params: { id: string } })
         />
       ))}
 
+      {/* דף מקורות חיצוני (אם אין כבר LivePdfViewer מקוון) */}
+      {lesson.sourcesPdfUrl && lesson.sources.length === 0 && (
+        <div className="mt-6">
+          <a
+            href={lesson.sourcesPdfUrl}
+            target="_blank" rel="noreferrer"
+            className="h-10 px-4 inline-flex items-center gap-2 rounded-btn border border-border bg-white text-ink text-sm hover:bg-paper-soft"
+          >
+            <FileText className="w-4 h-4" /> דף מקורות
+          </a>
+        </div>
+      )}
+
       {lesson.transcriptText && (
         <Card className="mt-8">
           <h2 className="hebrew-serif text-xl font-bold mb-3">תמלול</h2>
           <div className="whitespace-pre-line text-ink-soft">{lesson.transcriptText}</div>
         </Card>
+      )}
+
+      {/* שיעורים קרובים נוספים של הרב */}
+      {lesson.rabbi && relatedLessons.length > 0 && (
+        <RelatedLessons
+          rabbiName={lesson.rabbi.name}
+          rabbiSlug={lesson.rabbi.slug}
+          lessons={relatedLessons}
+        />
+      )}
+
+      {/* דיווח (דיסקרטי, רק לתלמיד מחובר) */}
+      {session?.user?.id && !isOwner && (
+        <div className="mt-10 pt-6 border-t border-border flex justify-end">
+          <ReportLessonButton lessonId={lesson.id} />
+        </div>
       )}
       </>
       )}

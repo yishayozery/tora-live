@@ -390,7 +390,7 @@ export function WeeklyCalendar({
                             <Clock className="w-3 h-3 shrink-0" />
                             {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
                           </span>
-                          {l.isLive && <span className="text-[10px] font-bold inline-flex items-center gap-1"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
+                          {l.isLive && <span className="text-xs font-bold inline-flex items-center gap-1 text-live"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
                         </div>
                         <div className="font-medium line-clamp-2 mb-0.5">{l.title}</div>
                         <div className="text-xs opacity-75 truncate">{l.rabbiName}</div>

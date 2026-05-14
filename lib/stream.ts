@@ -57,7 +57,9 @@ export async function createLiveInput(name: string): Promise<LiveInput> {
     body: JSON.stringify({
       meta: { name },
       recording: { mode: "automatic", timeoutSeconds: 300 }, // auto-stop after 5 min silence
-      deleteRecordingAfterDays: 5,
+      // Cloudflare דורש 30-1096. אנו מגדירים 30 כ-safety-net.
+      // הניקוי בפועל אחרי 5 ימים נעשה ע"י cron `cleanup-expired-recordings` לפי recordingExpiry.
+      deleteRecordingAfterDays: 30,
     }),
   });
 }
@@ -111,4 +113,21 @@ export async function getRecordings(inputId: string): Promise<any[]> {
   } catch {
     return [];
   }
+}
+
+/**
+ * בקשה ל-MP4 download של ההקלטה (Cloudflare צריך לאפשר את הדגל).
+ * מחזיר { url, status } כש-status הוא "ready" / "inprogress" / וכו'.
+ * Docs: https://developers.cloudflare.com/stream/viewing-videos/download-videos/
+ */
+export async function requestMp4Download(videoId: string): Promise<{ url: string; status: string }> {
+  if (!CF_ACCOUNT || !CF_TOKEN) {
+    return { url: "", status: "ready" }; // stub לסביבת פיתוח
+  }
+  const result = await cfFetch(`/${videoId}/downloads`, { method: "POST" });
+  const dl = result?.default;
+  return {
+    url: typeof dl?.url === "string" ? dl.url : "",
+    status: typeof dl?.status === "string" ? dl.status : "unknown",
+  };
 }

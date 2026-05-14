@@ -204,7 +204,7 @@ export default async function LessonsPage({
                     </div>
                   )}
                   {l.isLive && (
-                    <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-live px-2.5 py-1 text-[11px] font-bold text-white shadow-md">
+                    <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 rounded-full bg-live px-2.5 py-1 text-xs font-bold text-white shadow-md">
                       <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping"></span>
                         <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
@@ -213,7 +213,7 @@ export default async function LessonsPage({
                     </span>
                   )}
                   {l.durationMin && !l.isLive && (
-                    <span className="absolute bottom-2 left-2 inline-flex items-center rounded-md bg-black/70 px-2 py-0.5 text-[11px] font-medium text-white">
+                    <span className="absolute bottom-2 left-2 inline-flex items-center rounded-md bg-black/70 px-2 py-0.5 text-xs font-medium text-white">
                       {l.durationMin >= 60 ? `${Math.floor(l.durationMin / 60)}:${String(l.durationMin % 60).padStart(2, "0")} שע׳` : `${l.durationMin} דק׳`}
                     </span>
                   )}

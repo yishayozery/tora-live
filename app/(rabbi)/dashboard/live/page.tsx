@@ -5,6 +5,8 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { LiveStarter } from "@/components/LiveStarter";
 import { RecordingsList } from "@/components/RecordingsList";
+import { StreamCodeBadge } from "@/components/StreamCodeBadge";
+import { ExpirationCountdown } from "@/components/ExpirationCountdown";
 import { Radio, Video, Download, Plus } from "lucide-react";
 
 export default async function LivePage() {
@@ -15,6 +17,8 @@ export default async function LivePage() {
     where: {
       rabbiId: rabbi.id,
       scheduledAt: { gte: new Date(now.getTime() - 24 * 3600000) },
+      // אירועי הכנה הם פרטיים — לא משדרים אותם
+      broadcastType: { not: "PREP" },
     },
     orderBy: { scheduledAt: "asc" },
     take: 30,
@@ -85,9 +89,15 @@ export default async function LivePage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle>{l.title}</CardTitle>
-                    <div className="text-sm text-ink-muted">
-                      {formatHebrewDate(l.scheduledAt)}
-                      {l.recordingExpiry && <> · נמחק ב-{formatHebrewDate(l.recordingExpiry)}</>}
+                    <div className="text-sm text-ink-muted flex items-center gap-2 flex-wrap">
+                      <span>{formatHebrewDate(l.scheduledAt)}</span>
+                      {l.recordingExpiry && (
+                        <>
+                          <span>·</span>
+                          <span>יימחק:</span>
+                          <ExpirationCountdown expiresAt={l.recordingExpiry} variant="chip" />
+                        </>
+                      )}
                     </div>
                   </div>
                   <RecordingsList lessonId={l.id} />
@@ -107,8 +117,8 @@ export default async function LivePage() {
           <div className="space-y-3">
             {upcoming.map((l) => (
               <Card key={l.id}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="min-w-0 flex-1">
                     <CardTitle>{l.title}</CardTitle>
                     <div className="text-sm text-ink-muted">
                       {formatHebrewDate(l.scheduledAt)} · {formatHebrewTime(l.scheduledAt)}
@@ -121,6 +131,15 @@ export default async function LivePage() {
                     isLive={false}
                   />
                 </div>
+                {(l as any).streamCode && (
+                  <div className="mt-3">
+                    <StreamCodeBadge
+                      code={(l as any).streamCode}
+                      lessonTitle={l.title}
+                      lessonUrl={`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/lesson/${l.id}`}
+                    />
+                  </div>
+                )}
               </Card>
             ))}
           </div>
@@ -129,27 +148,20 @@ export default async function LivePage() {
 
       {/* הסבר */}
       <Card className="bg-paper-warm border-border-warm">
-        <h3 className="font-bold text-ink mb-3">3 דרכים לשדר</h3>
+        <h3 className="font-bold text-ink mb-3">2 דרכים לשדר</h3>
         <div className="space-y-3 text-sm text-ink-soft">
           <div className="flex items-start gap-3">
             <Video className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-ink">שידור מהדפדפן</div>
-              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים באתר. ההקלטה נשמרת 5 ימים להורדה. ללא התקנות.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Radio className="w-5 h-5 text-danger shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold text-ink">YouTube</div>
-              <div>מדביק לינק של שידור חי ב-YouTube. הצופים רואים embed ישירות באתר.</div>
+              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים ישירות באתר. ההקלטה נשמרת 5 ימים להורדה. ללא התקנות.</div>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Radio className="w-5 h-5 text-gold shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-ink">קישור חיצוני (Zoom / אחר)</div>
-              <div>מדביק כל קישור. אם ניתן ל-embed — מוצג באתר. אחרת — כפתור מעבר.</div>
+              <div className="font-semibold text-ink">קישור חיצוני (YouTube / Zoom / אחר)</div>
+              <div>מדביק לינק של שידור חי. YouTube מזוהה אוטומטית ומוטמע באתר; Zoom וקישורים אחרים — אם ניתן embed מוצגים באתר, אחרת כפתור מעבר.</div>
             </div>
           </div>
         </div>

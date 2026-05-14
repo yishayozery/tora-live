@@ -14,7 +14,11 @@ import {
   Video,
   VideoOff,
   MessageSquare,
+  AlertTriangle,
+  Loader2,
+  Wifi,
 } from "lucide-react";
+import { createWhipPublisher, type WhipPublisher, type WhipState } from "@/lib/whipClient";
 
 type ChatMsg = {
   id: string;
@@ -30,6 +34,8 @@ type Props = {
   stream: MediaStream;
   startedAt: Date;
   onEnded: () => void;
+  /** WHIP endpoint URL מ-Cloudflare. אם חסר — מוצג מצב שגיאה (Stream לא מוגדר). */
+  whipUrl?: string;
 };
 
 /**
@@ -42,10 +48,12 @@ export function RabbiBroadcastStudio({
   stream,
   startedAt,
   onEnded,
+  whipUrl,
 }: Props) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  const publisherRef = useRef<WhipPublisher | null>(null);
 
   const [elapsed, setElapsed] = useState("00:00:00");
   const [viewerCount, setViewerCount] = useState(0);
@@ -56,10 +64,53 @@ export function RabbiBroadcastStudio({
   const [replyMap, setReplyMap] = useState<Record<string, string>>({});
   const [replyingId, setReplyingId] = useState<string | null>(null);
 
+  // WHIP publishing state
+  const [whipState, setWhipState] = useState<WhipState>(whipUrl ? "connecting" : "failed");
+  const [whipError, setWhipError] = useState<string | null>(
+    whipUrl ? null : "Stream לא מוגדר. הגדר CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_STREAM_TOKEN ב-Vercel.",
+  );
+
   // חבר את המצלמה לוידאו
   useEffect(() => {
     if (videoRef.current) videoRef.current.srcObject = stream;
   }, [stream]);
+
+  // התחל WHIP publishing — פעם אחת בלבד
+  useEffect(() => {
+    if (!whipUrl) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const publisher = await createWhipPublisher({
+          whipUrl,
+          stream,
+          onStateChange: (s) => { if (!cancelled) setWhipState(s); },
+          onError: (e) => { if (!cancelled) setWhipError(e.message); },
+        });
+        if (cancelled) {
+          await publisher.stop();
+          return;
+        }
+        publisherRef.current = publisher;
+      } catch (e: any) {
+        if (!cancelled) {
+          setWhipError(e?.message || "שגיאה בחיבור לשרת השידור");
+          setWhipState("failed");
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      const p = publisherRef.current;
+      if (p) {
+        publisherRef.current = null;
+        p.stop().catch(() => {});
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whipUrl]);
 
   // מונה זמן
   useEffect(() => {
@@ -133,12 +184,19 @@ export function RabbiBroadcastStudio({
 
   function endBroadcast() {
     startTransition(async () => {
+      // 1. סגירת WHIP publisher (מודיע ל-Cloudflare שהזרם נגמר)
+      const p = publisherRef.current;
+      publisherRef.current = null;
+      if (p) {
+        try { await p.stop(); } catch {}
+      }
+      // 2. סגירת מצב Live ב-DB
       await fetch(`/api/lessons/${lessonId}/live`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isLive: false }),
       });
-      // כיבוי המצלמה
+      // 3. כיבוי המצלמה
       stream.getTracks().forEach((t) => {
         try { t.stop(); } catch {}
       });
@@ -151,10 +209,10 @@ export function RabbiBroadcastStudio({
     <div className="fixed inset-0 z-50 bg-black flex flex-col" role="dialog" aria-modal="true" aria-label="אולפן שידור חי">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 sm:px-6 h-14 bg-gradient-to-r from-danger to-danger/80 text-white shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-            <span className="font-bold text-sm">משדר עכשיו</span>
+            <span className="font-bold text-sm whitespace-nowrap">{whipState === "connected" ? "משדר עכשיו" : "מתחבר…"}</span>
           </div>
           <span className="text-xs opacity-80 hidden sm:inline">·</span>
           <span className="text-xs font-mono tabular-nums">{elapsed}</span>
@@ -224,11 +282,32 @@ export function RabbiBroadcastStudio({
             </button>
           </div>
 
-          {/* Info overlay */}
+          {/* Info overlay — WHIP status */}
           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm rounded-btn px-3 py-1.5 text-white text-xs flex items-center gap-1.5">
-            <Radio className="w-3.5 h-3.5 text-live" />
-            <span>אתה משדר</span>
+            {whipState === "connecting" && (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin text-gold" /><span>מתחבר ל-Cloudflare…</span></>
+            )}
+            {whipState === "connected" && (
+              <><Wifi className="w-3.5 h-3.5 text-live" /><span>שידור פעיל — צופים רואים אותך</span></>
+            )}
+            {whipState === "disconnected" && (
+              <><AlertTriangle className="w-3.5 h-3.5 text-gold" /><span>החיבור איטי / לא יציב</span></>
+            )}
+            {(whipState === "failed" || whipState === "closed") && (
+              <><AlertTriangle className="w-3.5 h-3.5 text-danger" /><span>{whipError || "שגיאת חיבור"}</span></>
+            )}
           </div>
+
+          {/* Fatal error overlay */}
+          {whipError && (whipState === "failed" || !whipUrl) && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 max-w-md px-4">
+              <div className="bg-danger/90 text-white text-sm rounded-card p-3 text-center backdrop-blur-sm">
+                <AlertTriangle className="w-5 h-5 inline-block mb-1" />
+                <div className="font-bold mb-1">השידור לא יוצא לאוויר</div>
+                <div className="text-xs">{whipError}</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat + viewers panel */}

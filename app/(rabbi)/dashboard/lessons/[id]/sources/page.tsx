@@ -22,7 +22,7 @@ export default async function LessonSourcesPage({ params }: { params: { id: stri
     <div className="max-w-3xl">
       <div className="mb-4 text-sm">
         <Link
-          href={`/dashboard/lessons/${lesson.id}`}
+          href={`/dashboard/lessons/${lesson.id}/edit`}
           className="inline-flex items-center gap-1 text-primary"
         >
           <ChevronRight className="w-4 h-4" />

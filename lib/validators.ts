@@ -59,6 +59,8 @@ export const lessonSchema = z.object({
   categoryId: z.string().optional().nullable(),
   scheduledAt: z.string().datetime().or(z.date()),
   durationMin: z.coerce.number().int().positive().optional(),
+  // חלון הכנה לפני השיעור — אופציונלי, 0/15/30/60. null = ללא.
+  prepBeforeMin: z.coerce.number().int().min(0).max(180).optional().nullable(),
   language: z
     .enum(["he", "en", "yi", "ladino", "fr", "es", "ru", "other"])
     .optional(),

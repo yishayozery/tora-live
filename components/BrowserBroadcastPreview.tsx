@@ -33,10 +33,12 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
 
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceName, setSourceName] = useState("");
+  const [sourceOpen, setSourceOpen] = useState(false);
 
   // מעבר ל-studio
   const [studioMode, setStudioMode] = useState(false);
   const [studioStartedAt, setStudioStartedAt] = useState<Date | null>(null);
+  const [whipUrl, setWhipUrl] = useState<string | undefined>(undefined);
 
   // ---- Cleanup של המצלמה/מיקרופון ----
   function stopTracks() {
@@ -131,6 +133,9 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
           const data = await res.json().catch(() => ({}));
           throw new Error(data?.error || "שגיאה בהתחלת השידור");
         }
+        const data = await res.json().catch(() => ({}));
+        // ה-API מחזיר whipUrl (Cloudflare WHIP endpoint). נשמור ונעביר ל-Studio.
+        setWhipUrl(typeof data?.whipUrl === "string" ? data.whipUrl : undefined);
 
         // 2) אם הרב הדביק לינק למקור — יוצר LessonSource
         const trimmed = sourceUrl.trim();
@@ -165,6 +170,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
         lessonTitle={lessonTitle}
         stream={streamRef.current}
         startedAt={studioStartedAt}
+        whipUrl={whipUrl}
         onEnded={() => {
           streamRef.current = null;
           setStudioMode(false);
@@ -175,29 +181,27 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-label="תצוגה מקדימה לשידור חי">
-      <div className="w-full max-w-2xl bg-white rounded-card shadow-card p-5 sm:p-6 max-h-[95vh] overflow-y-auto">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div>
-            <h2 className="hebrew-serif text-xl sm:text-2xl font-bold text-ink">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4" role="dialog" aria-modal="true" aria-label="תצוגה מקדימה לשידור חי">
+      <div className="w-full max-w-2xl bg-white rounded-card shadow-card p-3 sm:p-4 max-h-[100dvh] flex flex-col">
+        {/* Header — קומפקטי */}
+        <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+          <div className="min-w-0">
+            <h2 className="hebrew-serif text-base sm:text-lg font-bold text-ink truncate">
               תצוגה מקדימה — {lessonTitle}
             </h2>
-            <p className="text-sm text-ink-muted mt-1">
-              בדקי את המצלמה והמיקרופון. השידור עדיין לא התחיל.
-            </p>
           </div>
           <button
             type="button"
             onClick={handleCancel}
             aria-label="סגור"
-            className="shrink-0 p-2 rounded-btn hover:bg-paper-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            className="shrink-0 p-1.5 rounded-btn hover:bg-paper-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           >
             <X className="w-5 h-5 text-ink-muted" />
           </button>
         </div>
 
-        {/* Video preview */}
-        <div className="relative rounded-card overflow-hidden bg-black aspect-video border border-border">
+        {/* Video preview — מוגבל בגובה כדי שהכל יכנס */}
+        <div className="relative rounded-card overflow-hidden bg-black border border-border max-h-[55dvh] aspect-video">
           <video
             ref={videoRef}
             autoPlay
@@ -212,60 +216,55 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
             </div>
           )}
           {mediaError && !requesting && (
-            <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-white bg-black/70 text-sm">
+            <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-white bg-black/80 text-sm">
               {mediaError}
+            </div>
+          )}
+          {/* LEDs קטנים בתוך הוידיאו */}
+          <div className="absolute bottom-2 right-2 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-white">
+            <span className={"inline-flex items-center gap-1 " + (hasVideo ? "text-live" : "text-white/60")}>
+              <Video className="w-3 h-3" /> {hasVideo ? "מצלמה" : "אין"}
+            </span>
+            <span className="opacity-40">·</span>
+            <span className={"inline-flex items-center gap-1 " + (hasAudio ? "text-live" : "text-white/60")}>
+              <Mic className="w-3 h-3" /> {hasAudio ? "מיקרופון" : "אין"}
+            </span>
+          </div>
+        </div>
+
+        {/* Sources — collapsed by default */}
+        <div className="mt-2 shrink-0">
+          {!sourceOpen ? (
+            <button
+              type="button"
+              onClick={() => setSourceOpen(true)}
+              className="text-xs text-ink-muted hover:text-primary inline-flex items-center gap-1"
+            >
+              <FileText className="w-3 h-3" />
+              + הוסף מקור לימוד / PDF (אופציונלי)
+            </button>
+          ) : (
+            <div className="rounded-btn border border-border p-2 bg-paper-soft">
+              <div className="flex items-center gap-2 text-xs text-ink-muted mb-1">
+                <FileText className="w-3 h-3" />
+                <span>קישור ל-PDF / מקור</span>
+                <button type="button" onClick={() => setSourceOpen(false)} className="ms-auto text-ink-muted hover:text-ink"><X className="w-3 h-3" /></button>
+              </div>
+              <input
+                id="source-url"
+                type="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://example.com/gemara.pdf"
+                dir="ltr"
+                className="w-full h-9 px-2 rounded-btn border border-border bg-white text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              />
             </div>
           )}
         </div>
 
-        {/* LEDs */}
-        <div className="flex flex-wrap gap-4 mt-4 text-sm">
-          <StatusDot
-            ok={hasVideo}
-            label={hasVideo ? "מצלמה זמינה" : "אין מצלמה"}
-            Icon={Video}
-          />
-          <StatusDot
-            ok={hasAudio}
-            label={hasAudio ? "מיקרופון זמין" : "אין מיקרופון"}
-            Icon={Mic}
-          />
-        </div>
-
-        {/* Sources */}
-        <div className="mt-5 border-t border-border pt-4">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="w-4 h-4 text-ink-muted" />
-            <span className="text-sm font-semibold text-ink">מקור לימוד (אופציונלי)</span>
-          </div>
-          <label className="block text-xs text-ink-muted mb-1" htmlFor="source-url">
-            קישור ל-PDF / מקור
-          </label>
-          <input
-            id="source-url"
-            type="url"
-            value={sourceUrl}
-            onChange={(e) => setSourceUrl(e.target.value)}
-            placeholder="https://example.com/sources/gemara.pdf"
-            dir="ltr"
-            className="w-full h-10 px-3 rounded-btn border border-border bg-white text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-          />
-          <div className="mt-2 text-xs text-ink-muted">
-            <label className="inline-flex items-center gap-2 cursor-pointer hover:text-ink">
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={handleFile}
-                className="hidden"
-              />
-              <span className="underline">או בחרי קובץ PDF</span>
-              {sourceName && <span className="text-ink">· {sourceName}</span>}
-            </label>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-between">
+        {/* Actions — תמיד גלוי בתחתית */}
+        <div className="mt-3 flex flex-row gap-2 sm:gap-3 sm:justify-between shrink-0">
           <Button
             variant="secondary"
             size="md"
@@ -274,7 +273,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
             type="button"
           >
             <X className="w-4 h-4" />
-            ביטול וחזור
+            ביטול
           </Button>
           <Button
             variant="danger"
@@ -282,7 +281,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
             onClick={handleStart}
             disabled={pending || !hasVideo}
             type="button"
-            className="sm:min-w-[220px]"
+            className="flex-1 sm:flex-none sm:min-w-[220px]"
           >
             {pending ? (
               <>

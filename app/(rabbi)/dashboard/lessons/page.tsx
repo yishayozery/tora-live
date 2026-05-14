@@ -16,15 +16,27 @@ function daysUntil(date: Date): number {
 export default async function LessonsPage() {
   const { rabbi } = await requireApprovedRabbi();
   const now = new Date();
+  // התחלת היום — כדי שגם שיעור שעבר שלוש דקות עדיין יחשב "קרוב" (וגם UX סלחני יותר)
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
 
+  // אירועי הכנה (broadcastType=PREP) לא נכללים ב-"שיעורים שלי" — הם רק בלוח השנה
   const [upcoming, past] = await Promise.all([
     db.lesson.findMany({
-      where: { rabbiId: rabbi.id, scheduledAt: { gte: now } },
+      where: {
+        rabbiId: rabbi.id,
+        scheduledAt: { gte: startOfToday },
+        broadcastType: { not: "PREP" },
+      },
       orderBy: { scheduledAt: "asc" },
       include: { category: true },
     }),
     db.lesson.findMany({
-      where: { rabbiId: rabbi.id, scheduledAt: { lt: now } },
+      where: {
+        rabbiId: rabbi.id,
+        scheduledAt: { lt: startOfToday },
+        broadcastType: { not: "PREP" },
+      },
       orderBy: { scheduledAt: "desc" },
       include: { category: true },
     }),

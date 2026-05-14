@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
 import { createLiveInput, getPlaybackUrl, getEmbedUrl } from "@/lib/stream";
+import { emitShiurCreated } from "@/lib/events";
 
 const startSchema = z.object({
   isLive: z.boolean(),
@@ -31,7 +32,23 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     if (method === "BROWSER") {
       // שידור מהדפדפן — יצירת Cloudflare Stream Live Input
-      const input = await createLiveInput(`${rabbi.name} — ${lesson.title}`);
+      // אם Cloudflare מסרב (אין מנוי, טוקן לא תקין וכו') — נחזיר הודעה ברורה ל-UI
+      let input;
+      try {
+        input = await createLiveInput(`${rabbi.name} — ${lesson.title}`);
+      } catch (err: any) {
+        const msg = err?.message || "";
+        let userMsg = `Cloudflare סירב ליצור שידור: ${msg}`;
+        if (/subscription/i.test(msg) || /stream.*not.*enabled/i.test(msg)) {
+          userMsg = "Cloudflare Stream דורש מנוי בתשלום ($5/חודש). פתח אותו ב-https://dash.cloudflare.com → Stream → Subscribe.";
+        } else if (/unauthor/i.test(msg) || /forbidden/i.test(msg) || /401/.test(msg) || /403/.test(msg)) {
+          userMsg = "Cloudflare דחה את הטוקן. ודא ש-CLOUDFLARE_STREAM_TOKEN ב-Vercel נכון ויש לו הרשאת Stream:Edit.";
+        } else if (/account.*id/i.test(msg)) {
+          userMsg = "Cloudflare Account ID חסר/שגוי ב-Vercel.";
+        }
+        console.error("[live] createLiveInput failed:", msg);
+        return NextResponse.json({ error: userMsg, cloudflareError: msg }, { status: 502 });
+      }
       const playback = getPlaybackUrl(input.uid);
       const embed = getEmbedUrl(input.uid);
 
@@ -84,6 +101,18 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       // playbackUrl נשאר — ההקלטה זמינה 5 ימים
     },
   });
+
+  // טריגר ל-side-effects (תמלול, סיכום וכו') רק כשיש הקלטה.
+  if (lesson.streamId) {
+    await emitShiurCreated({
+      lesson: {
+        id: lesson.id,
+        rabbiId: lesson.rabbiId ?? null,
+        title: lesson.title,
+        recordingUrl: lesson.recordingUrl ?? null,
+      },
+    });
+  }
 
   return NextResponse.json({ ok: true, isLive: false, recordingExpiry: recordingExpiry.toISOString() });
 }

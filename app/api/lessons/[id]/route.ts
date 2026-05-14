@@ -28,6 +28,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       categoryId: d.categoryId || null,
       scheduledAt: new Date(d.scheduledAt),
       durationMin: d.durationMin,
+      prepBeforeMin: d.prepBeforeMin ?? null,
       language: d.language ?? "he",
       broadcastType: d.broadcastType ?? "LESSON",
       isLive: d.isLive ?? false,

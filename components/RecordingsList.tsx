@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Download, Play, Loader2 } from "lucide-react";
+import { ExpirationCountdown } from "@/components/ExpirationCountdown";
 
 type Recording = {
   id: string;
@@ -65,8 +66,9 @@ export function RecordingsList({ lessonId }: { lessonId: string }) {
         </div>
       ))}
       {expiresAt && (
-        <div className="text-[10px] text-ink-muted">
-          ההקלטות יימחקו ב-{new Date(expiresAt).toLocaleDateString("he-IL")}
+        <div className="flex items-center gap-1.5 text-xs text-ink-muted pt-1">
+          <span>יימחק:</span>
+          <ExpirationCountdown expiresAt={expiresAt} variant="chip" noIcon />
         </div>
       )}
     </div>

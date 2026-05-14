@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Heebo, Noto_Serif_Hebrew } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +17,14 @@ const notoSerif = Noto_Serif_Hebrew({
   weight: ["400", "500", "700", "900"],
   display: "swap",
 });
+
+// viewport-fit=cover מאפשר שימוש ב-env(safe-area-inset-*) ב-iPhones עם notch / home-indicator.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#1E40AF",
+};
 
 export const metadata: Metadata = {
   title: "TORA_LIVE — שיעורי תורה אונליין בשידור חי",
