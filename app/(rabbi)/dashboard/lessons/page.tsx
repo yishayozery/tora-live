@@ -3,9 +3,8 @@ import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription } from "@/components/ui/Card";
 import { BroadcastTypeBadge } from "@/components/BroadcastTypeBadge";
-import { LessonsTabs } from "@/components/LessonsTabs";
 import { formatHebrewDate } from "@/lib/utils";
-import { BookOpen, Eye, Youtube, Music, Link as LinkIcon, ExternalLink, Download } from "lucide-react";
+import { Archive, Eye, Youtube, Music, Link as LinkIcon, ExternalLink, Download, Search, CheckCircle2, AlertCircle } from "lucide-react";
 import { LessonRowActions } from "@/components/rabbi/LessonRowActions";
 
 function daysUntil(date: Date): number {
@@ -13,112 +12,156 @@ function daysUntil(date: Date): number {
   return Math.max(0, Math.ceil(diff / (24 * 60 * 60 * 1000)));
 }
 
-export default async function LessonsPage() {
+type SearchParams = {
+  q?: string;
+  year?: string;
+  type?: string;
+};
+
+export default async function LessonsArchivePage({ searchParams }: { searchParams?: SearchParams }) {
   const { rabbi } = await requireApprovedRabbi();
   const now = new Date();
-  // התחלת היום — כדי שגם שיעור שעבר שלוש דקות עדיין יחשב "קרוב" (וגם UX סלחני יותר)
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
-  // אירועי הכנה (broadcastType=PREP) לא נכללים ב-"שיעורים שלי" — הם רק בלוח השנה
-  const [upcoming, past] = await Promise.all([
-    db.lesson.findMany({
-      where: {
-        rabbiId: rabbi.id,
-        scheduledAt: { gte: startOfToday },
-        broadcastType: { not: "PREP" },
-      },
-      orderBy: { scheduledAt: "asc" },
-      include: { category: true },
-    }),
-    db.lesson.findMany({
-      where: {
-        rabbiId: rabbi.id,
-        scheduledAt: { lt: startOfToday },
-        broadcastType: { not: "PREP" },
-      },
-      orderBy: { scheduledAt: "desc" },
-      include: { category: true },
-    }),
-  ]);
+  const q = (searchParams?.q ?? "").trim();
+  const year = searchParams?.year ?? "";
+  const type = searchParams?.type ?? "";
+
+  // טווח השנה שנבחרה — אם נבחרה. תמיד עד תחילת היום (לא לוכדים שיעורים עתידיים).
+  let dateFilter: { gte?: Date; lt: Date };
+  if (year && /^\d{4}$/.test(year)) {
+    const y = parseInt(year, 10);
+    const yearStart = new Date(y, 0, 1);
+    const yearEnd = new Date(y + 1, 0, 1);
+    dateFilter = {
+      gte: yearStart,
+      lt: yearEnd.getTime() < startOfToday.getTime() ? yearEnd : startOfToday,
+    };
+  } else {
+    dateFilter = { lt: startOfToday };
+  }
+
+  const past = await db.lesson.findMany({
+    where: {
+      rabbiId: rabbi.id,
+      scheduledAt: dateFilter,
+      broadcastType: type ? type : { not: "PREP" },
+      ...(q
+        ? {
+            OR: [
+              { title: { contains: q, mode: "insensitive" as const } },
+              { description: { contains: q, mode: "insensitive" as const } },
+              { category: { name: { contains: q, mode: "insensitive" as const } } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { scheduledAt: "desc" },
+    include: { category: true },
+    take: 100,
+  });
+
+  // שנים זמינות לפילטר
+  const allLessons = await db.lesson.findMany({
+    where: { rabbiId: rabbi.id, scheduledAt: { lt: startOfToday } },
+    select: { scheduledAt: true },
+  });
+  const years = Array.from(new Set(allLessons.map((l) => l.scheduledAt.getFullYear()))).sort((a, b) => b - a);
+
+  const hasFilter = !!(q || year || type);
+  const totalCount = await db.lesson.count({
+    where: { rabbiId: rabbi.id, scheduledAt: { lt: startOfToday }, broadcastType: { not: "PREP" } },
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="hebrew-serif text-3xl font-bold flex items-center gap-2">
-            <BookOpen className="w-7 h-7 text-primary" /> השיעורים שלי
+            <Archive className="w-7 h-7 text-primary" /> ארכיון השיעורים
           </h1>
           <p className="text-sm text-ink-muted mt-1">
-            ניהול שיעורים קרובים והיסטוריית שיעורים שמסרת.
+            כל השיעורים שמסרת בעבר, עם הקלטות וקישורי מדיה. ההקלטות זמינות 30 יום מסיום השידור.
           </p>
         </div>
         <Link
           href="/dashboard/lessons/new"
           className="h-11 px-5 inline-flex items-center rounded-btn bg-primary text-white hover:bg-primary-hover"
         >
-          + שיעור / אירוע חדש
+          + שיעור חדש
         </Link>
       </div>
 
-      <LessonsTabs
-        upcomingCount={upcoming.length}
-        pastCount={past.length}
-        upcoming={<UpcomingList lessons={upcoming} />}
-        past={<PastList lessons={past} now={now} />}
-      />
-    </div>
-  );
-}
-
-/* ============== טאב 1: קרובים ============== */
-function UpcomingList({ lessons }: { lessons: any[] }) {
-  if (lessons.length === 0) {
-    return (
-      <Card>
-        <CardDescription>
-          עוד אין שיעורים מתוכננים. לחץ על "שיעור / אירוע חדש" כדי להתחיל.
-        </CardDescription>
-      </Card>
-    );
-  }
-  return (
-    <div className="space-y-3">
-      {lessons.map((l) => (
-        <Card key={l.id}>
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="font-bold truncate">{l.title}</div>
-                <BroadcastTypeBadge value={(l as any).broadcastType} />
-              </div>
-              <div className="text-sm text-ink-muted">
-                {formatHebrewDate(l.scheduledAt)}
-                {l.category && <> · {l.category.name}</>}
-                <> · {l.viewCount.toLocaleString("he-IL")} צפיות</>
-                {l.isLive && <span className="text-live"> · משדר עכשיו</span>}
-              </div>
-            </div>
-            <div className="flex gap-2 items-center shrink-0">
-              <Link href={`/lesson/${l.id}`} className="text-ink-muted hover:text-ink inline-flex items-center gap-1 text-xs">
-                <ExternalLink className="w-3 h-3" /> תצוגה
-              </Link>
-              <LessonRowActions lessonId={l.id} isLive={l.isLive} isPublic={l.isPublic} />
-            </div>
+      {/* חיפוש + פילטרים */}
+      <form action="/dashboard/lessons" method="get" className="bg-white rounded-card border border-border p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-ink-muted absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="search"
+              name="q"
+              defaultValue={q}
+              placeholder="חפש לפי כותרת, תיאור או נושא"
+              className="w-full h-11 ps-9 pe-3 rounded-btn border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+            />
           </div>
-        </Card>
-      ))}
+          <select
+            name="year"
+            defaultValue={year}
+            className="h-11 px-3 rounded-btn border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="">כל השנים</option>
+            {years.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+          <select
+            name="type"
+            defaultValue={type}
+            className="h-11 px-3 rounded-btn border border-border bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          >
+            <option value="">כל הסוגים</option>
+            <option value="LESSON">שיעור תורה</option>
+            <option value="PRAYER">תפילה</option>
+            <option value="OTHER">אחר</option>
+          </select>
+          <button
+            type="submit"
+            className="h-11 px-5 rounded-btn bg-primary text-white text-sm font-semibold hover:bg-primary-hover whitespace-nowrap"
+          >
+            חפש
+          </button>
+          {hasFilter && (
+            <Link
+              href="/dashboard/lessons"
+              className="h-11 px-3 inline-flex items-center rounded-btn text-sm text-ink-muted hover:text-ink"
+            >
+              נקה
+            </Link>
+          )}
+        </div>
+        <div className="mt-2 text-xs text-ink-muted">
+          {hasFilter ? (
+            <>נמצאו <span className="font-bold text-ink">{past.length}</span> שיעורים מתוך {totalCount}</>
+          ) : (
+            <>סה״כ <span className="font-bold text-ink">{totalCount}</span> שיעורים בארכיון</>
+          )}
+        </div>
+      </form>
+
+      {/* רשימה */}
+      <PastList lessons={past} now={now} />
     </div>
   );
 }
 
-/* ============== טאב 2: שיעורים שמסרתי (היה archive) ============== */
 function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
   if (lessons.length === 0) {
     return (
       <Card>
         <CardDescription>
-          עדיין לא מסרת שיעורים. שיעורים שתאריכם חלף יופיעו כאן עם קישורי המדיה וההקלטות.
+          עדיין לא נמצאו שיעורים בארכיון. שיעורים שתאריכם חלף יופיעו כאן עם קישורי המדיה וההקלטות.
         </CardDescription>
       </Card>
     );
@@ -127,7 +170,7 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
   return (
     <>
       {/* טבלה לדסקטופ */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto bg-white rounded-card border border-border">
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-paper-soft text-ink-muted text-right">
@@ -145,6 +188,8 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
               const hasRecording =
                 !!l.playbackUrl && l.recordingExpiry !== null && l.recordingExpiry > now;
               const daysLeft = hasRecording ? daysUntil(l.recordingExpiry as Date) : 0;
+              // קיים stream ID אבל אין URL → הקלטה לא הופיעה עדיין / לא זמינה
+              const streamButNoUrl = !!l.streamId && !l.playbackUrl && !l.recordingUrl;
               return (
                 <tr key={l.id} className="border-t border-border hover:bg-paper-soft/50 transition">
                   <td className="py-2 px-3">
@@ -167,15 +212,22 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
                   <td className="py-2 px-3"><MediaLinks lesson={l} /></td>
                   <td className="py-2 px-3">
                     {hasRecording ? (
-                      <a
-                        href={l.recordingUrl ?? l.playbackUrl ?? "#"}
-                        target="_blank" rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs bg-gold-soft text-gold hover:bg-gold/20 px-2 py-1 rounded-btn transition"
-                        title={`תפוג בעוד ${daysLeft} ימים`}
-                      >
-                        <Download className="w-3.5 h-3.5" /> הורדה
-                        <span className="text-[10px] opacity-75">({daysLeft}ד׳)</span>
-                      </a>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-live" aria-label="הקלטה זמינה" />
+                        <a
+                          href={l.recordingUrl ?? `/api/lessons/${l.id}/download`}
+                          target="_blank" rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs bg-gold-soft text-gold hover:bg-gold/20 px-2 py-1 rounded-btn transition"
+                          title={`זמין עוד ${daysLeft} ימים`}
+                        >
+                          <Download className="w-3.5 h-3.5" /> הורדה
+                          <span className="text-[10px] opacity-75">({daysLeft}ד׳)</span>
+                        </a>
+                      </div>
+                    ) : streamButNoUrl ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-gold" title="ההקלטה עדיין בעיבוד או לא הצליחה">
+                        <AlertCircle className="w-3.5 h-3.5" /> בעיבוד
+                      </span>
                     ) : (
                       <span className="text-xs text-ink-muted">—</span>
                     )}
@@ -201,6 +253,7 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
           const hasRecording =
             !!l.playbackUrl && l.recordingExpiry !== null && l.recordingExpiry > now;
           const daysLeft = hasRecording ? daysUntil(l.recordingExpiry as Date) : 0;
+          const streamButNoUrl = !!l.streamId && !l.playbackUrl && !l.recordingUrl;
           return (
             <Card key={l.id}>
               <div className="flex items-center gap-2 mb-1">
@@ -210,27 +263,26 @@ function PastList({ lessons, now }: { lessons: any[]; now: Date }) {
               <div className="text-xs text-ink-muted mb-2">
                 {formatHebrewDate(l.scheduledAt)}
                 {l.durationMin && <> · {l.durationMin} דק׳</>}
-                <> · </>
-                <span className="inline-flex items-center gap-0.5">
-                  <Eye className="w-3 h-3" />
-                  {l.viewCount.toLocaleString("he-IL")}
-                </span>
+                <> · <Eye className="w-3 h-3 inline" /> {l.viewCount}</>
               </div>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                <MediaLinks lesson={l} />
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <Link href={`/lesson/${l.id}`} className="text-primary text-sm inline-flex items-center gap-1 hover:underline">
-                  לשיעור <ExternalLink className="w-3 h-3" />
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link href={`/lesson/${l.id}`} className="text-primary text-xs hover:underline">
+                  לשיעור ←
                 </Link>
+                <MediaLinks lesson={l} />
                 {hasRecording && (
                   <a
-                    href={l.recordingUrl ?? l.playbackUrl ?? "#"}
+                    href={l.recordingUrl ?? `/api/lessons/${l.id}/download`}
                     target="_blank" rel="noreferrer"
                     className="inline-flex items-center gap-1 text-xs bg-gold-soft text-gold hover:bg-gold/20 px-2 py-1 rounded-btn transition"
                   >
                     <Download className="w-3.5 h-3.5" /> הורדה · {daysLeft} ימים
                   </a>
+                )}
+                {streamButNoUrl && (
+                  <span className="inline-flex items-center gap-1 text-xs text-gold">
+                    <AlertCircle className="w-3.5 h-3.5" /> ההקלטה בעיבוד
+                  </span>
                 )}
               </div>
             </Card>

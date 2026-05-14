@@ -130,7 +130,7 @@ export default async function LivePage() {
             <Video className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-ink">שידור מהדפדפן</div>
-              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים ישירות באתר. ההקלטה נשמרת 5 ימים להורדה. ללא התקנות.</div>
+              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים ישירות באתר. ההקלטה נשמרת 30 יום להורדה. ללא התקנות.</div>
             </div>
           </div>
           <div className="flex items-start gap-3">

@@ -113,7 +113,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, alreadyClosed: true });
   }
 
-  const recordingExpiry = new Date(Date.now() + 5 * 24 * 3600_000);
+  // 30 יום — תואם למה ש-Cloudflare באמת שומר (deleteRecordingAfterDays=30)
+  const recordingExpiry = new Date(Date.now() + 30 * 24 * 3600_000);
   await db.lesson.update({
     where: { id: lesson.id },
     data: { isLive: false, recordingExpiry },
