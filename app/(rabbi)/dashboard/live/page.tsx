@@ -146,27 +146,20 @@ export default async function LivePage() {
 
       {/* הסבר */}
       <Card className="bg-paper-warm border-border-warm">
-        <h3 className="font-bold text-ink mb-3">3 דרכים לשדר</h3>
+        <h3 className="font-bold text-ink mb-3">2 דרכים לשדר</h3>
         <div className="space-y-3 text-sm text-ink-soft">
           <div className="flex items-start gap-3">
             <Video className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-ink">שידור מהדפדפן</div>
-              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים באתר. ההקלטה נשמרת 5 ימים להורדה. ללא התקנות.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Radio className="w-5 h-5 text-danger shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold text-ink">YouTube</div>
-              <div>מדביק לינק של שידור חי ב-YouTube. הצופים רואים embed ישירות באתר.</div>
+              <div>לוחץ "שדר מהדפדפן" → המצלמה נדלקת → הצופים רואים ישירות באתר. ההקלטה נשמרת 5 ימים להורדה. ללא התקנות.</div>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Radio className="w-5 h-5 text-gold shrink-0 mt-0.5" />
             <div>
-              <div className="font-semibold text-ink">קישור חיצוני (Zoom / אחר)</div>
-              <div>מדביק כל קישור. אם ניתן ל-embed — מוצג באתר. אחרת — כפתור מעבר.</div>
+              <div className="font-semibold text-ink">קישור חיצוני (YouTube / Zoom / אחר)</div>
+              <div>מדביק לינק של שידור חי. YouTube מזוהה אוטומטית ומוטמע באתר; Zoom וקישורים אחרים — אם ניתן embed מוצגים באתר, אחרת כפתור מעבר.</div>
             </div>
           </div>
         </div>
