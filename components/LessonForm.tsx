@@ -49,6 +49,8 @@ export function LessonForm({
     scheduledAt: initial?.scheduledAt ? new Date(initial.scheduledAt).toISOString().slice(0, 16) : "",
     durationMin: initial?.durationMin ?? 60,
     prepBeforeMin: (initial as any)?.prepBeforeMin ?? 0,
+    // אירוע הכנה לשיעור — תאריך/שעה אופציונליים. אם מילאתי, נוצר Lesson נפרד עם isPublic:false
+    prepEventAt: "",
     language: initial?.language ?? "he",
     broadcastType: initial?.broadcastType ?? "LESSON",
     youtubeUrl: initial?.youtubeUrl ?? "",
@@ -94,12 +96,44 @@ export function LessonForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    setLoading(false);
     if (!res.ok) {
+      setLoading(false);
       const j = await res.json().catch(() => ({}));
       setErr(j.error || "שגיאה בשמירה");
       return;
     }
+
+    // אירוע הכנה — אם המשתמש מילא תאריך + לא שיעור חוזר ולא עריכת קיים, ניצור lesson נפרד פרטי
+    if (!lessonId && !form.isRecurring && form.prepEventAt && form.prepEventAt.trim()) {
+      try {
+        await fetch("/api/lessons", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            title: `הכנה: ${form.title}`,
+            description: `אירוע הכנה לשיעור "${form.title}". פרטי בלבד — תלמידים לא רואים.`,
+            scheduledAt: new Date(form.prepEventAt).toISOString(),
+            durationMin: 30,
+            broadcastType: "LESSON",
+            isPublic: false,
+            isRecurring: false,
+            categoryId: null,
+            youtubeUrl: "",
+            spotifyUrl: "",
+            applePodcastUrl: "",
+            otherUrl: "",
+            sourcesPdfUrl: "",
+            liveEmbedUrl: "",
+            isLive: false,
+            syncToCalendar: false,
+          }),
+        });
+      } catch {
+        // לא קריטי — השיעור הראשי כבר נשמר
+      }
+    }
+    setLoading(false);
     router.push("/dashboard/lessons");
     router.refresh();
   }
@@ -199,35 +233,18 @@ export function LessonForm({
           </F>
         </div>
 
-        <F label="חלון הכנה לפני השיעור (אופציונלי)">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { value: 0, label: "ללא" },
-              { value: 15, label: "15 דק׳" },
-              { value: 30, label: "30 דק׳" },
-              { value: 60, label: "שעה" },
-            ].map((opt) => {
-              const selected = form.prepBeforeMin === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setForm({ ...form, prepBeforeMin: opt.value })}
-                  aria-pressed={selected}
-                  className={
-                    "h-10 px-4 rounded-btn border text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary " +
-                    (selected
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white text-ink-soft border-border hover:border-primary hover:text-primary")
-                  }
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+        <F label="אירוע הכנה לשיעור (אופציונלי — רק אתה רואה)">
+          <input
+            type="datetime-local"
+            value={form.prepEventAt}
+            onChange={(e) => setForm({ ...form, prepEventAt: e.target.value })}
+            className="input"
+            max={form.scheduledAt || undefined}
+          />
+          <HebrewDateHint value={form.prepEventAt} />
           <p className="mt-2 text-xs text-ink-muted">
-            דקות לפני השיעור שבהן יהיה אפשר לפתוח את הלייב (חימום מצלמה, בדיקת קול וכו׳).
+            מתי אתה רוצה להכין את השיעור? יווצר אירוע נפרד בלוח שלך בלבד (לא ציבורי, התלמידים לא יראו).
+            השאר ריק אם אין צורך.
           </p>
         </F>
         {/* מחזוריות — רק ביצירה חדשה */}
