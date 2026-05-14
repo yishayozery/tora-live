@@ -145,3 +145,23 @@ a { @apply text-primary hover:text-primary-hover; }
   text-align: start;
 }
 .blog-prose th { background: #F7F8FA; font-weight: 700; color: #0F172A; }
+
+/* === Print styles === מסתיר UI מיותר ומציג רק את הלוח/תוכן */
+@media print {
+  /* הסתר ניווט/חיפוש/floating widgets */
+  header, footer, nav, aside,
+  .print\:hidden,
+  [role="dialog"] { display: none !important; }
+
+  /* פריסה דחוסה לעמוד הדפסה */
+  html, body { background: white !important; color: black !important; }
+  body { font-size: 11pt; }
+  main { padding: 0 !important; }
+
+  /* קישורים — נציג URL בסוגריים */
+  a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
+  a[href^="#"]::after, a[href^="/dashboard"]::after { content: ""; }
+
+  /* כרטיסיות הלוח — בלי הצללות / רקעים מיותרים */
+  .rounded-card { box-shadow: none !important; }
+}

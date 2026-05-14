@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Clock, Search, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Search, Filter, Printer, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 import { formatTimeRange } from "@/lib/utils";
@@ -19,6 +19,8 @@ type CalendarLesson = {
   language?: string;
   isLive?: boolean;
   broadcastType?: string;
+  /** קוד פתיחת שידור — מופיע ב-WhatsApp share. רלוונטי רק לרב/אדמין */
+  streamCode?: string | null;
   /** סוג ויזואלי: lesson (כחול), live (ירוק), event (זהב), approvedRequest (סגול), private (מקווקו) */
   variant?: "lesson" | "live" | "event" | "approvedRequest" | "private";
   /** קישור יעד. אם חסר — /lesson/{id} */
@@ -37,6 +39,58 @@ function resolveVariant(l: CalendarLesson): "lesson" | "live" | "event" | "appro
   // יום עיון / אירוע — לפי broadcastType או משך > 90 דק'
   if (l.broadcastType === "EVENT" || (l.durationMin && l.durationMin >= 90)) return "event";
   return "lesson";
+}
+
+/** בונה לינק WhatsApp עם רשימת שיעורים מסודרת לפי תאריך/שעה + קישורים + קודי שידור (אם קיימים) */
+function buildWhatsappShareUrl(
+  lessons: CalendarLesson[],
+  gridDays: Date[],
+  rangeLabel: string,
+  title: string,
+): string {
+  // מסנן לטווח הימים המוצג בלבד
+  const inRange = lessons.filter((l) => {
+    const d = new Date(l.scheduledAt).toDateString();
+    return gridDays.some((g) => g.toDateString() === d);
+  });
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+
+  let msg = `📋 ${title} — ${rangeLabel}\n\n`;
+
+  if (inRange.length === 0) {
+    msg += "אין שיעורים מתוזמנים בתקופה זו.\n";
+  } else {
+    // קבץ לפי יום
+    const byDay = new Map<string, CalendarLesson[]>();
+    for (const l of inRange) {
+      const key = new Date(l.scheduledAt).toDateString();
+      if (!byDay.has(key)) byDay.set(key, []);
+      byDay.get(key)!.push(l);
+    }
+    const sortedKeys = Array.from(byDay.keys()).sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+    );
+    for (const key of sortedKeys) {
+      const dayDate = new Date(key);
+      msg += `📅 יום ${dayNames[dayDate.getDay()]} ${dayDate.toLocaleDateString("he-IL")}\n`;
+      const dayLessons = (byDay.get(key) ?? []).sort(
+        (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+      );
+      for (const l of dayLessons) {
+        const t = new Date(l.scheduledAt);
+        const time = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`;
+        msg += `  • ${time} — ${l.title}`;
+        if (l.rabbiName) msg += ` (${l.rabbiName})`;
+        msg += `\n    ${origin}/lesson/${l.id}\n`;
+        if (l.streamCode) msg += `    🔑 קוד שידור: ${l.streamCode}\n`;
+      }
+      msg += "\n";
+    }
+  }
+
+  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
 /** ראשון של השבוע הנוכחי */
@@ -301,7 +355,7 @@ export function WeeklyCalendar({
         </div>
       )}
 
-      {/* ניווט בין תקופות */}
+      {/* ניווט בין תקופות + שיתוף/הדפסה */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         {compact && <h2 className="hebrew-serif text-2xl font-bold text-ink">{title}</h2>}
         <div className="flex items-center gap-2 mx-auto">
@@ -332,6 +386,30 @@ export function WeeklyCalendar({
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-sm font-medium text-ink mr-2">{rangeLabel}</span>
+        </div>
+        {/* פעולות שיתוף — לא מודפסות עצמן */}
+        <div className="flex items-center gap-1 print:hidden">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1 h-9 px-3 rounded-btn border border-border bg-white text-sm text-ink-soft hover:border-primary hover:text-primary"
+            title="הדפסת הלוח"
+            aria-label="הדפסת הלוח"
+          >
+            <Printer className="w-4 h-4" />
+            <span className="hidden sm:inline">הדפסה</span>
+          </button>
+          <a
+            href={buildWhatsappShareUrl(filteredLessons, gridDays, rangeLabel, title)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 h-9 px-3 rounded-btn border border-[#25D366]/40 bg-[#25D366]/5 text-sm text-[#1E8E47] hover:bg-[#25D366]/15"
+            title="שלח לוח ב-WhatsApp עם קישורים וקודי שידור"
+            aria-label="שלח ב-WhatsApp"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span className="hidden sm:inline">WhatsApp</span>
+          </a>
         </div>
       </div>
 

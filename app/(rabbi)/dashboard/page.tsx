@@ -90,53 +90,32 @@ export default async function RabbiDashboardPage() {
     }),
   ]);
 
-  // אירועים מבוססי פניות שאושרו — סימון ויזואלי סגול.
-  const approvedRequests = await db.contactRequest.findMany({
-    where: {
-      rabbiId: rabbi.id,
-      status: "APPROVED",
-      requestedDate: { gte: calFrom, lte: calTo },
-    },
-    include: { student: { select: { name: true } } },
+  // הערה: פניות מאושרות לא מוצגות יותר בלוח השנה — יש להן טאב יעודי ב-/dashboard/requests.
+  const calendarItems = calendarLessons.map((l) => {
+    const isEvent = EVENT_BROADCAST_TYPES.has((l as any).broadcastType ?? "LESSON");
+    const isPrivate = (l as any).isPublic === false;
+    const variant: "live" | "event" | "lesson" | "private" = l.isLive
+      ? "live"
+      : isPrivate
+        ? "private"
+        : isEvent
+          ? "event"
+          : "lesson";
+    return {
+      id: l.id,
+      title: (isPrivate ? "🔒 " : "") + l.title,
+      rabbiName: rabbi.name,
+      rabbiSlug: rabbi.slug,
+      scheduledAt: l.scheduledAt.toISOString(),
+      durationMin: l.durationMin ?? undefined,
+      isLive: l.isLive,
+      broadcastType: (l as any).broadcastType ?? "LESSON",
+      streamCode: (l as any).streamCode ?? null,
+      variant,
+      href: `/dashboard/lessons/${l.id}/edit`,
+      canStartBroadcast: !l.isLive && isWithinBroadcastWindow(l.scheduledAt),
+    };
   });
-
-  const calendarItems = [
-    ...calendarLessons.map((l) => {
-      const isEvent = EVENT_BROADCAST_TYPES.has((l as any).broadcastType ?? "LESSON");
-      const isPrivate = (l as any).isPublic === false;
-      const variant: "live" | "event" | "lesson" | "private" = l.isLive
-        ? "live"
-        : isPrivate
-          ? "private"
-          : isEvent
-            ? "event"
-            : "lesson";
-      return {
-        id: l.id,
-        title: (isPrivate ? "🔒 " : "") + l.title,
-        rabbiName: rabbi.name,
-        rabbiSlug: rabbi.slug,
-        scheduledAt: l.scheduledAt.toISOString(),
-        durationMin: l.durationMin ?? undefined,
-        isLive: l.isLive,
-        broadcastType: (l as any).broadcastType ?? "LESSON",
-        variant,
-        href: `/dashboard/lessons/${l.id}/edit`,
-        canStartBroadcast: !l.isLive && isWithinBroadcastWindow(l.scheduledAt),
-      };
-    }),
-    ...approvedRequests
-      .filter((r) => r.requestedDate)
-      .map((r) => ({
-        id: `req-${r.id}`,
-        title: r.topic || "פנייה שאושרה",
-        rabbiName: r.student.name,
-        rabbiSlug: rabbi.slug,
-        scheduledAt: (r.requestedDate as Date).toISOString(),
-        variant: "approvedRequest" as const,
-        href: `/dashboard/requests`,
-      })),
-  ];
 
   const profileIncomplete = !rabbi.profileCompleted || (rabbi.bio?.length ?? 0) < 20;
   const totalViews30 = viewsLast30._sum.viewCount ?? 0;
