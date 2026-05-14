@@ -12,11 +12,15 @@ import { Radio, Video, Download, Plus } from "lucide-react";
 export default async function LivePage() {
   const { rabbi } = await requireApprovedRabbi();
   const now = new Date();
+  // התחלת היום — שיעור של 14:00 שעכשיו 14:05 עדיין יחשב "עתידי" עד סוף היום
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
 
+  // רק שיעורים מהיום והלאה. הקלטות עוברות אוטומטית לעמוד "שיעורים שלי".
   const lessons = await db.lesson.findMany({
     where: {
       rabbiId: rabbi.id,
-      scheduledAt: { gte: new Date(now.getTime() - 24 * 3600000) },
+      scheduledAt: { gte: startOfToday },
       // אירועי הכנה הם פרטיים — לא משדרים אותם
       broadcastType: { not: "PREP" },
     },
@@ -25,8 +29,7 @@ export default async function LivePage() {
   });
 
   const liveNow = lessons.filter((l) => l.isLive);
-  const withRecording = lessons.filter((l) => !l.isLive && l.streamId && l.recordingExpiry && new Date(l.recordingExpiry) > now);
-  const upcoming = lessons.filter((l) => !l.isLive && !withRecording.includes(l));
+  const upcoming = lessons.filter((l) => !l.isLive);
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -76,41 +79,14 @@ export default async function LivePage() {
         </section>
       )}
 
-      {/* הקלטות זמינות */}
-      {withRecording.length > 0 && (
-        <section>
-          <h2 className="hebrew-serif text-xl font-bold mb-3 flex items-center gap-2">
-            <Download className="w-5 h-5 text-gold" /> הקלטות זמינות להורדה
-          </h2>
-          <p className="text-sm text-ink-muted mb-3">ההקלטות יימחקו אוטומטית 5 ימים אחרי סיום השידור.</p>
-          <div className="space-y-3">
-            {withRecording.map((l) => (
-              <Card key={l.id} className="border-gold/30">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <CardTitle>{l.title}</CardTitle>
-                    <div className="text-sm text-ink-muted flex items-center gap-2 flex-wrap">
-                      <span>{formatHebrewDate(l.scheduledAt)}</span>
-                      {l.recordingExpiry && (
-                        <>
-                          <span>·</span>
-                          <span>יימחק:</span>
-                          <ExpirationCountdown expiresAt={l.recordingExpiry} variant="chip" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <RecordingsList lessonId={l.id} />
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* שיעורים קרובים — בחירת מסלול */}
       <section>
-        <h2 className="hebrew-serif text-xl font-bold mb-3">שיעורים קרובים — התחל שידור</h2>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="hebrew-serif text-xl font-bold">שיעורים קרובים — התחל שידור</h2>
+          <Link href="/dashboard/lessons" className="text-sm text-primary hover:underline">
+            שיעורים שעברו והקלטות ←
+          </Link>
+        </div>
         {upcoming.length === 0 ? (
           <Card><CardDescription>אין שיעורים מתוכננים. צור שיעור חדש כדי להתחיל לשדר.</CardDescription></Card>
         ) : (

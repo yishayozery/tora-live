@@ -168,12 +168,24 @@ export default async function RabbiDashboardPage() {
             דף הבית שלך — לוח שנה, שיעורים ופניות במקום אחד.
           </p>
         </div>
-        <Link
-          href="/dashboard/lessons/new"
-          className="h-11 px-5 inline-flex items-center rounded-btn bg-primary text-white hover:bg-primary-hover"
-        >
-          + שיעור / אירוע חדש
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/rabbi/${rabbi.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="h-11 px-4 inline-flex items-center gap-1.5 rounded-btn border border-border bg-white text-ink-soft hover:border-primary hover:text-primary text-sm"
+            title="פתח את הפרופיל הציבורי שלך — איך התלמידים רואים אותך"
+          >
+            <Eye className="w-4 h-4" />
+            תצוגה כתלמיד
+          </Link>
+          <Link
+            href="/dashboard/lessons/new"
+            className="h-11 px-5 inline-flex items-center rounded-btn bg-primary text-white hover:bg-primary-hover"
+          >
+            + שיעור / אירוע חדש
+          </Link>
+        </div>
       </div>
 
       {/* סקציה עליונה — כרטיסי סטטיסטיקה (קליקים → לעמודים המתאימים) */}
