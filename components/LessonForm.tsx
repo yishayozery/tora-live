@@ -93,7 +93,12 @@ export function LessonForm({
     if (!res.ok) {
       setLoading(false);
       const j = await res.json().catch(() => ({}));
-      setErr(j.error || "שגיאה בשמירה");
+      const msg = j.error || "שגיאה בשמירה. בדוק את הפרטים ונסה שוב.";
+      setErr(msg);
+      // popup קופץ — חוויה ברורה יותר משורה קטנה שאולי תיעלם תחת הקפלה
+      if (typeof window !== "undefined") {
+        window.alert(`⚠️ שגיאה בשמירת השיעור\n\n${msg}`);
+      }
       return;
     }
 
@@ -248,7 +253,14 @@ export function LessonForm({
           <HebrewDateHint value={form.prepEventAt} />
         </div>
         <F label="תאריך ושעה">
-          <input type="datetime-local" required value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} className="input" />
+          <input
+            type="datetime-local"
+            required
+            value={form.scheduledAt}
+            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
+            min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+            className="input"
+          />
           <HebrewDateHint value={form.scheduledAt} />
         </F>
 

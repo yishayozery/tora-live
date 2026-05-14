@@ -3,15 +3,18 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, LayoutDashboard, MessageSquare, Settings, LogOut, Radio } from "lucide-react";
+import { Menu, X, Archive, LayoutDashboard, MessageSquare, Settings, LogOut, Radio, Plus, Users, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "דף ראשי" },
-  { href: "/dashboard/lessons", icon: BookOpen, label: "שיעורים" },
-  { href: "/dashboard/live", icon: Radio, label: "שידור חי" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "לוח השיעורים שלי" },
+  { href: "/dashboard/lessons/new", icon: Plus, label: "הקמת שיעור" },
+  { href: "/dashboard/live", icon: Radio, label: "התחלת שיעור בשידור חי" },
+  { href: "/dashboard/lessons", icon: Archive, label: "ארכיון השיעורים" },
+  { href: "/dashboard/messages", icon: Megaphone, label: "הודעות לתלמידים" },
+  { href: "/dashboard/community", icon: Users, label: "הקהילה שלי" },
   { href: "/dashboard/requests", icon: MessageSquare, label: "פניות" },
-  { href: "/dashboard/settings", icon: Settings, label: "הגדרות" },
+  { href: "/dashboard/settings", icon: Settings, label: "הגדרות פרופיל" },
 ];
 
 export function RabbiMobileNav({ rabbiName }: { rabbiName: string }) {
@@ -42,7 +45,7 @@ export function RabbiMobileNav({ rabbiName }: { rabbiName: string }) {
         >
           <Menu className="w-5 h-5 text-ink" />
         </button>
-        <BookOpen className="w-5 h-5 text-primary" />
+        <LayoutDashboard className="w-5 h-5 text-primary" />
         <span className="hebrew-serif text-lg font-bold flex-1 truncate">{currentLabel}</span>
       </header>
 
@@ -63,7 +66,7 @@ export function RabbiMobileNav({ rabbiName }: { rabbiName: string }) {
       >
         <div className="h-14 px-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
+            <LayoutDashboard className="w-5 h-5 text-primary" />
             <span className="hebrew-serif text-lg font-bold">TORA_LIVE</span>
           </div>
           <button onClick={() => setOpen(false)} className="p-2 hover:bg-paper-soft rounded-btn" aria-label="סגור">

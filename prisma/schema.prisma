@@ -55,8 +55,22 @@ model Rabbi {
   recurringTemplates RecurringLessonTemplate[]
   requests     ContactRequest[]
   followers    Follow[]
+  messages     RabbiMessage[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+// ---------- הודעת רב (slideshow ציבורי) ----------
+model RabbiMessage {
+  id        String    @id @default(cuid())
+  rabbiId   String
+  rabbi     Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  content   String    @db.Text
+  published Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([rabbiId, published, createdAt])
 }
 
 // ---------- תלמיד ----------
