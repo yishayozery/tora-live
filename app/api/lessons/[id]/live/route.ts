@@ -91,14 +91,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   // --- סיום שידור ---
-  const recordingExpiry = new Date(Date.now() + 5 * 24 * 3600000); // 5 ימים
+  // 30 יום — מתאים למה ש-Cloudflare Stream שומר בפועל (deleteRecordingAfterDays=30).
+  // ה-cron `cleanup-expired-recordings` יוודא מחיקה בסוף התקופה.
+  const recordingExpiry = new Date(Date.now() + 30 * 24 * 3600000);
 
   await db.lesson.update({
     where: { id: params.id },
     data: {
       isLive: false,
       recordingExpiry: lesson.streamId ? recordingExpiry : null,
-      // playbackUrl נשאר — ההקלטה זמינה 5 ימים
+      // playbackUrl נשאר — ההקלטה זמינה 30 יום
     },
   });
 
