@@ -40,10 +40,15 @@ function isYouTubeEmbed(url?: string | null): boolean {
   return !!url && /youtube\.com\/embed\//.test(url);
 }
 
-/** מחזיר { embedUrl, platform } — תומך YouTube + Facebook. */
-function resolveEmbed(b: LiveBroadcast): { embedUrl: string | null; platform: "youtube" | "facebook" | null } {
+function isCloudflareStreamEmbed(url?: string | null): boolean {
+  return !!url && /cloudflarestream\.com\/[^\/]+\/iframe/.test(url);
+}
+
+/** מחזיר { embedUrl, platform } — תומך YouTube + Facebook + Cloudflare Stream. */
+function resolveEmbed(b: LiveBroadcast): { embedUrl: string | null; platform: "youtube" | "facebook" | "cloudflare" | null } {
   // עדיפות 1 — embedUrl ישיר (כבר ב-iframe format)
   if (b.embedUrl) {
+    if (isCloudflareStreamEmbed(b.embedUrl)) return { embedUrl: b.embedUrl, platform: "cloudflare" };
     if (isYouTubeEmbed(b.embedUrl)) return { embedUrl: b.embedUrl, platform: "youtube" };
     if (/facebook\.com\/plugins\/video/.test(b.embedUrl)) return { embedUrl: b.embedUrl, platform: "facebook" };
   }
@@ -396,6 +401,15 @@ function LiveCardGrid({ b }: { b: LiveBroadcast }) {
             className="absolute inset-0 w-full h-full"
             loading="lazy"
           />
+        ) : embedUrl && platform === "cloudflare" ? (
+          <iframe
+            src={`${embedUrl}?muted=true&controls=true&letterboxColor=transparent`}
+            title={b.title}
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full"
+            loading="lazy"
+          />
         ) : embedUrl && platform === "facebook" ? (
           <iframe
             src={embedUrl}
@@ -489,6 +503,14 @@ function LiveCardList({ b }: { b: LiveBroadcast }) {
         {youtube ? (
           <iframe
             src={`${youtube}?autoplay=0&mute=1&controls=0&modestbranding=1`}
+            title={b.title}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            loading="lazy"
+          />
+        ) : isCloudflareStreamEmbed(b.embedUrl) ? (
+          <iframe
+            src={`${b.embedUrl}?muted=true&controls=false&letterboxColor=transparent&preload=metadata`}
             title={b.title}
             allow="autoplay; encrypted-media; picture-in-picture"
             className="absolute inset-0 w-full h-full pointer-events-none"
