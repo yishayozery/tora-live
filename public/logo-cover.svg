@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 624" width="1640" height="624" role="img" aria-label="TORA_LIVE — שיעורי תורה אונליין | Cover">
+  <defs>
+    <linearGradient id="bgWide" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E40AF"/>
+      <stop offset="60%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="goldWide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A53D"/>
+      <stop offset="100%" stop-color="#B8862F"/>
+    </linearGradient>
+    <radialGradient id="liveGlow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="60" height="60" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.5" fill="#F4E5C2" opacity="0.08"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1640" height="624" fill="url(#bgWide)"/>
+  <rect x="0" y="0" width="1640" height="624" fill="url(#dots)"/>
+
+  <!-- Jerusalem skyline silhouette (subtle, bottom) -->
+  <g opacity="0.08" fill="#F4E5C2">
+    <path d="M0,500 L40,500 L40,470 L70,470 L70,500 L100,500 L100,460 L120,440 L140,460 L140,500 L180,500 L180,475 L200,475 L200,500 L260,500 L260,450 L290,420 L320,450 L320,500 L380,500 L380,480 L420,480 L420,500 L490,500 L490,460 L515,460 L530,440 L545,460 L570,460 L570,500 L640,500 L640,480 L680,480 L680,440 L710,420 L740,440 L740,480 L780,480 L780,500 L860,500 L860,470 L900,470 L900,500 L950,500 L950,455 L985,425 L1020,455 L1020,500 L1080,500 L1080,475 L1120,475 L1120,500 L1180,500 L1180,460 L1220,460 L1220,500 L1280,500 L1280,475 L1320,475 L1320,500 L1380,500 L1380,440 L1420,420 L1460,440 L1460,500 L1520,500 L1520,475 L1560,475 L1560,500 L1640,500 L1640,624 L0,624 Z"/>
+  </g>
+
+  <!-- LIVE indicator -->
+  <g transform="translate(180, 200)">
+    <circle cx="0" cy="0" r="55" fill="url(#liveGlow2)"/>
+    <circle cx="0" cy="0" r="22" fill="#10B981"/>
+    <circle cx="0" cy="0" r="10" fill="#FFFFFF"/>
+    <text x="80" y="10" font-family="Arial, sans-serif" font-size="34" font-weight="bold" fill="#10B981" letter-spacing="3">LIVE</text>
+  </g>
+
+  <!-- Open book icon (left side, large) -->
+  <g transform="translate(280, 380)">
+    <rect x="-130" y="-85" width="260" height="170" rx="10" fill="url(#goldWide)"/>
+    <rect x="-130" y="-85" width="7" height="170" fill="#E8C56C" opacity="0.4"/>
+    <rect x="123" y="-85" width="7" height="170" fill="#8B6420" opacity="0.4"/>
+    <rect x="-115" y="-72" width="230" height="144" rx="3" fill="#FAF6E8"/>
+    <line x1="0" y1="-72" x2="0" y2="72" stroke="#1E40AF" stroke-width="1" opacity="0.3"/>
+    <!-- Lines left -->
+    <line x1="-95" y1="-50" x2="-20" y2="-50" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-95" y1="-30" x2="-20" y2="-30" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-95" y1="-10" x2="-30" y2="-10" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-95" y1="10"  x2="-20" y2="10"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-95" y1="30"  x2="-25" y2="30"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-95" y1="50"  x2="-20" y2="50"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <!-- Lines right -->
+    <line x1="20" y1="-50" x2="95" y2="-50" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="20" y1="-30" x2="95" y2="-30" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="30" y1="-10" x2="95" y2="-10" stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="20" y1="10"  x2="95" y2="10"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="25" y1="30"  x2="95" y2="30"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+    <line x1="20" y1="50"  x2="95" y2="50"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <!-- Brand: TORA_LIVE (large, right) -->
+  <text x="600" y="320" font-family="Georgia, 'Frank Ruhl Libre', serif" font-size="130" font-weight="bold" fill="#FFFFFF" letter-spacing="6">TORA_LIVE</text>
+
+  <!-- Hebrew tagline -->
+  <text x="600" y="395" font-family="Arial, 'Heebo', sans-serif" font-size="44" fill="#F4E5C2" opacity="0.92" direction="rtl">שיעורי תורה אונליין מהרבנים המובילים</text>
+
+  <!-- Sub-tagline -->
+  <text x="600" y="450" font-family="Arial, sans-serif" font-size="26" fill="#94A3B8" letter-spacing="2" direction="rtl">חינם · ללא הרשמה · שידורים חיים</text>
+
+  <!-- Gold underline -->
+  <rect x="600" y="480" width="220" height="4" rx="2" fill="url(#goldWide)"/>
+
+  <!-- Website URL (bottom right) -->
+  <text x="1580" y="585" font-family="monospace" font-size="22" fill="#94A3B8" text-anchor="end" letter-spacing="1">tora-live.co.il</text>
+</svg>

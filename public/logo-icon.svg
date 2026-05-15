@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="TORA_LIVE icon">
+  <defs>
+    <linearGradient id="bgIcon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E40AF"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="goldIcon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A53D"/>
+      <stop offset="100%" stop-color="#B8862F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="url(#bgIcon)"/>
+
+  <!-- Open book -->
+  <g transform="translate(100, 95)">
+    <rect x="-50" y="-32" width="100" height="64" rx="4" fill="url(#goldIcon)"/>
+    <rect x="-44" y="-26" width="88" height="52" rx="1" fill="#FAF6E8"/>
+    <line x1="0" y1="-26" x2="0" y2="26" stroke="#1E40AF" stroke-width="0.6" opacity="0.3"/>
+    <!-- Lines left -->
+    <line x1="-36" y1="-15" x2="-8" y2="-15" stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-36" y1="-5"  x2="-10" y2="-5" stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-36" y1="5"   x2="-8"  y2="5"  stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="-36" y1="15"  x2="-12" y2="15" stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <!-- Lines right -->
+    <line x1="8"  y1="-15" x2="36" y2="-15" stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="10" y1="-5"  x2="36" y2="-5"  stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="8"  y1="5"   x2="36" y2="5"   stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+    <line x1="12" y1="15"  x2="36" y2="15"  stroke="#1E40AF" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <!-- LIVE dot (top right) -->
+  <circle cx="155" cy="50" r="14" fill="#10B981" opacity="0.25"/>
+  <circle cx="155" cy="50" r="9" fill="#10B981"/>
+  <circle cx="155" cy="50" r="4" fill="#FFFFFF"/>
+</svg>
