@@ -39,6 +39,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
   const [studioMode, setStudioMode] = useState(false);
   const [studioStartedAt, setStudioStartedAt] = useState<Date | null>(null);
   const [whipUrl, setWhipUrl] = useState<string | undefined>(undefined);
+  const [viewerEmbedUrl, setViewerEmbedUrl] = useState<string | undefined>(undefined);
 
   // ---- Cleanup של המצלמה/מיקרופון ----
   function stopTracks() {
@@ -136,6 +137,18 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
         const data = await res.json().catch(() => ({}));
         // ה-API מחזיר whipUrl (Cloudflare WHIP endpoint). נשמור ונעביר ל-Studio.
         setWhipUrl(typeof data?.whipUrl === "string" ? data.whipUrl : undefined);
+        // playbackUrl/liveEmbedUrl — מה שצופים רואים. נציג כ-preview דיאגנוסטי באולפן.
+        // ה-API לא מחזיר liveEmbedUrl אך כן streamId, ובידיעת CF_ACCOUNT אפשר לבנות.
+        // הכי פשוט: נשתמש ב-playbackUrl/streamId לבניית iframe URL.
+        if (typeof data?.streamId === "string") {
+          // CF iframe URL: customer-<accountId>.cloudflarestream.com/<streamId>/iframe
+          // ה-account-id משוקע ב-playbackUrl, נחלץ ממנו.
+          const playback = data?.playbackUrl as string | undefined;
+          const acctMatch = playback?.match(/customer-([a-f0-9]+)\.cloudflarestream\.com/);
+          if (acctMatch) {
+            setViewerEmbedUrl(`https://customer-${acctMatch[1]}.cloudflarestream.com/${data.streamId}/iframe`);
+          }
+        }
 
         // 2) אם הרב הדביק לינק למקור — יוצר LessonSource
         const trimmed = sourceUrl.trim();
@@ -171,6 +184,7 @@ export function BrowserBroadcastPreview({ lessonId, lessonTitle, onCancel, onSta
         stream={streamRef.current}
         startedAt={studioStartedAt}
         whipUrl={whipUrl}
+        viewerEmbedUrl={viewerEmbedUrl}
         onEnded={() => {
           streamRef.current = null;
           setStudioMode(false);

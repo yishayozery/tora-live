@@ -36,6 +36,8 @@ type Props = {
   onEnded: () => void;
   /** WHIP endpoint URL מ-Cloudflare. אם חסר — מוצג מצב שגיאה (Stream לא מוגדר). */
   whipUrl?: string;
+  /** liveEmbedUrl/playbackUrl — מה הצופים אמורים לראות. אם מוגדר, נציג preview קטן באולפן. */
+  viewerEmbedUrl?: string;
 };
 
 /**
@@ -49,7 +51,9 @@ export function RabbiBroadcastStudio({
   startedAt,
   onEnded,
   whipUrl,
+  viewerEmbedUrl,
 }: Props) {
+  const [showViewerPreview, setShowViewerPreview] = useState(false);
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const chatScrollRef = useRef<HTMLDivElement | null>(null);
@@ -225,6 +229,19 @@ export function RabbiBroadcastStudio({
             <span className="tabular-nums">{viewerCount}</span>
             <span className="hidden sm:inline">צופים</span>
           </div>
+          {viewerEmbedUrl && (
+            <button
+              type="button"
+              onClick={() => setShowViewerPreview((v) => !v)}
+              className={`inline-flex items-center gap-1 h-8 px-2 rounded-full text-xs font-medium transition ${
+                showViewerPreview ? "bg-white text-danger" : "bg-white/15 text-white hover:bg-white/25"
+              }`}
+              title="ראה את מה שהצופים רואים"
+            >
+              <Wifi className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{showViewerPreview ? "סגור preview" : "תצוגת צופים"}</span>
+            </button>
+          )}
           <Button
             size="sm"
             variant="secondary"
@@ -237,6 +254,29 @@ export function RabbiBroadcastStudio({
           </Button>
         </div>
       </div>
+
+      {/* Viewer preview — מציג בדיוק את ה-iframe שצופים רואים. דיאגנוסטיקה: אם הוא 404 גם כאן, ה-CF לא משדר */}
+      {showViewerPreview && viewerEmbedUrl && (
+        <div className="bg-black border-b border-white/10 p-3">
+          <div className="flex items-center justify-between gap-2 mb-2 text-white text-xs">
+            <div className="flex items-center gap-2">
+              <Wifi className="w-3.5 h-3.5 text-live" />
+              <span className="font-semibold">תצוגה לצופים (Cloudflare HLS)</span>
+              <span className="text-white/60 font-mono truncate max-w-[300px]" dir="ltr">{viewerEmbedUrl}</span>
+            </div>
+            <span className="text-white/60">אם 404 גם כאן → ה-stream לא מגיע ל-CF</span>
+          </div>
+          <div className="relative w-full max-w-md mx-auto aspect-video bg-black rounded-card overflow-hidden border border-white/20">
+            <iframe
+              src={`${viewerEmbedUrl}?muted=true&controls=true&letterboxColor=transparent`}
+              title="תצוגה כצופה"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main split */}
       <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
