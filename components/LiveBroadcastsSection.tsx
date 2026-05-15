@@ -15,6 +15,7 @@ export type LiveBroadcast = {
   title: string;
   rabbiName: string;
   rabbiSlug: string;
+  rabbiPhotoUrl?: string | null;
   embedUrl?: string | null;
   externalUrl?: string | null;
   posterUrl?: string | null;
@@ -30,6 +31,7 @@ export type NextBroadcast = {
   title: string;
   rabbiName: string;
   rabbiSlug: string;
+  rabbiPhotoUrl?: string | null;
   scheduledAt: string;
   posterUrl?: string | null;
 };
@@ -405,12 +407,22 @@ function LiveCardGrid({ b }: { b: LiveBroadcast }) {
             scrolling="no"
           />
         ) : b.externalUrl ? (
-          <a href={b.externalUrl} target="_blank" rel="noreferrer" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-live/80 to-primary/70 text-white">
-            <div className="text-center">
+          <a href={b.externalUrl} target="_blank" rel="noreferrer" className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-live/80 to-primary/70 text-white overflow-hidden">
+            {/* תמונת הרב כרקע, אם יש */}
+            {b.rabbiPhotoUrl && (
+              <Image src={b.rabbiPhotoUrl} alt={b.rabbiName} fill sizes="(max-width: 768px) 100vw, 500px" className="object-cover opacity-60" />
+            )}
+            <div className="relative text-center z-10 bg-black/30 backdrop-blur-sm rounded-btn px-3 py-2">
               <ExternalLink className="w-8 h-8 mx-auto mb-1" />
               <span className="text-sm font-bold">פתח שידור</span>
             </div>
           </a>
+        ) : b.rabbiPhotoUrl ? (
+          // אין embed/external — מציגים את תמונת הרב כתחליף (במקום הלוגו)
+          <Link href={lessonHref} className="absolute inset-0 block">
+            <Image src={b.rabbiPhotoUrl} alt={b.rabbiName} fill sizes="(max-width: 768px) 100vw, 500px" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          </Link>
         ) : (
           <Link href={lessonHref} className="absolute inset-0 bg-gradient-to-br from-paper-soft to-paper-warm flex items-center justify-center">
             <LogoIcon className="w-16 h-16 opacity-40" />
@@ -484,6 +496,8 @@ function LiveCardList({ b }: { b: LiveBroadcast }) {
           />
         ) : b.posterUrl ? (
           <Image src={b.posterUrl} alt={b.title} fill sizes="176px" className="object-cover" />
+        ) : b.rabbiPhotoUrl ? (
+          <Image src={b.rabbiPhotoUrl} alt={b.rabbiName} fill sizes="176px" className="object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-paper-soft to-paper-warm flex items-center justify-center">
             <LogoIcon className="w-10 h-10 opacity-40" />

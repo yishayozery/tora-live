@@ -30,14 +30,14 @@ async function getHomeData() {
       ],
     },
     include: {
-      rabbi: { select: { name: true, slug: true } },
+      rabbi: { select: { name: true, slug: true, photoUrl: true } },
       sources: { select: { id: true }, take: 1 },
     },
     take: 10,
   });
 
   // השיעור החי הבא — להציג כשאין שיעור חי כרגע
-  let nextLive: { id: string; title: string; rabbiName: string; rabbiSlug: string; scheduledAt: string; posterUrl: string | null } | null = null;
+  let nextLive: { id: string; title: string; rabbiName: string; rabbiSlug: string; rabbiPhotoUrl: string | null; scheduledAt: string; posterUrl: string | null } | null = null;
   if (liveLessons.length === 0) {
     const next = await db.lesson.findFirst({
       where: {
@@ -53,7 +53,7 @@ async function getHomeData() {
           { otherUrl: { not: null } },
         ],
       },
-      include: { rabbi: { select: { name: true, slug: true } } },
+      include: { rabbi: { select: { name: true, slug: true, photoUrl: true } } },
       orderBy: { scheduledAt: "asc" },
     });
     if (next) {
@@ -62,6 +62,7 @@ async function getHomeData() {
         title: next.title,
         rabbiName: next.rabbi?.name ?? (next as any).organizerName ?? "—",
         rabbiSlug: next.rabbi?.slug ?? "",
+        rabbiPhotoUrl: next.rabbi?.photoUrl ?? null,
         scheduledAt: next.scheduledAt.toISOString(),
         posterUrl: next.posterUrl,
       };
@@ -74,6 +75,7 @@ async function getHomeData() {
     title: l.title,
     rabbiName: l.rabbi?.name ?? (l as any).organizerName ?? "אירוע",
     rabbiSlug: l.rabbi?.slug ?? "",
+    rabbiPhotoUrl: l.rabbi?.photoUrl ?? null,
     viewerCount: l.viewCount,
     embedUrl: l.liveEmbedUrl,
     externalUrl: l.youtubeUrl ?? l.otherUrl,
@@ -101,7 +103,7 @@ async function getHomeData() {
       ],
     },
     include: {
-      rabbi: { select: { name: true, slug: true } },
+      rabbi: { select: { name: true, slug: true, photoUrl: true } },
       category: { select: { name: true } },
     },
     orderBy: { scheduledAt: "asc" },
@@ -136,7 +138,7 @@ async function getHomeData() {
       ],
     },
     include: {
-      rabbi: { select: { name: true, slug: true } },
+      rabbi: { select: { name: true, slug: true, photoUrl: true } },
       category: { select: { name: true } },
     },
     orderBy: { viewCount: "desc" },
@@ -233,6 +235,7 @@ export default async function HomePage() {
     title: nextLive.title,
     rabbiName: nextLive.rabbiName,
     rabbiSlug: nextLive.rabbiSlug,
+    rabbiPhotoUrl: (nextLive as any).rabbiPhotoUrl ?? null,
     scheduledAt: nextLive.scheduledAt,
     posterUrl: nextLive.posterUrl,
   } : null;
