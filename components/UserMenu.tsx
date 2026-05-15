@@ -12,6 +12,9 @@ import {
   ShieldCheck,
   Radio,
   ChevronDown,
+  Heart,
+  MessageSquare,
+  HandHeart,
 } from "lucide-react";
 
 type Props = {
@@ -73,6 +76,9 @@ export function UserMenu({ name, role }: Props) {
           {!isRabbi && !isAdmin && (
             <>
               <MenuItem href="/my/schedule" icon={Calendar} onClick={() => setOpen(false)}>הלוח שלי</MenuItem>
+              <MenuItem href="/my/rabbis" icon={Heart} onClick={() => setOpen(false)}>הרבנים שלי</MenuItem>
+              <MenuItem href="/my/requests" icon={MessageSquare} onClick={() => setOpen(false)}>הפניות שלי</MenuItem>
+              <MenuItem href="/my/donations" icon={HandHeart} onClick={() => setOpen(false)}>תרומות</MenuItem>
               <MenuItem href="/my/profile" icon={User} onClick={() => setOpen(false)}>פרופיל</MenuItem>
             </>
           )}

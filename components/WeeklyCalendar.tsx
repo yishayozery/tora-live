@@ -311,46 +311,50 @@ export function WeeklyCalendar({
             </div>
           </div>
 
-          {/* שורה 2: רב · נושא · שפה · נקה */}
-          <div className="flex gap-2 flex-wrap items-center">
-            <select value={rabbiFilter} onChange={(e) => setRabbiFilter(e.target.value)}
-              className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-              aria-label="רב">
-              <option value="">רב · כולם</option>
-              {rabbiOptions.map(([name, count]) => (
-                <option key={name} value={name}>{name} ({count})</option>
-              ))}
-            </select>
+          {/* שורה 2: רב · נושא · שפה · נקה — מוצגת רק אם יש 2+ אופציות בכלל אחד */}
+          {(rabbiOptions.length > 1 || categoryOptions.length > 0 || availableLanguages.length > 1 || hasActiveFilter) && (
+            <div className="flex gap-2 flex-wrap items-center">
+              {rabbiOptions.length > 1 && (
+                <select value={rabbiFilter} onChange={(e) => setRabbiFilter(e.target.value)}
+                  className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${rabbiFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                  aria-label="רב">
+                  <option value="">רב · כולם</option>
+                  {rabbiOptions.map(([name, count]) => (
+                    <option key={name} value={name}>{name} ({count})</option>
+                  ))}
+                </select>
+              )}
 
-            {categoryOptions.length > 0 && (
-              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
-                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                aria-label="נושא">
-                <option value="">נושא · הכל</option>
-                {categoryOptions.map(([cat, count]) => (
-                  <option key={cat} value={cat}>{cat} ({count})</option>
-                ))}
-              </select>
-            )}
+              {categoryOptions.length > 0 && (
+                <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
+                  className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${categoryFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                  aria-label="נושא">
+                  <option value="">נושא · הכל</option>
+                  {categoryOptions.map(([cat, count]) => (
+                    <option key={cat} value={cat}>{cat} ({count})</option>
+                  ))}
+                </select>
+              )}
 
-            {availableLanguages.length > 1 && (
-              <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}
-                className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${languageFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
-                aria-label="שפה">
-                <option value="">שפה · הכל</option>
-                {availableLanguages.map((code) => (
-                  <option key={code} value={code}>{languageLabel(code) || code}</option>
-                ))}
-              </select>
-            )}
+              {availableLanguages.length > 1 && (
+                <select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}
+                  className={`h-9 px-3 rounded-btn border text-sm bg-white transition ${languageFilter ? "border-primary text-primary font-medium" : "border-border text-ink-soft"}`}
+                  aria-label="שפה">
+                  <option value="">שפה · הכל</option>
+                  {availableLanguages.map((code) => (
+                    <option key={code} value={code}>{languageLabel(code) || code}</option>
+                  ))}
+                </select>
+              )}
 
-            {hasActiveFilter && (
-              <button type="button" onClick={clearAll}
-                className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium mr-auto">
-                נקה סינון
-              </button>
-            )}
-          </div>
+              {hasActiveFilter && (
+                <button type="button" onClick={clearAll}
+                  className="h-9 px-3 rounded-btn text-sm text-primary hover:underline font-medium mr-auto">
+                  נקה סינון
+                </button>
+              )}
+            </div>
+          )}
           </div>
         </div>
       )}
