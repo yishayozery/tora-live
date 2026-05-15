@@ -42,10 +42,16 @@ export default async function LessonsArchivePage({ searchParams }: { searchParam
     dateFilter = { lt: startOfToday };
   }
 
+  // הארכיון כולל:
+  // 1. שיעורים שהתאריך שלהם עבר (לפי dateFilter)
+  // 2. שיעורים שכבר שודרו (streamId לא null), גם אם התאריך שלהם עתידי — הם עברו לארכיון אחרי שידור.
+  // מקרי קצה: אם המשתמש בחר שנה ספציפית — מסננים רק לפי תאריך (לא נכלל שודרו עתידיים בשנה הנוכחית).
   const past = await db.lesson.findMany({
     where: {
       rabbiId: rabbi.id,
-      scheduledAt: dateFilter,
+      OR: year
+        ? [{ scheduledAt: dateFilter }]
+        : [{ scheduledAt: dateFilter }, { streamId: { not: null }, isLive: false }],
       broadcastType: type ? type : { not: "PREP" },
       ...(q
         ? {
