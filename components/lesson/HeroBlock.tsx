@@ -45,12 +45,20 @@ export function HeroBlock({ lesson, rabbi }: Props) {
   });
 
   if (state === "LIVE") {
+    // עדיפות: BROWSER+playback → embed יוטיוב/Zoom → URL חיצוני (button)
+    const externalLink = pickExternalLiveUrl({
+      liveEmbedUrl: lesson.liveEmbedUrl,
+      youtubeUrl: lesson.youtubeUrl,
+      otherUrl: lesson.otherUrl,
+    });
+
     return (
       <div className="relative rounded-card overflow-hidden border-2 border-live shadow-soft">
         <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-live px-3 py-1 text-xs font-bold text-white shadow-lg">
           <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
           משדר עכשיו
         </span>
+
         {lesson.liveMethod === "BROWSER" && lesson.playbackUrl ? (
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             <iframe
@@ -63,7 +71,43 @@ export function HeroBlock({ lesson, rabbi }: Props) {
           </div>
         ) : lesson.liveEmbedUrl ? (
           <VideoEmbed url={lesson.liveEmbedUrl} title={lesson.title} />
-        ) : null}
+        ) : externalLink ? (
+          // אין embed זמין — מציגים cover + CTA לקישור חיצוני (Zoom וכו׳ שלא ניתן להטמעה)
+          <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+            {lesson.posterUrl ? (
+              <Image src={lesson.posterUrl} alt={lesson.title} fill sizes="(max-width: 768px) 100vw, 800px" className="object-cover" priority />
+            ) : rabbi?.photoUrl ? (
+              <Image src={rabbi.photoUrl} alt={rabbi.name} fill sizes="(max-width: 768px) 100vw, 800px" className="object-cover" priority />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-live via-primary to-gold" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end items-start p-5 sm:p-7">
+              <div className="hebrew-serif text-2xl sm:text-3xl font-bold text-white mb-3 drop-shadow">
+                {lesson.title}
+              </div>
+              <a
+                href={externalLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 h-12 px-5 rounded-btn bg-live hover:bg-live/90 text-white text-base font-bold shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <PlayCircle className="w-5 h-5" />
+                כנס לשידור החי ←
+                <ExternalLink className="w-4 h-4 opacity-80" />
+              </a>
+            </div>
+          </div>
+        ) : (
+          // משדר אבל אין שום קישור — fallback ניטרלי
+          <div className="relative w-full bg-paper-warm flex items-center justify-center text-center p-8" style={{ minHeight: "300px" }}>
+            <div>
+              <Radio className="w-12 h-12 text-live mx-auto mb-3 animate-pulse" />
+              <p className="text-ink font-semibold">השידור החי החל אבל אנו עדיין מקבלים את הסטרים…</p>
+              <p className="text-sm text-ink-muted mt-1">נסה לרענן את הדף בעוד 10-20 שניות.</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

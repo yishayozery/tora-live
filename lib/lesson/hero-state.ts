@@ -34,7 +34,9 @@ export function determineHeroState(input: HeroInput): HeroState {
     ? new Date(start.getTime() + input.durationMin * 60_000)
     : null;
 
-  if (input.isLive && (input.playbackUrl || input.liveEmbedUrl)) return "LIVE";
+  // אם מסומן כמשדר עכשיו — תמיד LIVE (גם אם יש רק youtubeUrl/otherUrl).
+  // ה-HeroBlock יחליט מה להציג בפועל (iframe / VideoEmbed / כפתור-חיצוני).
+  if (input.isLive) return "LIVE";
 
   // הסתיים?
   const hasEnded = end ? now.getTime() > end.getTime() : now.getTime() > start.getTime() + 4 * 3_600_000;
