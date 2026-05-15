@@ -229,9 +229,9 @@ export default async function LessonPage({ params }: { params: { id: string } })
             {lesson.durationMin && <span>· {lesson.durationMin} דק׳</span>}
           </div>
 
-          {/* מיקום פיזי */}
+          {/* מיקום פיזי — עם ניווט מהיר ל-Google Maps ו-Waze */}
           {(lesson as any).locationName && (
-            <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn">
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn flex-wrap">
               <span aria-hidden>📍</span>
               <span>{(lesson as any).locationName}</span>
               {(lesson as any).locationUrl && (
@@ -240,9 +240,17 @@ export default async function LessonPage({ params }: { params: { id: string } })
                   target="_blank" rel="noreferrer"
                   className="text-primary text-xs hover:underline"
                 >
-                  במפה ←
+                  Google Maps ←
                 </a>
               )}
+              <a
+                href={`https://waze.com/ul?q=${encodeURIComponent((lesson as any).locationName)}&navigate=yes`}
+                target="_blank" rel="noreferrer"
+                className="text-[#33CCFF] text-xs font-semibold hover:underline"
+                title="נווט עם Waze"
+              >
+                Waze ←
+              </a>
             </div>
           )}
 

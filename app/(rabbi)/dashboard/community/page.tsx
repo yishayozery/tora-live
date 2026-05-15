@@ -74,40 +74,6 @@ export default async function CommunityPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      {/* תצוגת העמוד שלי — preview של עמוד הרב הציבורי */}
-      <Card className="bg-paper-warm border-border-warm">
-        <div className="flex items-start gap-3 mb-3">
-          <Eye className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <div className="font-bold text-ink mb-1">העמוד הציבורי שלך</div>
-            <p className="text-xs text-ink-muted mb-3">
-              ככה תלמיד שלא מחובר רואה אותך כשהוא מגיע לעמוד שלך. תוכל לערוך ב-{" "}
-              <Link href="/dashboard/settings" className="text-primary hover:underline">הגדרות פרופיל</Link>
-              {" "}או להוסיף הודעה בסלייד דרך{" "}
-              <Link href="/dashboard/messages" className="text-primary hover:underline">הודעות לתלמידים</Link>.
-            </p>
-            <a
-              href={`/rabbi/${rabbi.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary font-semibold hover:underline"
-            >
-              פתח בכרטיסייה חדשה <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </div>
-        {/* תצוגה מקדימה ב-iframe — מאפשר לרב לראות בלי לעזוב את הדשבורד */}
-        <div className="relative rounded-card overflow-hidden border border-border bg-white" style={{ height: "60vh", minHeight: 400 }}>
-          <iframe
-            src={`/rabbi/${rabbi.slug}`}
-            title={`עמוד ציבורי של ${rabbi.name}`}
-            className="absolute inset-0 w-full h-full"
-            loading="lazy"
-            sandbox="allow-same-origin allow-scripts"
-          />
-        </div>
-      </Card>
-
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <Card className="text-center">
