@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Accessibility, Globe } from "lucide-react";
+import { getBuildVersion } from "@/lib/version";
 
 export function SiteFooter() {
   return (
@@ -50,7 +51,23 @@ export function SiteFooter() {
           <Globe className="w-3 h-3" />
           English
         </Link>
+        <BuildVersionBadge />
       </div>
     </footer>
+  );
+}
+
+function BuildVersionBadge() {
+  const v = getBuildVersion();
+  return (
+    <a
+      href="/api/version"
+      target="_blank"
+      rel="noreferrer"
+      className="text-[10px] font-mono text-ink-muted/60 hover:text-primary"
+      title={`Branch: ${v.branch} · ${v.commitMessage}`}
+    >
+      v.{v.display}
+    </a>
   );
 }
