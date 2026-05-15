@@ -21,13 +21,23 @@ export async function GET() {
     where: { rabbiId: rabbi.id },
     orderBy: { createdAt: "desc" },
     include: {
-      student: { select: { name: true } },
+      // טלפון של התלמיד נחשף לרב כדי שיוכל להתקשר / לשלוח WhatsApp.
+      // המייל מגיע מ-User. שניהם רק בידי הרב שהפנייה מיועדת אליו.
+      student: {
+        select: {
+          name: true,
+          phoneE164: true,
+          user: { select: { email: true } },
+        },
+      },
     },
   });
 
   const result = requests.map((r) => ({
     id: r.id,
     studentName: r.student.name,
+    studentPhone: r.student.phoneE164,
+    studentEmail: r.student.user?.email ?? null,
     message: r.message,
     reply: r.reply,
     requestType: r.requestType,

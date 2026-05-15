@@ -14,12 +14,16 @@ import {
   XCircle,
   Globe,
   Lock,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { cn, formatHebrewDateLetters } from "@/lib/utils";
 
 type ContactReq = {
   id: string;
   studentName: string;
+  studentPhone: string | null;
+  studentEmail: string | null;
   message: string;
   reply: string | null;
   requestType: string | null;
@@ -30,6 +34,62 @@ type ContactReq = {
   createdAt: string;
   repliedAt: string | null;
 };
+
+// Normalize Israeli phone for tel:/wa.me links. tel: accepts any; wa.me needs E.164 without +.
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/\s+/g, "")}`;
+}
+// כפתורי יצירת קשר מהיר עם התלמיד — טלפון / WhatsApp / מייל
+function ContactQuickActions({ phone, email, name }: { phone: string | null; email: string | null; name?: string }) {
+  if (!phone && !email) return null;
+  return (
+    <span className="inline-flex items-center gap-1">
+      {phone && (
+        <>
+          <a
+            href={telHref(phone)}
+            className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+            title={`חיוג ל-${phone}`}
+            aria-label="חיוג"
+          >
+            <Phone className="w-3.5 h-3.5" />
+          </a>
+          <a
+            href={waHref(phone, name)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#25D366]/15 text-[#1E8E47] hover:bg-[#25D366]/25"
+            title={`WhatsApp ל-${phone}`}
+            aria-label="WhatsApp"
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+          </a>
+        </>
+      )}
+      {email && (
+        <a
+          href={`mailto:${email}`}
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-paper-soft text-ink-soft hover:bg-paper-warm hover:text-ink"
+          title={`מייל ל-${email}`}
+          aria-label="מייל"
+        >
+          <Mail className="w-3.5 h-3.5" />
+        </a>
+      )}
+    </span>
+  );
+}
+
+function waHref(phone: string, name?: string): string {
+  // wa.me דורש מספר ללא + ובלי 0 מקדים. ניקח את התווים הספרתיים בלבד ונוסיף קידומת אם חסר.
+  let digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("0")) digits = "972" + digits.slice(1);
+  else if (digits.startsWith("972")) {
+    /* keep */
+  } else if (!digits.startsWith("9")) digits = "972" + digits;
+  const greeting = name ? `שלום ${name}, ` : "שלום, ";
+  return `https://wa.me/${digits}?text=${encodeURIComponent(greeting + "פנייתך התקבלה ב-TORA_LIVE.")}`;
+}
 
 const REQUEST_TYPE_LABELS: Record<string, string> = {
   SINGLE_LESSON: "שיעור בודד",
@@ -336,10 +396,11 @@ export default function RabbiRequestsPage() {
               <div className="space-y-3">
                 {pending.map((r) => (
                   <Card key={r.id} className="border-gold/20">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
+                    <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium text-ink">{r.studentName}</span>
-                        <span className="text-xs text-ink-muted mr-2">{formatDate(r.createdAt)}</span>
+                        <span className="text-xs text-ink-muted">{formatDate(r.createdAt)}</span>
+                        <ContactQuickActions phone={r.studentPhone} email={r.studentEmail} name={r.studentName} />
                       </div>
                       <span className="text-xs bg-gold/10 text-gold px-2 py-0.5 rounded-full">ממתין</span>
                     </div>
@@ -460,10 +521,11 @@ export default function RabbiRequestsPage() {
                   const sc = STATUS_CONFIG[r.status] || STATUS_CONFIG.REPLIED;
                   return (
                     <Card key={r.id} className={cn("border", sc.border)}>
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
+                      <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium text-ink">{r.studentName}</span>
-                          <span className="text-xs text-ink-muted mr-2">{formatDate(r.createdAt)}</span>
+                          <span className="text-xs text-ink-muted">{formatDate(r.createdAt)}</span>
+                          <ContactQuickActions phone={r.studentPhone} email={r.studentEmail} name={r.studentName} />
                         </div>
                         <span className={cn("text-xs px-2 py-0.5 rounded-full", sc.bg, sc.text)}>
                           {sc.label}
