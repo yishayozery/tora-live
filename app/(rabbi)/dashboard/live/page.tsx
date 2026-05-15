@@ -16,13 +16,18 @@ export default async function LivePage() {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
-  // רק שיעורים מהיום והלאה. הקלטות עוברות אוטומטית לעמוד "שיעורים שלי".
+  // רק שיעורים מהיום והלאה ושעוד לא שודרו. שיעורים ששודרו עוברים לארכיון.
+  // משאירים שיעורים שעדיין isLive=true גם אם streamId קיים (הם משדרים עכשיו).
   const lessons = await db.lesson.findMany({
     where: {
       rabbiId: rabbi.id,
       scheduledAt: { gte: startOfToday },
-      // אירועי הכנה הם פרטיים — לא משדרים אותם
       broadcastType: { not: "PREP" },
+      // לא הוצג בארכיון אם: עדיין משדר (isLive=true) או מעולם לא שודר (streamId=null)
+      OR: [
+        { isLive: true },
+        { streamId: null },
+      ],
     },
     orderBy: { scheduledAt: "asc" },
     take: 30,
