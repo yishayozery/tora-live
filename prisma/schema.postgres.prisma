@@ -58,6 +58,9 @@ model Rabbi {
   messages     RabbiMessage[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+
+  // hot path: /rabbis — list APPROVED, non-blocked rabbis
+  @@index([status, isBlocked, name])
 }
 
 // ---------- הודעת רב (slideshow ציבורי) ----------
@@ -183,6 +186,13 @@ model Lesson {
   @@index([rabbiId, scheduledAt])
   @@index([recurringGroupId])
   @@index([templateId])
+  // hot path: לוח הציבורי + LIVE NOW + פילטרים בארכיון
+  @@index([isPublic, approvalStatus, isSuspended, scheduledAt])
+  @@index([isLive, isPublic, approvalStatus])
+  @@index([broadcastType, scheduledAt])
+  @@index([organizerUserId])
+  @@index([categoryId])
+  @@index([sourceId])
 }
 
 // ---------- שיעור קבוע (תבנית) ----------

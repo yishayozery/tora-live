@@ -5,6 +5,8 @@ vi.mock("@/lib/db", () => {
   const lesson = {
     findUnique: vi.fn(),
     update: vi.fn(async ({ data }) => ({ id: "L1", ...data })),
+    // נעילה אטומית — מחזיר count=1 בברירת מחדל (תפס את ה-lock)
+    updateMany: vi.fn(async () => ({ count: 1 })),
   };
   return { db: { lesson } };
 });
@@ -121,9 +123,10 @@ describe("POST /api/lessons/[id]/live-by-code", () => {
     const data = await res.json();
     expect(data.ok).toBe(true);
     expect(data.isLive).toBe(true);
+    // isLive נקבע ע"י ה-lock (updateMany), שאר השדות בעדכון הסופי
+    expect(db.lesson.updateMany).toHaveBeenCalled();
     expect(db.lesson.update).toHaveBeenCalledOnce();
     const args = (db.lesson.update as any).mock.calls[0][0];
-    expect(args.data.isLive).toBe(true);
     expect(args.data.liveMethod).toBe("YOUTUBE");
     expect(args.data.liveEmbedUrl).toBe("https://youtube.com/live/abc");
   });

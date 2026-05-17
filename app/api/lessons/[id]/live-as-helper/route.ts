@@ -60,10 +60,18 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "ניתן לפתוח שידור רק בסמוך לזמן השיעור." }, { status: 403 });
   }
 
+  // נעילה אטומית — שני עוזרים שלחצו במקביל לא יציגו שני שידורים סותרים
+  const lock = await db.lesson.updateMany({
+    where: { id: params.id, isLive: false },
+    data: { isLive: true },
+  });
+  if (lock.count !== 1) {
+    return NextResponse.json({ error: "השידור כבר פעיל" }, { status: 409 });
+  }
+
   await db.lesson.update({
     where: { id: params.id },
     data: {
-      isLive: true,
       liveMethod: parsed.data.liveMethod,
       liveEmbedUrl: parsed.data.liveEmbedUrl,
       streamId: null,

@@ -13,9 +13,44 @@ const ALLOWED = new Set([
   "application/pdf",
 ]);
 
+// rate-limit פר-משתמש — מונע ספאם 8MB אפילו ממשתמשים רשומים.
+// 10 העלאות / 10 דקות. במולטי-instance זה לא הרמטי אבל מספיק ל-Vercel הביתי.
+const userUploads = new Map<string, { count: number; firstAt: number }>();
+const MAX_UPLOADS_PER_WINDOW = 10;
+const UPLOAD_WINDOW_MS = 10 * 60_000;
+
+function checkUploadLimit(userId: string): boolean {
+  const now = Date.now();
+  const rec = userUploads.get(userId);
+  if (!rec || now - rec.firstAt > UPLOAD_WINDOW_MS) {
+    userUploads.set(userId, { count: 1, firstAt: now });
+    return true;
+  }
+  rec.count += 1;
+  return rec.count <= MAX_UPLOADS_PER_WINDOW;
+}
+
 export async function POST(req: Request) {
   // רק משתמש מחובר — מונע ספאם בלתי-מזוהה
   const session = await requireSession();
+
+  // env check ראשון — לא רוצים לבזבז זמן על parsing של formData אם אין לאן להעלות
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return NextResponse.json(
+      { error: "העלאת קבצים לא מוגדרת בשרת. צור קשר עם האדמין." },
+      { status: 503 },
+    );
+  }
+
+  if (!checkUploadLimit(session.user.id)) {
+    return NextResponse.json({ error: "יותר מדי העלאות. נסה שוב בעוד כמה דקות." }, { status: 429 });
+  }
+
+  // בדיקת Content-Length מוקדמת — חוסך parsing של 100MB body שמייד יידחה
+  const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
+  if (contentLength > MAX_BYTES + 1024) { // +1KB ל-multipart overhead
+    return NextResponse.json({ error: "הקובץ גדול מדי — מקסימום 8MB" }, { status: 413 });
+  }
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
@@ -27,14 +62,6 @@ export async function POST(req: Request) {
   }
   if (file.size > MAX_BYTES) {
     return NextResponse.json({ error: "הקובץ גדול מדי — מקסימום 8MB" }, { status: 413 });
-  }
-
-  // אם אין token של Blob — נחזיר שגיאה ברורה במקום קריסה
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json(
-      { error: "העלאת קבצים לא מוגדרת בשרת. צור קשר עם האדמין." },
-      { status: 503 },
-    );
   }
 
   // שם ייחודי — uid של המשתמש + timestamp + שם מקורי "נקי"

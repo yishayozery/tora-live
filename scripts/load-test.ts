@@ -32,23 +32,20 @@ async function main() {
   console.log(`🔥 Load test against ${BASE}`);
   console.log(`   Concurrency: ${concurrency}, Total requests: ${total}`);
 
-  const jobs: Promise<Result>[] = [];
-  const pending = new Set<Promise<Result>>();
   const results: Result[] = [];
   const t0 = Date.now();
 
-  for (let i = 0; i < total; i++) {
-    const page = PAGES[i % PAGES.length];
-    const p = hit(BASE + page).then((r) => { pending.delete(p); return r; });
-    pending.add(p);
-    jobs.push(p);
-    if (pending.size >= concurrency) {
-      const r = await Promise.race(pending);
-      results.push(r);
+  // pool מבוסס workers — כל worker שואב מ-queue ומחזיר תוצאה.
+  let nextIdx = 0;
+  async function worker() {
+    while (true) {
+      const i = nextIdx++;
+      if (i >= total) return;
+      const page = PAGES[i % PAGES.length];
+      results.push(await hit(BASE + page));
     }
   }
-  const remaining = await Promise.all(jobs.filter(j => pending.has(j) || !results.includes({} as any)));
-  results.push(...remaining.filter(r => !results.includes(r)));
+  await Promise.all(Array.from({ length: concurrency }, worker));
 
   const total_ms = Date.now() - t0;
 

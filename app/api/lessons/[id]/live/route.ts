@@ -30,6 +30,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (isLive) {
     const method = liveMethod ?? "YOUTUBE";
 
+    // נעילה אטומית — שני clicks מקבילים של הרב לא ייצרו 2 Cloudflare inputs (כל אחד $5/חודש).
+    if (!lesson.isLive) {
+      const lock = await db.lesson.updateMany({
+        where: { id: params.id, rabbiId: rabbi.id, isLive: false },
+        data: { isLive: true },
+      });
+      if (lock.count !== 1) {
+        return NextResponse.json({ error: "השידור כבר פעיל" }, { status: 409 });
+      }
+    }
+
     if (method === "BROWSER") {
       // שידור מהדפדפן — יצירת Cloudflare Stream Live Input
       // אם Cloudflare מסרב (אין מנוי, טוקן לא תקין וכו') — נחזיר הודעה ברורה ל-UI
@@ -37,6 +48,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       try {
         input = await createLiveInput(`${rabbi.name} — ${lesson.title}`);
       } catch (err: any) {
+        // ה-CF נכשל — מבטלים את ה-lock כדי שניסיון חוזר יעבוד
+        await db.lesson.updateMany({ where: { id: params.id, streamId: null }, data: { isLive: false } });
         const msg = err?.message || "";
         let userMsg = `Cloudflare סירב ליצור שידור: ${msg}`;
         if (/subscription/i.test(msg) || /stream.*not.*enabled/i.test(msg)) {
@@ -52,10 +65,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       const playback = getPlaybackUrl(input.uid);
       const embed = getEmbedUrl(input.uid);
 
+      // isLive כבר true מהנעילה — ממלאים את שאר השדות
       await db.lesson.update({
         where: { id: params.id },
         data: {
-          isLive: true,
           liveMethod: "BROWSER",
           streamId: input.uid,
           playbackUrl: playback,
@@ -75,11 +88,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       });
     }
 
-    // YouTube / External — רגיל embed
+    // YouTube / External — embed של URL חיצוני. isLive כבר true מהנעילה.
     await db.lesson.update({
       where: { id: params.id },
       data: {
-        isLive: true,
         liveMethod: method,
         liveEmbedUrl: liveEmbedUrl || null,
         streamId: null,
