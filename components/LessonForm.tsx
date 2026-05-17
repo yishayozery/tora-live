@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,7 @@ import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { broadcastIcon, ACCENT_BORDER, ACCENT_TEXT } from "@/components/BroadcastTypeBadge";
 import { HebrewDateHint } from "@/components/HebrewDateHint";
 import { HebrewDatePicker } from "@/components/HebrewDatePicker";
+import { Upload, X, FileImage, Loader2 } from "lucide-react";
 
 type Category = { id: string; name: string };
 
@@ -65,6 +66,7 @@ export function LessonForm({
     locationName: initial?.locationName ?? "",
     locationUrl: initial?.locationUrl ?? "",
     isPublic: initial?.isPublic ?? true,
+    posterUrl: initial?.posterUrl ?? "",
     isRecurring: initial?.isRecurring ?? false,
     recurringFreq: "WEEKLY" as "DAILY" | "WEEKLY",
     recurringDay: new Date().getDay(),
@@ -73,6 +75,26 @@ export function LessonForm({
   });
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingPoster, setUploadingPoster] = useState(false);
+  const posterInputRef = useRef<HTMLInputElement>(null);
+
+  async function uploadPosterFile(file: File) {
+    setErr(null);
+    setUploadingPoster(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload/poster", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErr(data?.error || "שגיאה בהעלאת הפוסטר");
+        return;
+      }
+      setForm((f) => ({ ...f, posterUrl: data.url }));
+    } finally {
+      setUploadingPoster(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,7 +166,9 @@ export function LessonForm({
           : "✅ השיעור נוצר בהצלחה" + (form.prepEventAt ? " (כולל אירוע ההכנה)" : "");
       window.alert(msg);
     }
-    router.push("/dashboard/lessons");
+    // אחרי יצירה: עוברים ללוח השידורים (שיעורים קרובים), לא לארכיון.
+    // בעריכה — חוזרים לארכיון אם השיעור כבר היה שם.
+    router.push(lessonId ? "/dashboard/lessons" : "/dashboard/live");
     router.refresh();
   }
 
@@ -399,6 +423,53 @@ export function LessonForm({
             אם השיעור מוקלט/משודר במקום אחר. לשידור חי ב-real-time השתמש ב״התחל שידור״ מדף השיעור.
           </p>
         </F>
+        {/* פוסטר — תמיד זמין, חשוב במיוחד לימי עיון */}
+        <F label={form.broadcastType === "SEMINAR" ? "פוסטר היום עיון (חובה — מומלץ)" : "פוסטר / תמונה (אופציונלי)"}>
+          {form.posterUrl ? (
+            <div className="flex items-center gap-3 p-3 rounded-btn border border-live/30 bg-live/5">
+              <FileImage className="w-5 h-5 text-live shrink-0" aria-hidden />
+              <a
+                href={form.posterUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 text-sm text-live hover:underline truncate"
+                dir="ltr"
+              >
+                {form.posterUrl.split("/").pop() || form.posterUrl}
+              </a>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, posterUrl: "" })}
+                className="p-1 text-ink-muted hover:text-danger"
+                aria-label="הסר פוסטר"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <input
+                ref={posterInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) uploadPosterFile(f);
+                }}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => posterInputRef.current?.click()}
+                disabled={uploadingPoster}
+                className="w-full inline-flex items-center justify-center gap-2 h-11 px-4 rounded-btn border-2 border-dashed border-primary/40 bg-primary-soft/30 text-primary text-sm font-medium hover:bg-primary-soft hover:border-primary transition disabled:opacity-50"
+              >
+                {uploadingPoster ? (<><Loader2 className="w-4 h-4 animate-spin" />מעלה...</>) : (<><Upload className="w-4 h-4" />העלה פוסטר (תמונה / PDF, עד 8MB)</>)}
+              </button>
+            </>
+          )}
+        </F>
+
         <F label="קישור ל-PDF מקורות">
           <input type="url" value={form.sourcesPdfUrl} onChange={(e) => setForm({ ...form, sourcesPdfUrl: e.target.value })} className="input" dir="ltr" />
         </F>

@@ -48,6 +48,13 @@ export const BROADCAST_TYPES = [
     description: "תפילות, סליחות, תהילים, ועוד",
   },
   {
+    value: "SEMINAR",
+    label: "יום עיון",
+    icon: "Calendar",
+    accent: "purple",
+    description: "יום עיון, כנס תורני, מפגש לימוד מורחב — לרוב עם פוסטר ופרטים מורחבים",
+  },
+  {
     value: "OTHER",
     label: "אחר",
     icon: "Sparkles",

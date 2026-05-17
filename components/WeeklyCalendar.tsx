@@ -30,6 +30,8 @@ type CalendarLesson = {
   canStartBroadcast?: boolean;
   /** האם המשתמש הנוכחי כבר סימן את השיעור ללוח האישי שלו */
   bookmarked?: boolean;
+  /** פוסטר של יום עיון — אם קיים, מוצג בכותרת היום */
+  posterUrl?: string | null;
 };
 
 const DAY_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
@@ -40,7 +42,7 @@ function resolveVariant(l: CalendarLesson): "lesson" | "live" | "event" | "appro
   if (l.variant) return l.variant;
   if (l.isLive) return "live";
   // יום עיון / אירוע — לפי broadcastType או משך > 90 דק'
-  if (l.broadcastType === "EVENT" || (l.durationMin && l.durationMin >= 90)) return "event";
+  if (l.broadcastType === "SEMINAR" || l.broadcastType === "EVENT" || (l.durationMin && l.durationMin >= 90)) return "event";
   return "lesson";
 }
 
@@ -439,13 +441,17 @@ export function WeeklyCalendar({
             const isSabbath = day.getDay() === 6;
             const holiday = getHebrewHoliday(day);
             const dayLessons = lessonsByDate.get(day.toDateString()) ?? [];
+            const seminars = dayLessons.filter((l) => l.broadcastType === "SEMINAR");
+            const nonSeminars = dayLessons.filter((l) => l.broadcastType !== "SEMINAR");
             return (
               <div key={i} className={cn(
                 "rounded-card border overflow-hidden",
+                seminars.length > 0 ? "border-purple-400 shadow-card" :
                 holiday ? "border-gold/30" : isSabbath ? "border-border" : isToday ? "border-primary" : "border-border"
               )}>
                 <div className={cn(
                   "px-3 py-2 flex items-center justify-between gap-2",
+                  seminars.length > 0 ? "bg-gradient-to-l from-purple-600 to-purple-500 text-white" :
                   holiday ? "bg-gold/10" : isSabbath ? "bg-paper-warm/50" : isToday ? "bg-primary text-white" : "bg-paper-soft"
                 )}>
                   <div className="flex items-center gap-2 text-sm font-bold flex-wrap">
@@ -460,7 +466,26 @@ export function WeeklyCalendar({
                   </span>
                 </div>
                 <div className="p-2 space-y-1.5 bg-white">
-                  {dayLessons.map((l) => {
+                  {/* באנר ימי עיון — מודגש בראש היום */}
+                  {seminars.map((l) => (
+                    <Link
+                      key={l.id}
+                      href={l.href ?? `/lesson/${l.id}`}
+                      className="block rounded-btn border-2 border-purple-400 bg-gradient-to-l from-purple-600 to-purple-500 text-white p-2.5 hover:shadow-card transition"
+                    >
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span aria-hidden>📜</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-90">יום עיון</span>
+                        <span className="mr-auto text-xs opacity-90 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
+                        </span>
+                      </div>
+                      <div className="font-bold text-sm leading-tight">{l.title}</div>
+                      <div className="text-xs opacity-80 mt-0.5">{l.rabbiName}</div>
+                    </Link>
+                  ))}
+                  {nonSeminars.map((l) => {
                     const variant = resolveVariant(l);
                     const cls = variant === "live"
                       ? "bg-live/10 text-live border-live/20"
@@ -516,6 +541,9 @@ export function WeeklyCalendar({
           const hebrewDay = formatHebrewDayOnly(day);
           const hebrewMonth = formatHebrewMonthOnly(day);
           const dayLessons = lessonsByDate.get(day.toDateString()) ?? [];
+          // ימי עיון של היום — מודגשים בכותרת היום עם פוסטר ועיצוב מיוחד
+          const seminars = dayLessons.filter((l) => l.broadcastType === "SEMINAR");
+          const nonSeminars = dayLessons.filter((l) => l.broadcastType !== "SEMINAR");
 
           return (
             <div
@@ -523,13 +551,15 @@ export function WeeklyCalendar({
               className={cn(
                 "min-h-[100px] sm:min-h-[120px] rounded-card border p-2 transition",
                 // רקע
-                holiday
-                  ? "bg-gold/5 border-gold/30"
-                  : isSabbath
-                    ? "bg-paper-warm/40 border-border"
-                    : isToday
-                      ? "border-primary bg-primary-soft/20"
-                      : "border-border bg-white"
+                seminars.length > 0
+                  ? "bg-gradient-to-b from-purple-50 to-white border-purple-300 shadow-soft"
+                  : holiday
+                    ? "bg-gold/5 border-gold/30"
+                    : isSabbath
+                      ? "bg-paper-warm/40 border-border"
+                      : isToday
+                        ? "border-primary bg-primary-soft/20"
+                        : "border-border bg-white"
               )}
             >
               {/* כותרת יום — תאריך עברי באותיות + יום בשבוע במובייל */}
@@ -549,11 +579,31 @@ export function WeeklyCalendar({
                 </div>
               )}
 
+              {/* === באנר יום עיון — מודגש בכותרת היום === */}
+              {seminars.map((l) => (
+                <Link
+                  key={l.id}
+                  href={l.href ?? `/lesson/${l.id}`}
+                  className="block mb-1.5 rounded-btn border border-purple-400 bg-gradient-to-l from-purple-600 to-purple-500 text-white p-1.5 hover:shadow-card transition group"
+                  title={`יום עיון: ${l.title}`}
+                >
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-[10px]" aria-hidden>📜</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wide opacity-90">יום עיון</span>
+                  </div>
+                  <div className="font-bold text-[11px] leading-tight line-clamp-2 group-hover:underline">{l.title}</div>
+                  <div className="flex items-center gap-1 text-[10px] opacity-90 mt-0.5">
+                    <Clock className="w-2.5 h-2.5 shrink-0" />
+                    {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
+                  </div>
+                </Link>
+              ))}
+
               {/* שיעורים — מיון: אירועים ארוכים למעלה, שידורים חיים אחריהם, שיעורים רגילים */}
               <div className="space-y-1">
                 {(() => {
-                  // מיון: events קודם (ארוך יותר), אז live, אז lessons
-                  const sorted = [...dayLessons].sort((a, b) => {
+                  // מיון: events קודם (ארוך יותר), אז live, אז lessons. ימי עיון מוצגים נפרד בכותרת.
+                  const sorted = [...nonSeminars].sort((a, b) => {
                     const priority = (l: CalendarLesson) => {
                       const v = resolveVariant(l);
                       return v === "event" ? 0 : l.isLive ? 1 : 2;
