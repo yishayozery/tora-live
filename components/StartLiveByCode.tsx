@@ -152,9 +152,10 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
       <button
         type="button"
         onClick={() => setStep("code")}
-        className="inline-flex items-center gap-2 h-10 px-4 rounded-btn border border-gold/40 bg-gold/5 text-ink text-sm font-semibold hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-gold text-white text-sm font-bold shadow-soft hover:bg-gold/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        title="פתח את השידור החי באמצעות הקוד שקיבלת מהרב"
       >
-        <KeyRound className="w-4 h-4 text-gold" />
+        <KeyRound className="w-5 h-5" />
         פתח שידור עם קוד
       </button>
     );
