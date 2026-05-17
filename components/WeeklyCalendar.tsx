@@ -579,30 +579,34 @@ export function WeeklyCalendar({
                                   ? "bg-paper-soft text-ink-muted border border-border border-dashed"
                                   : "bg-primary-soft text-primary border border-primary/20 hover:bg-primary-soft/70";
                         return (
-                          <Link
-                            key={l.id}
-                            href={l.href ?? `/lesson/${l.id}`}
-                            className={cn(
-                              "block rounded-btn p-1.5 text-[11px] leading-tight transition hover:shadow-soft",
-                              cls
-                            )}
-                          >
-                            <div className="flex items-center gap-1 mb-0.5">
-                              {variant === "event" && <span className="text-[10px]">🎪</span>}
-                              <span className="font-semibold truncate">{l.title}</span>
-                            </div>
-                            <div className="flex items-center gap-1 opacity-75 mt-0.5">
-                              <Clock className="w-2.5 h-2.5 shrink-0" />
-                              {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
-                            </div>
-                            <div className="opacity-75 truncate">{l.rabbiName}</div>
-                            {l.canStartBroadcast && (
-                              <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-live px-1.5 py-0.5 text-[9px] font-bold text-white">
-                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                                התחל שידור
+                          <div key={l.id} className={cn("relative rounded-btn", cls)}>
+                            <Link
+                              href={l.href ?? `/lesson/${l.id}`}
+                              className="block p-1.5 pe-6 text-[11px] leading-tight transition hover:shadow-soft"
+                            >
+                              <div className="flex items-center gap-1 mb-0.5">
+                                {variant === "event" && <span className="text-[10px]">🎪</span>}
+                                <span className="font-semibold truncate">{l.title}</span>
+                              </div>
+                              <div className="flex items-center gap-1 opacity-75 mt-0.5">
+                                <Clock className="w-2.5 h-2.5 shrink-0" />
+                                {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
+                              </div>
+                              <div className="opacity-75 truncate">{l.rabbiName}</div>
+                              {l.canStartBroadcast && (
+                                <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-live px-1.5 py-0.5 text-[9px] font-bold text-white">
+                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                  התחל שידור
+                                </div>
+                              )}
+                            </Link>
+                            {/* כפתור הוספה ללוח שלי — גם בתצוגת הגריד */}
+                            {canBookmark && (
+                              <div className="absolute top-1 end-1">
+                                <CalendarBookmarkIcon lessonId={l.id} initialBookmarked={!!l.bookmarked} canBookmark={canBookmark} />
                               </div>
                             )}
-                          </Link>
+                          </div>
                         );
                       })}
                       {hidden.length > 0 && (
