@@ -55,9 +55,10 @@ export async function POST(req: Request) {
       locationUrl: data.locationUrl || null,
       posterUrl: data.posterUrl || null,
       liveEmbedUrl: data.liveEmbedUrl || null,
-      broadcastType: "OTHER",
+      broadcastType: "SEMINAR",
       isPublic: true,
-      approvalStatus: "PENDING",
+      // רב מאושר שמציע יום עיון משלו — מאושר אוטומטית. אחרים → ממתינים לאדמין.
+      approvalStatus: isApprovedRabbi ? "APPROVED" : "PENDING",
     },
   });
 

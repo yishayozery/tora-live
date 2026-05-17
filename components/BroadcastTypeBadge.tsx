@@ -11,6 +11,7 @@ import {
   HandHeart,
   Sunrise,
   Flame,
+  Calendar,
   type LucideIcon,
 } from "lucide-react";
 import { broadcastTypeMeta, type BroadcastAccent } from "@/lib/enums";
@@ -28,6 +29,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   HandHeart,
   Sunrise,
   Flame,
+  Calendar,
 };
 
 export function broadcastIcon(name: string): LucideIcon {

@@ -34,6 +34,7 @@ export async function POST(req: Request) {
     liveEmbedUrl: data.liveEmbedUrl || null,
     locationName: data.locationName || null,
     locationUrl: data.locationUrl || null,
+    posterUrl: data.posterUrl || null,
     isPublic: data.isPublic ?? true,
     youtubeUrl: data.youtubeUrl || null,
     spotifyUrl: data.spotifyUrl || null,
