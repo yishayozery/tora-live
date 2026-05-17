@@ -70,12 +70,24 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "קוד שגוי" }, { status: 401 });
   }
 
+  // נעילה אטומית למניעת race — שני בקשות מקבילות עם קוד תקין לא ייצרו 2 Cloudflare inputs.
+  // updateMany עם תנאי isLive=false: אם count===0 → מישהו אחר כבר התחיל.
+  const lock = await db.lesson.updateMany({
+    where: { id: params.id, isLive: false, isSuspended: false, isPublic: true },
+    data: { isLive: true },
+  });
+  if (lock.count !== 1) {
+    return NextResponse.json({ error: "השידור כבר פעיל" }, { status: 409 });
+  }
+
   // === BROWSER — יוצרים Cloudflare Live Input ומחזירים whipUrl לעוזר ===
   if (parsed.data.liveMethod === "BROWSER") {
     let input;
     try {
       input = await createLiveInput(`${lesson.rabbi?.name ?? "אירוע"} — ${lesson.title} (helper)`);
     } catch (err: any) {
+      // ה-lock נכשל ביצירת CF input — מחזירים את ה-flag לאחור כדי שלא נישאר עם isLive=true בלי stream
+      await db.lesson.updateMany({ where: { id: params.id, streamId: null }, data: { isLive: false } });
       const msg = err?.message || "";
       let userMsg = `Cloudflare סירב ליצור שידור: ${msg}`;
       if (/subscription/i.test(msg) || /stream.*not.*enabled/i.test(msg)) {
@@ -86,10 +98,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const playback = getPlaybackUrl(input.uid);
     const embed = getEmbedUrl(input.uid);
 
+    // isLive כבר true מהנעילה — רק ממלאים את שאר השדות
     await db.lesson.update({
       where: { id: params.id },
       data: {
-        isLive: true,
         liveMethod: "BROWSER",
         streamId: input.uid,
         playbackUrl: playback,
@@ -107,11 +119,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     });
   }
 
-  // === EXTERNAL / YOUTUBE — embed של URL קיים ===
+  // === EXTERNAL / YOUTUBE — embed של URL קיים. isLive כבר true מהנעילה ===
   await db.lesson.update({
     where: { id: params.id },
     data: {
-      isLive: true,
       liveMethod: parsed.data.liveMethod,
       liveEmbedUrl: parsed.data.liveEmbedUrl,
       streamId: null,

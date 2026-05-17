@@ -64,7 +64,21 @@ export default async function LessonPage({ params }: { params: { id: string } })
   const lesson = await db.lesson.findUnique({
     where: { id: params.id },
     include: {
-      rabbi: true,
+      // CLAUDE.md כלל 3: לא לחשוף phone של רב לציבור. select מפורש בלבד.
+      rabbi: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          photoUrl: true,
+          bio: true,
+          status: true,
+          isBlocked: true,
+          mediaLinks: true,
+          autoReplyEnabled: true,
+          autoReplyMessage: true,
+        },
+      },
       category: true,
       sources: { orderBy: { createdAt: "asc" } },
     },
