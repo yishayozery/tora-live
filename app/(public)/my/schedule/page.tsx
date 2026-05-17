@@ -62,7 +62,7 @@ export default async function SchedulePage() {
       })
     : [];
 
-  // מיזוג כל השיעורים ללוח שבועי
+  // מיזוג כל השיעורים ללוח שבועי. שיעורים שכבר ב-bookmarks → bookmarked=true.
   const allLessons = [
     ...bookmarks.map((b) => ({
       id: b.lesson.id,
@@ -73,6 +73,7 @@ export default async function SchedulePage() {
       durationMin: b.lesson.durationMin ?? undefined,
       isLive: b.lesson.isLive,
       broadcastType: b.lesson.broadcastType,
+      bookmarked: true,
     })),
     ...fromFollowed.map((l) => ({
       id: l.id,
@@ -83,6 +84,7 @@ export default async function SchedulePage() {
       durationMin: l.durationMin ?? undefined,
       isLive: l.isLive,
       broadcastType: l.broadcastType,
+      bookmarked: false, // עוקב, אבל לא סימן ספציפית
     })),
   ];
 
@@ -164,7 +166,7 @@ export default async function SchedulePage() {
       </div>
 
       {/* לוח שבועי */}
-      <WeeklyCalendar lessons={allLessons} />
+      <WeeklyCalendar lessons={allLessons} canBookmark={!student.isBlocked} />
 
       {/* התראות אחרונות */}
       <section>
