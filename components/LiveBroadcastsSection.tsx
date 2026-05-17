@@ -402,14 +402,27 @@ function LiveCardGrid({ b }: { b: LiveBroadcast }) {
             loading="lazy"
           />
         ) : embedUrl && platform === "cloudflare" ? (
-          <iframe
-            src={`${embedUrl}?muted=true&controls=true&letterboxColor=transparent`}
-            title={b.title}
-            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full"
-            loading="lazy"
-          />
+          // Cloudflare iframe קטן בכרטיס מציג שחור כשהוידיאו עדיין לא נטען (HLS).
+          // משתמשים בתמונת הרב/poster כ-background, ה-iframe מעליו עם רקע שקוף.
+          <Link href={lessonHref} className="absolute inset-0 block">
+            {b.rabbiPhotoUrl || b.posterUrl ? (
+              <Image
+                src={(b.posterUrl || b.rabbiPhotoUrl) as string}
+                alt={b.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-gold" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3 text-white">
+              <div className="text-xs opacity-80">{b.rabbiName}</div>
+              <div className="font-bold text-base line-clamp-2">{b.title}</div>
+              <div className="text-xs mt-1 opacity-90">לחץ לצפייה →</div>
+            </div>
+          </Link>
         ) : embedUrl && platform === "facebook" ? (
           <iframe
             src={embedUrl}

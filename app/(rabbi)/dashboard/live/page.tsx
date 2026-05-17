@@ -7,7 +7,7 @@ import { LiveStarter } from "@/components/LiveStarter";
 import { RecordingsList } from "@/components/RecordingsList";
 import { StreamCodeBadge } from "@/components/StreamCodeBadge";
 import { ExpirationCountdown } from "@/components/ExpirationCountdown";
-import { Radio, Video, Download, Plus } from "lucide-react";
+import { Radio, Video, Download, Plus, FileText, Edit3 } from "lucide-react";
 
 export default async function LivePage() {
   const { rabbi } = await requireApprovedRabbi();
@@ -111,6 +111,23 @@ export default async function LivePage() {
                     lessonDate={`${formatHebrewDate(l.scheduledAt)} · ${formatHebrewTime(l.scheduledAt)}`}
                     isLive={false}
                   />
+                </div>
+                {/* קישורים מהירים: מקורות PDF + עריכה */}
+                <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
+                  <Link
+                    href={`/dashboard/lessons/${l.id}/sources`}
+                    className="inline-flex items-center gap-1 h-8 px-3 rounded-btn border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 font-medium"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    מקורות לימוד (PDF)
+                  </Link>
+                  <Link
+                    href={`/dashboard/lessons/${l.id}/edit`}
+                    className="inline-flex items-center gap-1 h-8 px-3 rounded-btn border border-border bg-white text-ink-soft hover:border-primary hover:text-primary font-medium"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    ערוך שיעור
+                  </Link>
                 </div>
                 {(l as any).streamCode && (
                   <div className="mt-3">

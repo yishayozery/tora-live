@@ -6,12 +6,18 @@ import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { Logo } from "@/components/Logo";
 import { PersonalAssistant } from "@/components/PersonalAssistant";
+import { ActiveBroadcastBanner } from "@/components/ActiveBroadcastBanner";
 
 export default async function RabbiLayout({ children }: { children: React.ReactNode }) {
   const { rabbi } = await requireRabbi();
 
   return (
-    <div className="min-h-screen bg-paper-soft md:flex">
+    <div className="min-h-screen bg-paper-soft flex flex-col">
+      {/* באנר חזרה לשידור פעיל — מוצג בראש העמוד אם הרב באמצע שידור */}
+      <div className="sticky top-0 z-50">
+        <ActiveBroadcastBanner rabbiId={rabbi.id} />
+      </div>
+      <div className="md:flex flex-1">
       <RabbiMobileNav rabbiName={rabbi.name} />
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
         <div className="h-16 px-5 border-b border-border flex items-center hover:bg-paper-soft transition">
@@ -34,6 +40,7 @@ export default async function RabbiLayout({ children }: { children: React.ReactN
       </aside>
       <main className="flex-1 p-4 sm:p-6 md:p-10">{children}</main>
       <PersonalAssistant role="rabbi" userName={rabbi.name} />
+      </div>
     </div>
   );
 }
