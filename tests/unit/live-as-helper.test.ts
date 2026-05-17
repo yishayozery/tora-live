@@ -121,7 +121,7 @@ describe("POST /api/lessons/[id]/live-as-helper", () => {
   it("403 outside of time window", async () => {
     (getServerSession as any).mockResolvedValueOnce({ user: { id: "U1" } });
     (db.lesson.findUnique as any).mockResolvedValueOnce(
-      lessonRow({ scheduledAt: new Date(Date.now() + 5 * 60 * minute) }),
+      lessonRow({ scheduledAt: new Date(Date.now() + 8 * 60 * minute) }),
     );
     (db.student.findUnique as any).mockResolvedValueOnce({ id: "S1", isBlocked: false });
     (db.follow.findUnique as any).mockResolvedValueOnce({ isStreamHelper: true });
@@ -146,10 +146,10 @@ describe("POST /api/lessons/[id]/live-as-helper", () => {
     expect(args.data.liveEmbedUrl).toBe("https://youtube.com/live/x");
   });
 
-  it("200 respects prep window (helper can open 90 min early when prepBeforeMin=120)", async () => {
+  it("200 respects prep window (helper can open 7h early when prepBeforeMin=480)", async () => {
     (getServerSession as any).mockResolvedValueOnce({ user: { id: "U1" } });
     (db.lesson.findUnique as any).mockResolvedValueOnce(
-      lessonRow({ scheduledAt: new Date(Date.now() + 90 * minute), prepBeforeMin: 120 }),
+      lessonRow({ scheduledAt: new Date(Date.now() + 7 * 60 * minute), prepBeforeMin: 480 }),
     );
     (db.student.findUnique as any).mockResolvedValueOnce({ id: "S1", isBlocked: false });
     (db.follow.findUnique as any).mockResolvedValueOnce({ isStreamHelper: true });
