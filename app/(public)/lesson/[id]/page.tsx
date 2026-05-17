@@ -262,12 +262,13 @@ export default async function LessonPage({ params }: { params: { id: string } })
               initialRemindBefore={existingBookmark?.remindBeforeMin}
               canBookmark={canBookmark}
             />
-            {!isOwner && !lesson.isLive && isWithinStreamWindow(lesson.scheduledAt, lesson.durationMin, (lesson as any).prepBeforeMin) && (
+            {/* פתיחת שידור — מוצג תמיד (אלא אם משדר כבר), עם הסבר אם לא בזמן/חסר קוד */}
+            {!lesson.isLive && (lesson as any).streamCode && (
               <>
                 {isStreamHelper ? (
                   <StartLiveAsHelper lessonId={lesson.id} lessonTitle={lesson.title} />
                 ) : (
-                  (lesson as any).streamCode && <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
+                  <StartLiveByCode lessonId={lesson.id} lessonTitle={lesson.title} />
                 )}
               </>
             )}
