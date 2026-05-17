@@ -142,46 +142,23 @@ export function HeroBlock({ lesson, rabbi }: Props) {
   });
 
   return (
-    <div className="relative rounded-card overflow-hidden border border-border shadow-soft">
-      {/* רקע: poster של שיעור או photo של רב או gradient */}
-      <div className="relative w-full" style={{ paddingBottom: "56.25%", maxHeight: "70vh" }}>
-        {lesson.posterUrl ? (
-          <Image
-            src={lesson.posterUrl}
-            alt={lesson.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 800px"
-            className="object-cover"
-            priority
-          />
-        ) : rabbi?.photoUrl ? (
-          <Image
-            src={rabbi.photoUrl}
-            alt={rabbi.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 800px"
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-hover to-gold" />
-        )}
-        {/* overlay לטקסט */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-
-        <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7">
+    <div className="rounded-card overflow-hidden border border-border shadow-soft bg-gradient-to-bl from-primary/10 via-paper-warm to-gold/10">
+      {/* תצוגה מינימלית: כותרת גדולה, פרטים, ותמונה קטנה בצד — לא כל הדף תמונה */}
+      <div className="flex items-stretch gap-4 p-5 sm:p-7">
+        {/* תוכן עיקרי */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
           {rabbi?.name && (
-            <div className="text-white/90 text-sm sm:text-base mb-1 font-medium">
+            <div className="text-ink-soft text-sm sm:text-base mb-1 font-medium">
               {rabbi.name}
             </div>
           )}
-          <div className="hebrew-serif text-2xl sm:text-4xl font-bold text-white leading-tight mb-3 drop-shadow" aria-hidden>
+          <h1 className="hebrew-serif text-2xl sm:text-4xl font-bold text-ink leading-tight mb-3">
             {lesson.title}
-          </div>
+          </h1>
           <div className="mb-4">
             <LessonCountdown
               scheduledAt={lesson.scheduledAt}
-              className="!text-white bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5"
+              className="bg-white/80 rounded-full px-3 py-1.5 text-ink"
             />
           </div>
 
@@ -190,19 +167,35 @@ export function HeroBlock({ lesson, rabbi }: Props) {
               href={externalUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 h-12 px-5 rounded-btn bg-live hover:bg-live/90 text-white text-base font-bold shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white self-start max-w-full"
+              className="inline-flex items-center justify-center gap-2 h-12 px-5 rounded-btn bg-live hover:bg-live/90 text-white text-base font-bold shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary self-start max-w-full"
             >
               <PlayCircle className="w-5 h-5" />
               כנס לשידור ←
               <ExternalLink className="w-4 h-4 opacity-80" />
             </a>
           ) : (
-            <div className="inline-flex items-center gap-2 self-start bg-white/10 backdrop-blur-sm text-white/95 rounded-btn px-4 h-12 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 self-start bg-white border border-border text-ink-soft rounded-btn px-4 h-12 text-sm font-medium">
               <Radio className="w-4 h-4" />
               השידור יפתח כאן כשיתחיל
             </div>
           )}
         </div>
+
+        {/* תמונת רב/poster — קטנה בצד (במקום כל הדף) */}
+        {(lesson.posterUrl || rabbi?.photoUrl) && (
+          <div className="hidden sm:block shrink-0 w-32 md:w-40 lg:w-48 self-center">
+            <div className="relative w-full aspect-square rounded-card overflow-hidden border border-border shadow-soft">
+              <Image
+                src={(lesson.posterUrl || rabbi?.photoUrl) as string}
+                alt={lesson.title}
+                fill
+                sizes="(max-width: 1024px) 160px, 192px"
+                className="object-cover"
+                priority
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

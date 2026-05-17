@@ -134,6 +134,15 @@ export function LessonForm({
       }
     }
     setLoading(false);
+    // הודעת הצלחה ברורה לפני המעבר
+    if (typeof window !== "undefined") {
+      const msg = lessonId
+        ? "✅ השיעור עודכן בהצלחה"
+        : form.isRecurring
+          ? "✅ סדרת השיעורים נוצרה בהצלחה — בדוק את 'ארכיון השיעורים' לצפייה"
+          : "✅ השיעור נוצר בהצלחה" + (form.prepEventAt ? " (כולל אירוע ההכנה)" : "");
+      window.alert(msg);
+    }
     router.push("/dashboard/lessons");
     router.refresh();
   }
@@ -233,7 +242,19 @@ export function LessonForm({
           </F>
         </div>
 
-        {/* === אירוע הכנה — מודגש, אופציונלי === */}
+        <F label="תאריך ושעה של השיעור">
+          <input
+            type="datetime-local"
+            required
+            value={form.scheduledAt}
+            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
+            min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+            className="input"
+          />
+          <HebrewDateHint value={form.scheduledAt} />
+        </F>
+
+        {/* === אירוע הכנה — מודגש, אופציונלי, אחרי תאריך השיעור === */}
         <div className="rounded-card border-2 border-purple-300 bg-purple-50/40 p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-block w-3 h-3 rounded-full bg-purple-400" aria-hidden />
@@ -252,17 +273,6 @@ export function LessonForm({
           />
           <HebrewDateHint value={form.prepEventAt} />
         </div>
-        <F label="תאריך ושעה">
-          <input
-            type="datetime-local"
-            required
-            value={form.scheduledAt}
-            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
-            min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-            className="input"
-          />
-          <HebrewDateHint value={form.scheduledAt} />
-        </F>
 
         {/* שיעור קבוע — כעת בעמוד נפרד עם תמיכה מלאה בשעה לכל יום */}
         {!lessonId && (
