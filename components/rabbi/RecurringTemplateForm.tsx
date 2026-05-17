@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
@@ -72,6 +72,42 @@ export function RecurringTemplateForm({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // אם המשתמש הגיע מטופס השיעור החד-פעמי, נשחזר את מה שכבר מילא (נושא, תיאור, וכו')
+  // כדי שלא יצטרך להקליד שוב. רק במצב create — בעריכה יש initial משלו.
+  useEffect(() => {
+    if (mode !== "create" || initial) return;
+    try {
+      const raw = sessionStorage.getItem("tora:lesson-draft");
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      sessionStorage.removeItem("tora:lesson-draft");
+      if (draft.title) setTitle(draft.title);
+      if (draft.description) setDescription(draft.description);
+      if (draft.categoryId) setCategoryId(draft.categoryId);
+      if (draft.language) setLanguage(draft.language);
+      if (draft.broadcastType) setBroadcastType(draft.broadcastType);
+      if (typeof draft.isPublic === "boolean") setIsPublic(draft.isPublic);
+      if (draft.startDate) setStartDate(draft.startDate);
+      // אם הגדירו זמן ו/או משך — נחיל על כל הימים שמופעלים
+      if (draft.time || draft.durationMin) {
+        setSchedule((s) => {
+          const next: Record<string, DaySchedule> = { ...s };
+          for (const k of Object.keys(next)) {
+            next[k] = {
+              ...next[k],
+              time: draft.time || next[k].time,
+              durationMin: draft.durationMin || next[k].durationMin,
+            };
+          }
+          return next;
+        });
+      }
+    } catch {
+      // לא קריטי — אם השחזור נכשל, הטופס פשוט יוצג ריק
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function updateDay(key: string, patch: Partial<DaySchedule>) {
     setSchedule((s) => ({ ...s, [key]: { ...s[key], ...patch } }));

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { broadcastIcon, ACCENT_BORDER, ACCENT_TEXT } from "@/components/BroadcastTypeBadge";
 import { HebrewDateHint } from "@/components/HebrewDateHint";
+import { HebrewDatePicker } from "@/components/HebrewDatePicker";
 
 type Category = { id: string; name: string };
 
@@ -243,14 +244,29 @@ export function LessonForm({
         </div>
 
         <F label="תאריך ושעה של השיעור">
-          <input
-            type="datetime-local"
-            required
-            value={form.scheduledAt}
-            onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
-            min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-            className="input"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+            <HebrewDatePicker
+              value={form.scheduledAt ? form.scheduledAt.slice(0, 10) : ""}
+              onChange={(iso) => {
+                const time = form.scheduledAt.slice(11, 16) || "20:00";
+                setForm({ ...form, scheduledAt: iso ? `${iso}T${time}` : "" });
+              }}
+              minDate={new Date().toISOString().slice(0, 10)}
+              placeholder="בחר תאריך השיעור"
+              required
+            />
+            <input
+              type="time"
+              required
+              value={form.scheduledAt.slice(11, 16)}
+              onChange={(e) => {
+                const date = form.scheduledAt.slice(0, 10) || new Date().toISOString().slice(0, 10);
+                setForm({ ...form, scheduledAt: `${date}T${e.target.value}` });
+              }}
+              className="input sm:w-32"
+              aria-label="שעת השיעור"
+            />
+          </div>
           <HebrewDateHint value={form.scheduledAt} />
         </F>
 
@@ -263,14 +279,27 @@ export function LessonForm({
           <p className="text-xs text-purple-900/70 mb-3">
             תוסיף אירוע פרטי בלוח שלך כדי להזכיר לעצמך מתי להכין את השיעור. התלמידים לא יראו את זה — לא בעמוד הציבורי ולא ב"שיעורים קרובים".
           </p>
-          <input
-            type="datetime-local"
-            value={form.prepEventAt}
-            onChange={(e) => setForm({ ...form, prepEventAt: e.target.value })}
-            className="input"
-            max={form.isRecurring ? undefined : (form.scheduledAt || undefined)}
-            placeholder="אופציונלי — בחר תאריך ושעה"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+            <HebrewDatePicker
+              value={form.prepEventAt ? form.prepEventAt.slice(0, 10) : ""}
+              onChange={(iso) => {
+                const time = form.prepEventAt.slice(11, 16) || "10:00";
+                setForm({ ...form, prepEventAt: iso ? `${iso}T${time}` : "" });
+              }}
+              placeholder="אופציונלי — בחר תאריך"
+            />
+            <input
+              type="time"
+              value={form.prepEventAt.slice(11, 16)}
+              onChange={(e) => {
+                const date = form.prepEventAt.slice(0, 10) || new Date().toISOString().slice(0, 10);
+                setForm({ ...form, prepEventAt: `${date}T${e.target.value}` });
+              }}
+              disabled={!form.prepEventAt}
+              className="input sm:w-32 disabled:opacity-50"
+              aria-label="שעת הכנה"
+            />
+          </div>
           <HebrewDateHint value={form.prepEventAt} />
         </div>
 
@@ -285,12 +314,29 @@ export function LessonForm({
                   לשיעור קבוע יש דף הגדרה ייעודי — שם תוכל לקבוע שעה שונה לכל יום בשבוע
                   (לדוגמה: ראשון 20:00, שלישי 21:30) ולקבל מופעים אוטומטיים ל-6 חודשים קדימה.
                 </p>
-                <a
-                  href="/dashboard/lessons/recurring/new"
+                <button
+                  type="button"
+                  onClick={() => {
+                    // שומרים את מה שמילאו עד עכשיו, כדי שטופס השיעור הקבוע יציג אותם מראש
+                    try {
+                      sessionStorage.setItem("tora:lesson-draft", JSON.stringify({
+                        title: form.title,
+                        description: form.description,
+                        categoryId: form.categoryId,
+                        language: form.language,
+                        broadcastType: form.broadcastType,
+                        isPublic: form.isPublic,
+                        durationMin: form.durationMin,
+                        time: form.scheduledAt.slice(11, 16) || undefined,
+                        startDate: form.scheduledAt.slice(0, 10) || undefined,
+                      }));
+                    } catch {}
+                    router.push("/dashboard/lessons/recurring/new");
+                  }}
                   className="inline-flex items-center gap-1.5 h-10 px-4 rounded-btn bg-gold text-white hover:bg-gold/90 text-sm font-semibold"
                 >
                   הגדר שיעור קבוע ←
-                </a>
+                </button>
               </div>
             </div>
           </div>
