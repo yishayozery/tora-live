@@ -1,4 +1,4 @@
-import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe } from "lucide-react";
+import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe, HandHeart } from "lucide-react";
 import { DedicationDateField } from "@/components/DedicationDateField";
 
 export const metadata = {
@@ -74,17 +74,24 @@ export default function DonatePage() {
           </div>
 
           <form className="space-y-5" action="#" method="POST">
-            {/* dedication type */}
+            {/* dedication type — 3 אופציות בכרטיסי צבע נפרדים */}
             <fieldset>
               <legend className="block text-sm font-semibold text-ink mb-2">סוג הקדשה</legend>
-              <div className="flex flex-wrap gap-3">
-                <label className="inline-flex items-center gap-2 h-10 px-4 rounded-btn border border-border bg-paper-soft has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary cursor-pointer transition">
-                  <input type="radio" name="dedicationType" value="lezecher" defaultChecked className="sr-only" />
-                  לעילוי נשמה
+              <div className="grid grid-cols-3 gap-2">
+                <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-btn border-2 border-border bg-white has-[:checked]:border-purple-500 has-[:checked]:bg-purple-50 transition text-center">
+                  <input type="radio" name="dedicationType" value="LEZECHER" defaultChecked className="sr-only" />
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  <span className="text-sm font-semibold text-ink">לעילוי נשמת</span>
                 </label>
-                <label className="inline-flex items-center gap-2 h-10 px-4 rounded-btn border border-border bg-paper-soft has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary cursor-pointer transition">
-                  <input type="radio" name="dedicationType" value="lezechut" className="sr-only" />
-                  לזכות
+                <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-btn border-2 border-border bg-white has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition text-center">
+                  <input type="radio" name="dedicationType" value="LIZCHUT" className="sr-only" />
+                  <Heart className="w-5 h-5 text-amber-600" />
+                  <span className="text-sm font-semibold text-ink">לזכות</span>
+                </label>
+                <label className="cursor-pointer flex flex-col items-center gap-1.5 p-3 rounded-btn border-2 border-border bg-white has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 transition text-center">
+                  <input type="radio" name="dedicationType" value="LIRFUA" className="sr-only" />
+                  <HandHeart className="w-5 h-5 text-emerald-600" />
+                  <span className="text-sm font-semibold text-ink">לרפואת</span>
                 </label>
               </div>
             </fieldset>
