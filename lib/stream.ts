@@ -3,6 +3,10 @@
 
 const CF_ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID ?? "";
 const CF_TOKEN = process.env.CLOUDFLARE_STREAM_TOKEN ?? "";
+// קוד הלקוח (Customer Subdomain) שונה מ-Account ID! צריך להעתיק מ-Cloudflare Dashboard → Stream
+// (ניתן לראות אותו בכל playback URL ש-CF מציג: customer-<code>.cloudflarestream.com).
+// fallback: CF_ACCOUNT — אם לא הוגדר, לוקח את ה-Account ID (לא יעבוד אבל עדיף משגיאה).
+const CF_CUSTOMER_CODE = process.env.CLOUDFLARE_STREAM_CUSTOMER_CODE ?? CF_ACCOUNT;
 const CF_BASE = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/stream`;
 
 async function cfFetch(path: string, opts?: RequestInit) {
@@ -83,7 +87,7 @@ export function getPlaybackUrl(inputId: string): string {
   if (inputId.startsWith("stub_")) {
     return ""; // stub — אין playback אמיתי
   }
-  return `https://customer-${CF_ACCOUNT}.cloudflarestream.com/${inputId}/manifest/video.m3u8`;
+  return `https://customer-${CF_CUSTOMER_CODE}.cloudflarestream.com/${inputId}/manifest/video.m3u8`;
 }
 
 /**
@@ -91,7 +95,7 @@ export function getPlaybackUrl(inputId: string): string {
  */
 export function getEmbedUrl(inputId: string): string {
   if (inputId.startsWith("stub_")) return "";
-  return `https://customer-${CF_ACCOUNT}.cloudflarestream.com/${inputId}/iframe`;
+  return `https://customer-${CF_CUSTOMER_CODE}.cloudflarestream.com/${inputId}/iframe`;
 }
 
 /**
