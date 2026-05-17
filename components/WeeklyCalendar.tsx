@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { getHebrewHoliday, formatHebrewDayOnly, formatHebrewMonthOnly } from "@/lib/hebrew-dates";
 import { formatTimeRange } from "@/lib/utils";
 import { BROADCAST_TYPES, languageLabel } from "@/lib/enums";
+import { CalendarBookmarkIcon } from "@/components/CalendarBookmarkIcon";
 
 type CalendarLesson = {
   id: string;
@@ -27,6 +28,8 @@ type CalendarLesson = {
   href?: string;
   /** האם להראות כפתור "התחל שידור" (חלון של ±30 דק' מ-now). רלוונטי לדשבורד רב בלבד */
   canStartBroadcast?: boolean;
+  /** האם המשתמש הנוכחי כבר סימן את השיעור ללוח האישי שלו */
+  bookmarked?: boolean;
 };
 
 const DAY_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
@@ -107,10 +110,13 @@ export function WeeklyCalendar({
   lessons,
   title = "לוח שיעורים",
   compact = false,
+  canBookmark = false,
 }: {
   lessons: CalendarLesson[];
   title?: string;
   compact?: boolean;
+  /** אם המשתמש יכול לסמן ללוח (תלמיד מחובר ולא חסום). אורח/רב לא יראו את האייקון. */
+  canBookmark?: boolean;
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [filter, setFilter] = useState("");
@@ -462,21 +468,26 @@ export function WeeklyCalendar({
                         ? "bg-gold-soft text-gold border-gold/40 font-semibold"
                         : "bg-primary-soft text-primary border-primary/20";
                     return (
-                      <Link key={l.id} href={l.href ?? `/lesson/${l.id}`} className={cn(
-                        "block rounded-btn border p-2 text-sm leading-tight transition active:scale-[0.98]",
-                        cls
-                      )}>
-                        <div className="flex items-center justify-between gap-2 mb-0.5">
-                          <span className="font-semibold flex items-center gap-1">
-                            {variant === "event" && <span>🎪</span>}
-                            <Clock className="w-3 h-3 shrink-0" />
-                            {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
-                          </span>
-                          {l.isLive && <span className="text-xs font-bold inline-flex items-center gap-1 text-live"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
-                        </div>
-                        <div className="font-medium line-clamp-2 mb-0.5">{l.title}</div>
-                        <div className="text-xs opacity-75 truncate">{l.rabbiName}</div>
-                      </Link>
+                      <div key={l.id} className={cn("relative rounded-btn border", cls)}>
+                        <Link href={l.href ?? `/lesson/${l.id}`} className="block p-2 pe-9 text-sm leading-tight transition active:scale-[0.98]">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <span className="font-semibold flex items-center gap-1">
+                              {variant === "event" && <span>🎪</span>}
+                              <Clock className="w-3 h-3 shrink-0" />
+                              {formatTimeRange(l.scheduledAt, l.durationMin ?? null)}
+                            </span>
+                            {l.isLive && <span className="text-xs font-bold inline-flex items-center gap-1 text-live"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-live" />LIVE</span>}
+                          </div>
+                          <div className="font-medium line-clamp-2 mb-0.5">{l.title}</div>
+                          <div className="text-xs opacity-75 truncate">{l.rabbiName}</div>
+                        </Link>
+                        {/* כפתור הוספה ללוח שלי — overlay, פעיל רק לתלמיד מחובר */}
+                        {canBookmark && (
+                          <div className="absolute top-1.5 end-1.5">
+                            <CalendarBookmarkIcon lessonId={l.id} initialBookmarked={!!l.bookmarked} canBookmark={canBookmark} />
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
