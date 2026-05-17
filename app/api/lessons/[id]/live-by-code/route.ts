@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { streamCodeMatches, isWithinStreamWindow } from "@/lib/streamCode";
+import { createLiveInput, getPlaybackUrl, getEmbedUrl } from "@/lib/stream";
 
 // rate-limit in-memory (per process). מספיק לעצירת brute-force ביעד מקומי;
 // בפרודקשן מומלץ Upstash/Redis — נוסיף בעתיד אם צריך.
@@ -27,11 +28,15 @@ function checkRateLimit(key: string): boolean {
   return rec.count <= MAX_ATTEMPTS;
 }
 
+// השדה liveEmbedUrl חובה רק ב-EXTERNAL/YOUTUBE; ב-BROWSER הוא נוצר אוטומטית מ-Cloudflare.
 const schema = z.object({
   code: z.string().min(3).max(40),
-  liveMethod: z.enum(["YOUTUBE", "EXTERNAL"]),
-  liveEmbedUrl: z.string().url(),
-});
+  liveMethod: z.enum(["BROWSER", "YOUTUBE", "EXTERNAL"]),
+  liveEmbedUrl: z.string().url().optional(),
+}).refine(
+  (d) => d.liveMethod === "BROWSER" || (d.liveEmbedUrl && d.liveEmbedUrl.length > 0),
+  { message: "חסר קישור לשידור החי", path: ["liveEmbedUrl"] },
+);
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const key = rateLimitKey(req, params.id);
@@ -47,10 +52,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const lesson = await db.lesson.findUnique({
     where: { id: params.id },
-    select: {
-      id: true, scheduledAt: true, durationMin: true, prepBeforeMin: true,
-      streamCode: true, isLive: true, isSuspended: true, isPublic: true,
-    },
+    include: { rabbi: { select: { name: true } } },
   });
   if (!lesson || lesson.isSuspended || !lesson.isPublic) {
     return NextResponse.json({ error: "שיעור לא נמצא" }, { status: 404 });
@@ -68,6 +70,44 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "קוד שגוי" }, { status: 401 });
   }
 
+  // === BROWSER — יוצרים Cloudflare Live Input ומחזירים whipUrl לעוזר ===
+  if (parsed.data.liveMethod === "BROWSER") {
+    let input;
+    try {
+      input = await createLiveInput(`${lesson.rabbi?.name ?? "אירוע"} — ${lesson.title} (helper)`);
+    } catch (err: any) {
+      const msg = err?.message || "";
+      let userMsg = `Cloudflare סירב ליצור שידור: ${msg}`;
+      if (/subscription/i.test(msg) || /stream.*not.*enabled/i.test(msg)) {
+        userMsg = "Cloudflare Stream דורש מנוי בתשלום. פנה לרב/אדמין.";
+      }
+      return NextResponse.json({ error: userMsg }, { status: 502 });
+    }
+    const playback = getPlaybackUrl(input.uid);
+    const embed = getEmbedUrl(input.uid);
+
+    await db.lesson.update({
+      where: { id: params.id },
+      data: {
+        isLive: true,
+        liveMethod: "BROWSER",
+        streamId: input.uid,
+        playbackUrl: playback,
+        liveEmbedUrl: embed || null,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      isLive: true,
+      method: "BROWSER",
+      streamId: input.uid,
+      whipUrl: input.webRTC.url,
+      playbackUrl: playback,
+    });
+  }
+
+  // === EXTERNAL / YOUTUBE — embed של URL קיים ===
   await db.lesson.update({
     where: { id: params.id },
     data: {
