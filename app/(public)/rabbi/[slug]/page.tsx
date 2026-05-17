@@ -175,15 +175,18 @@ export default async function RabbiPage({
   const mediaEntries = Object.entries(mediaLinks).filter(([, v]) => v);
 
   // --- split lessons ---
+  // עתידי = scheduledAt עתידי AND לא שודר עדיין (אין streamId), או isLive כרגע
   const upcomingLessons = rabbi.lessons
-    .filter((l) => new Date(l.scheduledAt) >= now)
+    .filter((l) => l.isLive || (new Date(l.scheduledAt) >= now && !(l as any).streamId))
     .sort(
       (a, b) =>
         new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
     );
 
+  // ארכיון = שיעור שתאריך מתוכנן עבר, או שיעור ששודר בפועל (יש לו streamId ולא משדר כרגע).
+  // הסיבה השנייה תופסת מקרים שבהם שיעור נפתח לשידור לפני הזמן שלו ועדיין "עתידי" לפי scheduledAt.
   const pastLessons = rabbi.lessons
-    .filter((l) => new Date(l.scheduledAt) < now)
+    .filter((l) => new Date(l.scheduledAt) < now || ((l as any).streamId && !l.isLive))
     .sort(
       (a, b) =>
         new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
