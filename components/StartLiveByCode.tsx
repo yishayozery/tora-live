@@ -27,6 +27,8 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
   const publisherRef = useRef<WhipPublisher | null>(null);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [whipStatus, setWhipStatus] = useState<"idle" | "connecting" | "connected" | "failed">("idle");
+  // טריגר re-render כשהמצלמה נדלקת — useRef לא מטריגר render אז הכפתור היה נשאר disabled
+  const [cameraReady, setCameraReady] = useState(false);
 
   useEffect(() => {
     if (step === "closed") return;
@@ -60,6 +62,7 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
     const p = publisherRef.current;
     publisherRef.current = null;
     if (p) p.stop().catch(() => {});
+    setCameraReady(false);
   }
 
   async function requestCamera() {
@@ -69,6 +72,7 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (videoRef.current) videoRef.current.srcObject = stream;
+      setCameraReady(true); // טריגר re-render כדי שהכפתור יהפוך לפעיל
     } catch (err: any) {
       const name = err?.name || "";
       if (name === "NotAllowedError") setMediaError("אין הרשאת מצלמה. אשר בדפדפן.");
@@ -297,7 +301,7 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
               <Button variant="secondary" size="md" onClick={() => { stopCamera(); setStep("method"); }} disabled={pending}>
                 <ArrowRight className="w-4 h-4" /> חזור
               </Button>
-              <Button variant="danger" size="md" onClick={submitBrowser} disabled={pending || !streamRef.current}>
+              <Button variant="danger" size="md" onClick={submitBrowser} disabled={pending || !cameraReady}>
                 {pending ? (<><Loader2 className="w-4 h-4 animate-spin" />פותח…</>) : (<><Radio className="w-4 h-4" />התחל שידור בפועל</>)}
               </Button>
             </div>

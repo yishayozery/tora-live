@@ -44,9 +44,10 @@ export function toHebrewNumeral(n: number): string {
 export function formatHebrewDateLetters(d: Date | string, withYear: boolean = true): string {
   const date = typeof d === "string" ? new Date(d) : d;
   try {
-    const dayStr = new Intl.DateTimeFormat("en-US-u-ca-hebrew", { day: "numeric" }).format(date);
-    const monthStr = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { month: "long" }).format(date);
-    const yearStr = new Intl.DateTimeFormat("en-US-u-ca-hebrew", { year: "numeric" }).format(date);
+    // timeZone מפורש — אחרת שיעור שמתחיל ב-20:00 ישראל ייחשב 17:00 UTC = יום קודם
+    const dayStr = new Intl.DateTimeFormat("en-US-u-ca-hebrew", { day: "numeric", timeZone: "Asia/Jerusalem" }).format(date);
+    const monthStr = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", { month: "long", timeZone: "Asia/Jerusalem" }).format(date);
+    const yearStr = new Intl.DateTimeFormat("en-US-u-ca-hebrew", { year: "numeric", timeZone: "Asia/Jerusalem" }).format(date);
     const day = parseInt(dayStr, 10);
     const yearNum = parseInt(yearStr, 10);
     if (!isFinite(day) || !isFinite(yearNum)) return "";
@@ -88,6 +89,7 @@ export function formatHebrewDate(d: Date | string) {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "Asia/Jerusalem",
   }).format(date);
   return hebrew ? `${hebrew} · ${gregorian}` : gregorian;
 }
@@ -101,6 +103,7 @@ export function formatGregorianDate(d: Date | string) {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "Asia/Jerusalem",
   }).format(date);
 }
 
@@ -138,8 +141,10 @@ export function pluralize(
 
 export function formatHebrewTime(d: Date | string) {
   const date = typeof d === "string" ? new Date(d) : d;
+  // timeZone מפורש — מונע סטייה כש-Vercel רץ ב-UTC (היה מציג 08:52 במקום 11:52)
   return new Intl.DateTimeFormat("he-IL", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Asia/Jerusalem",
   }).format(date);
 }
