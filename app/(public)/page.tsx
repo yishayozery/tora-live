@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
+import { DonationTicker, type DedicationEntry } from "@/components/DonationTicker";
 import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@/components/LiveBroadcastsSection";
 import { LessonsCounter } from "@/components/LessonsCounter";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
@@ -12,13 +13,67 @@ import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-// TODO phase1: לחבר sponsor/options/stats ל-DB אמיתי. live + calendarLessons כבר מ-DB.
 async function getHomeData() {
-  const sponsor: SponsorInfo | null = {
-    dedicationType: "LEZECHER",
-    name: "הרב שלום קורח זצ״ל",
-    donorName: "משפחת אלבז",
-  };
+  // --- תורם היום: רשומת Sponsor של היום (אם יש), אחרת התרומה הציבורית האחרונה ---
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayEnd.getDate() + 1);
+
+  let sponsor: SponsorInfo | null = null;
+  try {
+    const todaySponsor = await db.sponsor.findFirst({
+      where: { date: { gte: todayStart, lt: todayEnd } },
+      orderBy: { createdAt: "desc" },
+    });
+    if (todaySponsor) {
+      sponsor = {
+        dedicationType: (todaySponsor.dedicationType as "LEZECHER" | "LIZCHUT") ?? null,
+        name: todaySponsor.name,
+        donorName: todaySponsor.donorName,
+      };
+    } else {
+      // fallback — תרומה ציבורית עם הקדשה (לפי הסדר ההפוך)
+      const latest = await db.donation.findFirst({
+        where: { showPublicly: true, dedicationName: { not: null } },
+        orderBy: { createdAt: "desc" },
+      });
+      if (latest && latest.dedicationName) {
+        sponsor = {
+          dedicationType: (latest.dedicationType as "LEZECHER" | "LIZCHUT") ?? null,
+          name: latest.dedicationName,
+          donorName: latest.donorName,
+        };
+      }
+    }
+  } catch {
+    // אם הטבלאות לא קיימות בסביבת dev — לא מפילים את הדף
+    sponsor = null;
+  }
+
+  // --- כל ההקדשות הציבוריות (ticker) ---
+  let dedications: DedicationEntry[] = [];
+  try {
+    const rows = await db.donation.findMany({
+      where: { showPublicly: true, dedicationName: { not: null } },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: {
+        id: true, dedicationName: true, dedicationType: true,
+        donorName: true, amount: true, createdAt: true,
+      },
+    });
+    dedications = rows.map((r) => ({
+      id: r.id,
+      type: r.dedicationType ?? "LIZCHUT",
+      name: r.dedicationName!,
+      donorName: r.donorName,
+      amount: r.amount,
+      createdAt: r.createdAt.toISOString(),
+    }));
+  } catch {
+    dedications = [];
+  }
 
   const liveLessons = await db.lesson.findMany({
     where: {
@@ -222,6 +277,7 @@ async function getHomeData() {
 
   return {
     sponsor,
+    dedications,
     live,
     nextLive,
     calendarLessons,
@@ -238,7 +294,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { sponsor, live, nextLive, stats, calendarLessons, canBookmark, popularLessons, trendingTopics } = await getHomeData();
+  const { sponsor, dedications, live, nextLive, stats, calendarLessons, canBookmark, popularLessons, trendingTopics } = await getHomeData();
 
   // המר את live ל-LiveBroadcast format
   const liveBroadcasts: LiveBroadcast[] = live.map((l) => ({
@@ -265,8 +321,11 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* 1. שיעור מוקדש */}
+      {/* 1. שיעור מוקדש — תורם היום */}
       <SponsorBanner sponsor={sponsor} />
+
+      {/* 1b. לוח הקדשות מתגלגל — דסקטופ: עמודה צד שמאל. מובייל: רצועה אופקית מעל השידורים */}
+      <DonationTicker donations={dedications} />
 
       {/* === SECTION 1: שידורים חיים (רקע כהה) === */}
       <div id="live">
