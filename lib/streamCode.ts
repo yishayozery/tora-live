@@ -29,7 +29,7 @@ export function streamCodeMatches(stored: string, attempt: string): boolean {
 }
 
 // חלון זמן לפתיחת שידור.
-// לפני: max(60 דק', prepBeforeMin) לפני scheduledAt.
+// לפני: max(6 שעות, prepBeforeMin) לפני scheduledAt — מאפשר בדיקה מוקדמת ולקוחות שמגיעים בהקדם.
 // אחרי: durationMin + 30 דק' grace.
 export function isWithinStreamWindow(
   scheduledAt: Date,
@@ -37,7 +37,8 @@ export function isWithinStreamWindow(
   prepBeforeMin: number | null | undefined = null,
 ): boolean {
   const now = Date.now();
-  const preMinutes = Math.max(60, prepBeforeMin ?? 0);
+  // 6 שעות לפני — מאפשר לרב/עוזר להתחיל בהקדם (חימום, הכנה).
+  const preMinutes = Math.max(6 * 60, prepBeforeMin ?? 0);
   const start = scheduledAt.getTime() - preMinutes * 60_000;
   const end = scheduledAt.getTime() + (durationMin ?? 60) * 60_000 + 30 * 60_000;
   return now >= start && now <= end;

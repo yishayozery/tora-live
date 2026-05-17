@@ -90,9 +90,9 @@ describe("POST /api/lessons/[id]/live-by-code", () => {
     expect(res.status).toBe(400);
   });
 
-  it("403 outside of stream window (lesson 5 hours away)", async () => {
+  it("403 outside of stream window (lesson 8 hours away)", async () => {
     (db.lesson.findUnique as any).mockResolvedValueOnce(
-      lessonRow({ scheduledAt: new Date(Date.now() + 5 * 60 * minute) }),
+      lessonRow({ scheduledAt: new Date(Date.now() + 8 * 60 * minute) }),
     );
     const res = await POST(
       makeReq({ code: "7421-תורה", liveMethod: "YOUTUBE", liveEmbedUrl: "https://youtube.com/live/x" }, "2.0.0.5"),

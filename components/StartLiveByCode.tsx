@@ -206,9 +206,23 @@ export function StartLiveByCode({ lessonId, lessonTitle }: Props) {
               <Button variant="primary" size="md" onClick={() => {
                 if (!code.trim()) return setError("יש להזין קוד");
                 setError(null);
-                setStep("method");
-              }} disabled={!code.trim()}>
-                המשך ←
+                // בודק את הקוד מול השרת לפני שמתקדם — מונע מצב שמשתמש מקליד קוד שגוי
+                // ומקבל הודעת שגיאה רק אחרי שהזין URL וניסה לשדר.
+                start(async () => {
+                  const res = await fetch(`/api/lessons/${lessonId}/verify-code`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: code.trim() }),
+                  });
+                  const data = await res.json().catch(() => ({}));
+                  if (!res.ok) {
+                    setError(data?.error || "קוד שגוי או מחוץ לחלון זמן");
+                    return;
+                  }
+                  setStep("method");
+                });
+              }} disabled={pending || !code.trim()}>
+                {pending ? (<><Loader2 className="w-4 h-4 animate-spin" />בודק…</>) : "המשך ←"}
               </Button>
             </div>
           </>

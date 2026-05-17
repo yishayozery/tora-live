@@ -85,9 +85,14 @@ describe("isWithinStreamWindow", () => {
     expect(isWithinStreamWindow(t, 60)).toBe(true);
   });
 
-  it("returns false 2 hours before start", () => {
-    const t = new Date(Date.now() + 120 * minute);
+  it("returns false 8 hours before start (outside 6h pre-window)", () => {
+    const t = new Date(Date.now() + 8 * 60 * minute);
     expect(isWithinStreamWindow(t, 60)).toBe(false);
+  });
+
+  it("returns true 2 hours before start (within 6h pre-window)", () => {
+    const t = new Date(Date.now() + 120 * minute);
+    expect(isWithinStreamWindow(t, 60)).toBe(true);
   });
 
   it("returns false 3 hours after start of a 60-min lesson (past end + grace)", () => {
@@ -108,15 +113,15 @@ describe("isWithinStreamWindow", () => {
     expect(isWithinStreamWindow(t, 180)).toBe(true);
   });
 
-  // === prepBeforeMin extends only the pre-window, never shrinks below 60 min ===
-  it("with prepBeforeMin=120, allows opening 90 min before scheduled (which 60-min default rejects)", () => {
-    const t = new Date(Date.now() + 90 * minute);
+  // === prepBeforeMin extends only the pre-window, never shrinks below 6 hours ===
+  it("with prepBeforeMin=480 (8h), allows opening 7h before scheduled (which 6h default rejects)", () => {
+    const t = new Date(Date.now() + 7 * 60 * minute);
     expect(isWithinStreamWindow(t, 60)).toBe(false);
-    expect(isWithinStreamWindow(t, 60, 120)).toBe(true);
+    expect(isWithinStreamWindow(t, 60, 480)).toBe(true);
   });
 
-  it("with prepBeforeMin=15, still uses the 60-min default (never shrinks below 60)", () => {
-    const t = new Date(Date.now() + 50 * minute);
+  it("with prepBeforeMin=15, still uses the 6h default (never shrinks below 6h)", () => {
+    const t = new Date(Date.now() + 5 * 60 * minute);
     expect(isWithinStreamWindow(t, 60, 15)).toBe(true);
   });
 
