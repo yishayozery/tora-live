@@ -62,7 +62,9 @@ export function HeroBlock({ lesson, rabbi }: Props) {
         {lesson.liveMethod === "BROWSER" && lesson.playbackUrl ? (
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             <iframe
-              src={lesson.liveEmbedUrl || lesson.playbackUrl}
+              // autoplay + muted — דפדפנים מאפשרים אוטו-פליי רק כשמושתק.
+              // הצופה יוכל להפעיל את הקול בלחיצה אחת על אייקון הרמקול.
+              src={`${lesson.liveEmbedUrl || lesson.playbackUrl}?autoplay=true&muted=true&preload=auto&letterboxColor=transparent`}
               title={lesson.title}
               allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -70,7 +72,7 @@ export function HeroBlock({ lesson, rabbi }: Props) {
             />
           </div>
         ) : lesson.liveEmbedUrl ? (
-          <VideoEmbed url={lesson.liveEmbedUrl} title={lesson.title} />
+          <VideoEmbed url={lesson.liveEmbedUrl} title={lesson.title} autoPlay />
         ) : externalLink ? (
           // אין embed זמין — מציגים cover + CTA לקישור חיצוני (Zoom וכו׳ שלא ניתן להטמעה)
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
@@ -120,7 +122,7 @@ export function HeroBlock({ lesson, rabbi }: Props) {
         {lesson.playbackUrl && lesson.liveMethod === "BROWSER" ? (
           <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
             <iframe
-              src={lesson.liveEmbedUrl || lesson.playbackUrl}
+              src={`${lesson.liveEmbedUrl || lesson.playbackUrl}?autoplay=true&muted=true&preload=auto`}
               title={`${lesson.title} — הקלטה`}
               allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
