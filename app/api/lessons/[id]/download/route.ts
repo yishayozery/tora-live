@@ -3,7 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requestMp4Download } from "@/lib/stream";
+import { requestMp4Download, getRecordings, getPlaybackUrl } from "@/lib/stream";
 
 // מטמון בזיכרון התהליך — מונע הצפת CF API.
 const cache = new Map<string, { url: string; expiresAt: number }>();
@@ -25,15 +25,43 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   if (!lesson || lesson.isSuspended || !lesson.isPublic) {
     return NextResponse.json({ error: "השיעור לא נמצא" }, { status: 404 });
   }
-  if (!lesson.recordingUrl || !lesson.recordingExpiry) {
+  if (!lesson.recordingExpiry) {
     return NextResponse.json({ error: "אין הקלטה זמינה" }, { status: 404 });
   }
   if (lesson.recordingExpiry.getTime() < Date.now()) {
     return NextResponse.json({ error: "תוקף ההקלטה פג" }, { status: 404 });
   }
 
-  // ה-videoId לצרכי ה-MP4 download — אם יש recordingUrl חוקי משתמשים בו, אחרת fallback ל-streamId.
-  const videoId = extractVideoId(lesson.recordingUrl) ?? lesson.streamId;
+  // אם recordingUrl לא הוגדר אבל יש streamId — שולף מ-CF את הוידיאו שנוצר מהזרם.
+  // CF Live Input UID ≠ Video UID! לאחר סיום שידור, CF יוצר video עם UID חדש.
+  let recordingUrl = lesson.recordingUrl;
+  let videoId = recordingUrl ? extractVideoId(recordingUrl) : null;
+
+  if (!videoId && lesson.streamId) {
+    try {
+      const videos = await getRecordings(lesson.streamId);
+      if (videos.length === 0) {
+        return NextResponse.json(
+          { error: "ההקלטה עדיין בהכנה אצל ספק השידור, נסה שוב בעוד דקה" },
+          { status: 425 },
+        );
+      }
+      const latest = videos[0] as any;
+      videoId = latest.uid;
+      // שמירת recordingUrl ל-DB — לפעם הבאה לא נצטרך lookup
+      if (videoId) {
+        recordingUrl = getPlaybackUrl(videoId);
+        await db.lesson.update({
+          where: { id: params.id },
+          data: { recordingUrl },
+        });
+      }
+    } catch (e) {
+      console.error("[lesson-download] CF videos lookup failed", e);
+      return NextResponse.json({ error: "שגיאה בשליפת ההקלטה" }, { status: 500 });
+    }
+  }
+
   if (!videoId) {
     return NextResponse.json({ error: "מזהה ההקלטה חסר" }, { status: 404 });
   }
