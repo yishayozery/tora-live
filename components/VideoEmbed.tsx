@@ -9,16 +9,16 @@ function toEmbedUrl(url: string): string | null {
     const u = new URL(url);
     // youtube.com/watch?v=ID
     if (u.hostname.includes("youtube.com") && u.searchParams.get("v")) {
-      return `https://www.youtube.com/embed/${u.searchParams.get("v")}?autoplay=1`;
+      return `https://www.youtube.com/embed/${u.searchParams.get("v")}?autoplay=1&mute=1&playsinline=1`;
     }
     // youtu.be/ID
     if (u.hostname === "youtu.be") {
-      return `https://www.youtube.com/embed${u.pathname}?autoplay=1`;
+      return `https://www.youtube.com/embed${u.pathname}?autoplay=1&mute=1&playsinline=1`;
     }
     // youtube.com/live/ID
     if (u.hostname.includes("youtube.com") && u.pathname.startsWith("/live/")) {
       const id = u.pathname.replace("/live/", "");
-      return `https://www.youtube.com/embed/${id}?autoplay=1`;
+      return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1`;
     }
     // youtube.com/embed/ID — כבר embed
     if (u.hostname.includes("youtube.com") && u.pathname.startsWith("/embed/")) {
@@ -31,7 +31,9 @@ function toEmbedUrl(url: string): string | null {
   }
 }
 
-export function VideoEmbed({ url, title }: { url: string; title?: string }) {
+export function VideoEmbed({ url, title, autoPlay = true }: { url: string; title?: string; autoPlay?: boolean }) {
+  // autoPlay כבר ב-toEmbedUrl. הפרמטר כאן לשם תאימות API מצד קוראים אחרים.
+  void autoPlay;
   const embedUrl = toEmbedUrl(url);
 
   if (!embedUrl) {
