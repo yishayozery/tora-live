@@ -22,6 +22,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@vercel/blob": "^2.3.3",
+    "@vercel/kv": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",

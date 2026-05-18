@@ -105,18 +105,12 @@ export default async function RabbiPage({
   const filterType = searchParams?.type ?? "";
   const filterYear = searchParams?.year ?? "";
 
+  // אופטימיזציה: מוצא קודם את הרב (קליל). השיעורים נטענים בנפרד עם cap על המספר —
+  // רב עם 5000 שיעורים לא יכריע את ה-RSC payload. הסטטיסטיקות נשלפות עם aggregate.
   const rabbi = await db.rabbi.findUnique({
     where: { slug: params.slug },
     include: {
       categories: { orderBy: { order: "asc" } },
-      lessons: {
-        where: { isPublic: true, approvalStatus: "APPROVED", isSuspended: false },
-        orderBy: { scheduledAt: "desc" },
-        include: {
-          category: true,
-          sources: { select: { id: true }, take: 1 },
-        },
-      },
       _count: { select: { followers: true } },
       messages: {
         where: {
@@ -131,6 +125,38 @@ export default async function RabbiPage({
   });
 
   if (!rabbi || rabbi.status !== "APPROVED" || rabbi.isBlocked) notFound();
+
+  // שיעורים — בלי `include: { lessons }` השמן. עד 500 שיעורים — מספיק להצגה לכל מי שלא ארכיב עצום;
+  // למקרה קצה של רב עם 5000+ שיעורים — לא תקרוס המערכת. הסטטיסטיקה האמיתית מקוונת ב-aggregate.
+  const lessonsBase = {
+    rabbiId: rabbi.id,
+    isPublic: true,
+    approvalStatus: "APPROVED",
+    isSuspended: false,
+  } as const;
+
+  const [allLessons, lessonStats] = await Promise.all([
+    db.lesson.findMany({
+      where: lessonsBase,
+      orderBy: { scheduledAt: "desc" },
+      take: 500,
+      include: {
+        category: true,
+        sources: { select: { id: true }, take: 1 },
+      },
+    }),
+    // סטטיסטיקה אמיתית מעל **כל** השיעורים — לא רק ה-500 שהבאנו
+    db.lesson.aggregate({
+      where: lessonsBase,
+      _count: true,
+      _sum: { viewCount: true, durationMin: true },
+    }),
+  ]);
+
+  // מצמידים את השיעורים ל-rabbi כדי לשמור על שאר הקוד כפי שהוא.
+  // Cast ל-any כי הוספנו שדה דינמי שלא נמצא בטיפוס Prisma.
+  (rabbi as any).lessons = allLessons;
+  type LessonRow = typeof allLessons[number];
 
   // --- session / follow / contact ---
   const session = await getServerSession(authOptions);
@@ -176,7 +202,7 @@ export default async function RabbiPage({
 
   // --- split lessons ---
   // עתידי = scheduledAt עתידי AND לא שודר עדיין (אין streamId), או isLive כרגע
-  const upcomingLessons = rabbi.lessons
+  const upcomingLessons: LessonRow[] = allLessons
     .filter((l) => l.isLive || (new Date(l.scheduledAt) >= now && !(l as any).streamId))
     .sort(
       (a, b) =>
@@ -185,18 +211,17 @@ export default async function RabbiPage({
 
   // ארכיון = שיעור שתאריך מתוכנן עבר, או שיעור ששודר בפועל (יש לו streamId ולא משדר כרגע).
   // הסיבה השנייה תופסת מקרים שבהם שיעור נפתח לשידור לפני הזמן שלו ועדיין "עתידי" לפי scheduledAt.
-  const pastLessons = rabbi.lessons
+  const pastLessons: LessonRow[] = allLessons
     .filter((l) => new Date(l.scheduledAt) < now || ((l as any).streamId && !l.isLive))
     .sort(
       (a, b) =>
         new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
     );
 
-  // --- stats ---
-  const totalLessons = rabbi.lessons.length;
-  const totalViews = rabbi.lessons.reduce((s, l) => s + l.viewCount, 0);
-  const totalHours =
-    rabbi.lessons.reduce((s, l) => s + (l.durationMin ?? 0), 0) / 60;
+  // --- stats — מתוך aggregate (לא מוגבל ל-500 שהבאנו) ---
+  const totalLessons = lessonStats._count;
+  const totalViews = lessonStats._sum.viewCount ?? 0;
+  const totalHours = (lessonStats._sum.durationMin ?? 0) / 60;
 
   // --- group past lessons by category ---
   const categoriesWithPast = rabbi.categories

@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { requireSession } from "@/lib/session";
+import { rateLimit } from "@/lib/rateLimit";
 
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB — מספיק לפוסטר/PDF דקיק
 const ALLOWED = new Set([
@@ -13,22 +14,8 @@ const ALLOWED = new Set([
   "application/pdf",
 ]);
 
-// rate-limit פר-משתמש — מונע ספאם 8MB אפילו ממשתמשים רשומים.
-// 10 העלאות / 10 דקות. במולטי-instance זה לא הרמטי אבל מספיק ל-Vercel הביתי.
-const userUploads = new Map<string, { count: number; firstAt: number }>();
 const MAX_UPLOADS_PER_WINDOW = 10;
-const UPLOAD_WINDOW_MS = 10 * 60_000;
-
-function checkUploadLimit(userId: string): boolean {
-  const now = Date.now();
-  const rec = userUploads.get(userId);
-  if (!rec || now - rec.firstAt > UPLOAD_WINDOW_MS) {
-    userUploads.set(userId, { count: 1, firstAt: now });
-    return true;
-  }
-  rec.count += 1;
-  return rec.count <= MAX_UPLOADS_PER_WINDOW;
-}
+const UPLOAD_WINDOW_SEC = 10 * 60;
 
 export async function POST(req: Request) {
   // רק משתמש מחובר — מונע ספאם בלתי-מזוהה
@@ -42,7 +29,8 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!checkUploadLimit(session.user.id)) {
+  const ok = await rateLimit(`upload-poster:${session.user.id}`, MAX_UPLOADS_PER_WINDOW, UPLOAD_WINDOW_SEC);
+  if (!ok) {
     return NextResponse.json({ error: "יותר מדי העלאות. נסה שוב בעוד כמה דקות." }, { status: 429 });
   }
 

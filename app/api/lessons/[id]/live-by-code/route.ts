@@ -3,30 +3,10 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { streamCodeMatches, isWithinStreamWindow } from "@/lib/streamCode";
 import { createLiveInput, getPlaybackUrl, getEmbedUrl } from "@/lib/stream";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
-// rate-limit in-memory (per process). מספיק לעצירת brute-force ביעד מקומי;
-// בפרודקשן מומלץ Upstash/Redis — נוסיף בעתיד אם צריך.
-const attempts = new Map<string, { count: number; firstAt: number }>();
 const MAX_ATTEMPTS = 8;
-const WINDOW_MS = 10 * 60_000;
-
-function rateLimitKey(req: Request, lessonId: string): string {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || req.headers.get("x-real-ip")
-    || "unknown";
-  return `${ip}:${lessonId}`;
-}
-
-function checkRateLimit(key: string): boolean {
-  const now = Date.now();
-  const rec = attempts.get(key);
-  if (!rec || now - rec.firstAt > WINDOW_MS) {
-    attempts.set(key, { count: 1, firstAt: now });
-    return true;
-  }
-  rec.count += 1;
-  return rec.count <= MAX_ATTEMPTS;
-}
+const WINDOW_SEC = 10 * 60;
 
 // השדה liveEmbedUrl חובה רק ב-EXTERNAL/YOUTUBE; ב-BROWSER הוא נוצר אוטומטית מ-Cloudflare.
 const schema = z.object({
@@ -39,8 +19,8 @@ const schema = z.object({
 );
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const key = rateLimitKey(req, params.id);
-  if (!checkRateLimit(key)) {
+  const ok = await rateLimit(`live-by-code:${getClientIp(req)}:${params.id}`, MAX_ATTEMPTS, WINDOW_SEC);
+  if (!ok) {
     return NextResponse.json({ error: "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות." }, { status: 429 });
   }
 

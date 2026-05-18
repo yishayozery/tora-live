@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { rateLimit, ipFromHeaders } from "@/lib/rateLimit";
 import { Card, CardDescription } from "@/components/ui/Card";
 import { ShareButtons } from "@/components/ShareButtons";
 import { LessonStructuredData } from "@/components/LessonStructuredData";
@@ -105,12 +107,17 @@ export default async function LessonPage({ params }: { params: { id: string } })
   // אירוע ממתין לאישור / נדחה — מוצג רק לבעלים
   if (lesson.approvalStatus !== "APPROVED" && !isOwner) notFound();
 
-  // === View counter — fire-and-forget. רק למבקר אמיתי שלא הבעלים. ===
+  // === View counter — מנע write storm: מונה רק מבקר ייחודי (IP+שיעור) ב-24ש'.
+  // משתמש ב-rateLimit כ-mutex-like: max=1 מחזיר true רק בפעם הראשונה בחלון.
+  // תחת עומס ויראלי, אותו משתמש שטוען את הדף כל שנייה לא יוצר 60 רישומות.
   if (!isOwner && lesson.approvalStatus === "APPROVED" && lesson.isPublic) {
-    db.lesson.update({
-      where: { id: lesson.id },
-      data: { viewCount: { increment: 1 } },
-    }).catch(() => {});
+    const firstView = await rateLimit(`view:${ipFromHeaders(headers())}:${lesson.id}`, 1, 24 * 3600).catch(() => true);
+    if (firstView) {
+      db.lesson.update({
+        where: { id: lesson.id },
+        data: { viewCount: { increment: 1 } },
+      }).catch(() => {});
+    }
   }
 
   // שיעור מושהה — מוצג לבעלים, לציבור מוצגת הודעה
