@@ -21,6 +21,7 @@ import { cn, formatHebrewDateLetters } from "@/lib/utils";
 
 type ContactReq = {
   id: string;
+  requestNumber: number;
   studentName: string;
   studentPhone: string | null;
   studentEmail: string | null;
@@ -31,6 +32,7 @@ type ContactReq = {
   requestedDate: string | null;
   requestedTime: string | null;
   status: string;
+  approvedLessonId: string | null;
   createdAt: string;
   repliedAt: string | null;
 };
@@ -292,6 +294,7 @@ export default function RabbiRequestsPage() {
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-paper-soft text-ink-muted text-right">
+                <th className="py-2 px-3 font-medium">#</th>
                 <th className="py-2 px-3 font-medium">תאריך פנייה</th>
                 <th className="py-2 px-3 font-medium">תלמיד</th>
                 <th className="py-2 px-3 font-medium">סוג</th>
@@ -305,7 +308,7 @@ export default function RabbiRequestsPage() {
             <tbody>
               {requests.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center py-6 text-ink-muted">
+                  <td colSpan={9} className="text-center py-6 text-ink-muted">
                     אין פניות
                   </td>
                 </tr>
@@ -314,10 +317,25 @@ export default function RabbiRequestsPage() {
                 const sc = STATUS_CONFIG[r.status] || STATUS_CONFIG.PENDING;
                 return (
                   <tr key={r.id} className="border-t border-border hover:bg-paper-soft/50 transition">
+                    <td className="py-2 px-3 text-xs font-bold text-gold whitespace-nowrap">
+                      #{r.requestNumber}
+                    </td>
                     <td className="py-2 px-3 text-xs text-ink-muted whitespace-nowrap">
                       {formatDate(r.createdAt)}
                     </td>
-                    <td className="py-2 px-3 font-medium text-ink">{r.studentName}</td>
+                    <td className="py-2 px-3 font-medium text-ink">
+                      {r.studentName}
+                      {r.approvedLessonId && (
+                        <a
+                          href={`/lesson/${r.approvedLessonId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block text-[10px] text-primary hover:underline"
+                        >
+                          לדף השיעור ←
+                        </a>
+                      )}
+                    </td>
                     <td className="py-2 px-3 text-ink-muted">
                       {r.requestType ? REQUEST_TYPE_LABELS[r.requestType] || r.requestType : "—"}
                     </td>
@@ -398,6 +416,12 @@ export default function RabbiRequestsPage() {
                   <Card key={r.id} className="border-gold/20">
                     <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                       <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className="inline-flex items-center justify-center min-w-[2rem] h-6 px-2 rounded-full bg-gold/15 text-gold text-xs font-bold border border-gold/30"
+                          title={`פנייה מס׳ ${r.requestNumber}`}
+                        >
+                          #{r.requestNumber}
+                        </span>
                         <span className="font-medium text-ink">{r.studentName}</span>
                         <span className="text-xs text-ink-muted">{formatDate(r.createdAt)}</span>
                         <ContactQuickActions phone={r.studentPhone} email={r.studentEmail} name={r.studentName} />
@@ -523,13 +547,32 @@ export default function RabbiRequestsPage() {
                     <Card key={r.id} className={cn("border", sc.border)}>
                       <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                         <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className="inline-flex items-center justify-center min-w-[2rem] h-6 px-2 rounded-full bg-paper-soft text-ink-soft text-xs font-bold border border-border"
+                            title={`פנייה מס׳ ${r.requestNumber}`}
+                          >
+                            #{r.requestNumber}
+                          </span>
                           <span className="font-medium text-ink">{r.studentName}</span>
                           <span className="text-xs text-ink-muted">{formatDate(r.createdAt)}</span>
                           <ContactQuickActions phone={r.studentPhone} email={r.studentEmail} name={r.studentName} />
                         </div>
-                        <span className={cn("text-xs px-2 py-0.5 rounded-full", sc.bg, sc.text)}>
-                          {sc.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {r.approvedLessonId && (
+                            <a
+                              href={`/lesson/${r.approvedLessonId}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-primary hover:underline font-semibold"
+                              title="ניווט לדף השיעור שנוצר מהפנייה"
+                            >
+                              לדף השיעור ←
+                            </a>
+                          )}
+                          <span className={cn("text-xs px-2 py-0.5 rounded-full", sc.bg, sc.text)}>
+                            {sc.label}
+                          </span>
+                        </div>
                       </div>
 
                       {/* פרטי בקשה */}

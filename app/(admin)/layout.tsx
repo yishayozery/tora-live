@@ -6,9 +6,11 @@ import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { Logo } from "@/components/Logo";
 import { PersonalAssistant } from "@/components/PersonalAssistant";
+import { AdminMobileHeader } from "@/components/AdminMobileHeader";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const adminName = session?.user?.name || session?.user?.email?.split("@")[0] || "אדמין";
   let pendingEvents = 0;
   let pendingSuggestions = 0;
   let pendingCandidates = 0;
@@ -28,7 +30,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     console.error("[admin/layout] sourceCandidate.count failed:", e?.message, e?.code);
   }
   return (
-    <div className="min-h-screen bg-paper-soft flex">
+    <div className="min-h-screen bg-paper-soft flex flex-col md:flex-row">
+      {/* === MOBILE HEADER === — מציג Logo + שם אדמין + תפריט/יציאה */}
+      <AdminMobileHeader adminName={adminName} pendingEvents={pendingEvents} pendingSuggestions={pendingSuggestions} pendingCandidates={pendingCandidates} />
+
+      {/* === DESKTOP SIDEBAR === */}
       <aside className="w-60 bg-white border-l border-border hidden md:flex flex-col">
         <div className="h-16 px-5 border-b border-border flex items-center justify-between hover:bg-paper-soft transition">
           <Logo size="sm" />
@@ -47,11 +53,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <NavLink href="/admin/donations"><Heart className="w-4 h-4" /> תרומות</NavLink>
         </nav>
         <div className="p-3 border-t border-border text-sm">
+          <div className="mb-2 truncate text-ink-muted">שלום, {adminName}</div>
           <LogoutButton label="יציאה" />
         </div>
       </aside>
-      <main className="flex-1 p-6 md:p-10">{children}</main>
-      <PersonalAssistant role="admin" userName="אדמין" />
+      <main className="flex-1 p-4 sm:p-6 md:p-10">{children}</main>
+      <PersonalAssistant role="admin" userName={adminName} />
     </div>
   );
 }
