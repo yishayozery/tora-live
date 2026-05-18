@@ -17,9 +17,10 @@ export async function GET() {
     return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
   }
 
+  // ממוין asc כדי למספר מהראשונה (#1) ולא ההפך. ה-UI תופס את זה כפי שצריך.
   const requests = await db.contactRequest.findMany({
     where: { rabbiId: rabbi.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: "asc" },
     include: {
       // טלפון של התלמיד נחשף לרב כדי שיוכל להתקשר / לשלוח WhatsApp.
       // המייל מגיע מ-User. שניהם רק בידי הרב שהפנייה מיועדת אליו.
@@ -33,8 +34,11 @@ export async function GET() {
     },
   });
 
-  const result = requests.map((r) => ({
+  const result = requests.map((r, idx) => ({
     id: r.id,
+    // מספר פנייה רץ — פנייה ראשונה = #1, פנייה אחרונה = #N. מתאים לזיהוי קל
+    // וגם להתייחסות בהודעות לתלמיד ("פנייה #42 שלך עברה לטיפול").
+    requestNumber: idx + 1,
     studentName: r.student.name,
     studentPhone: r.student.phoneE164,
     studentEmail: r.student.user?.email ?? null,
@@ -45,9 +49,11 @@ export async function GET() {
     requestedDate: r.requestedDate,
     requestedTime: r.requestedTime,
     status: r.status,
+    // השיעור שנוצר מהפנייה (אם אושר) — מאפשר ניווט ישיר
+    approvedLessonId: (r as any).approvedLessonId ?? null,
     createdAt: r.createdAt,
     repliedAt: r.repliedAt,
-  }));
+  })).reverse(); // ב-UI מציגים מהאחרון לראשון, אבל המספור כבר הוקצה לפי סדר יצירה
 
   return NextResponse.json(result);
 }

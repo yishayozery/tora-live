@@ -267,7 +267,7 @@ export function LessonForm({
           </F>
         </div>
 
-        <F label="תאריך ושעה של השיעור">
+        <F label={form.broadcastType === "SEMINAR" ? "תאריך + שעת התחלה" : "תאריך ושעה של השיעור"}>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
             <HebrewDatePicker
               value={form.scheduledAt ? form.scheduledAt.slice(0, 10) : ""}
@@ -293,6 +293,44 @@ export function LessonForm({
           </div>
           <HebrewDateHint value={form.scheduledAt} />
         </F>
+
+        {/* === ליום עיון: שעת סיום במקום משך בדקות (UX קל יותר לאירוע של 4 שעות) === */}
+        {form.broadcastType === "SEMINAR" && form.scheduledAt && (
+          <F label="שעת סיום (אופציונלי)">
+            <div className="flex items-center gap-2">
+              <input
+                type="time"
+                value={(() => {
+                  if (!form.scheduledAt || !form.durationMin) return "";
+                  const start = new Date(form.scheduledAt);
+                  if (isNaN(start.getTime())) return "";
+                  const end = new Date(start.getTime() + form.durationMin * 60_000);
+                  return `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`;
+                })()}
+                onChange={(e) => {
+                  const start = new Date(form.scheduledAt);
+                  if (isNaN(start.getTime())) return;
+                  const [hh, mm] = e.target.value.split(":").map(Number);
+                  if (isNaN(hh) || isNaN(mm)) return;
+                  const end = new Date(start);
+                  end.setHours(hh, mm, 0, 0);
+                  // אם הסיום מוקדם מההתחלה — מניחים יום למחרת
+                  if (end.getTime() <= start.getTime()) end.setDate(end.getDate() + 1);
+                  const mins = Math.round((end.getTime() - start.getTime()) / 60_000);
+                  setForm({ ...form, durationMin: mins });
+                }}
+                className="input sm:w-40"
+                aria-label="שעת סיום"
+              />
+              <span className="text-xs text-ink-muted">
+                ({form.durationMin} דק׳ = {Math.floor(form.durationMin / 60)} שעות {form.durationMin % 60} דק׳)
+              </span>
+            </div>
+            <p className="text-xs text-ink-muted mt-1">
+              ניתן גם להזין משך ידנית בשדה &quot;משך (דקות)&quot; למעלה.
+            </p>
+          </F>
+        )}
 
         {/* === אירוע הכנה — מודגש, אופציונלי, אחרי תאריך השיעור === */}
         <div className="rounded-card border-2 border-purple-300 bg-purple-50/40 p-4">

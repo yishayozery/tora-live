@@ -19,6 +19,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       recordingUrl: true,
       recordingExpiry: true,
       streamId: true,
+      updatedAt: true,
     },
   });
 
@@ -41,6 +42,21 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     try {
       const videos = await getRecordings(lesson.streamId);
       if (videos.length === 0) {
+        // אבחנה בין "עדיין בהכנה" ל-"אבד לצמיתות":
+        // אם השיעור הסתיים לפני יותר משעה ועדיין אין וידאו — סביר שהוא לא הוקלט
+        // (שידור קצר, כשל זרם, וכו'). מנקים את ה-recordingExpiry כדי לא להציע
+        // הורדה שלעולם לא תעבוד, ומחזירים 410 (Gone) במקום 425.
+        const hourAgo = new Date(Date.now() - 60 * 60_000);
+        if (lesson.updatedAt && lesson.updatedAt < hourAgo) {
+          await db.lesson.update({
+            where: { id: params.id },
+            data: { recordingExpiry: null },
+          }).catch(() => {});
+          return NextResponse.json(
+            { error: "ההקלטה לא נשמרה — ייתכן שהשידור נקטע באמצע או לא הוקלט. פנה לרב." },
+            { status: 410 },
+          );
+        }
         return NextResponse.json(
           { error: "ההקלטה עדיין בהכנה אצל ספק השידור, נסה שוב בעוד דקה" },
           { status: 425 },
