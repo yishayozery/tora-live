@@ -8,10 +8,10 @@ import { PopularLessonsStrip } from "@/components/PopularLessonsStrip";
 import { TestimonialsStrip } from "@/components/TestimonialsStrip";
 import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-export const dynamic = "force-dynamic";
+// ISR — מתרענן כל 30 שניות בצד השרת, אבל מוגש מהמטמון בין לבין.
+// תחת עומס של 100 RPS זה ~3 רינדורים בדקה במקום 6000.
+// LIVE NOW שמתחיל באמצע — יקח עד 30 שניות להופיע. סביר.
+export const revalidate = 30;
 
 async function getHomeData() {
   // --- תורם היום: רשומת Sponsor של היום (אם יש), אחרת התרומה הציבורית האחרונה ---
@@ -167,25 +167,7 @@ async function getHomeData() {
     take: 150,
   });
 
-  // session + bookmarks — אם מחובר כתלמיד, מסמנים אילו שיעורים כבר ב-bookmarks שלו
-  const session = await getServerSession(authOptions);
-  let bookmarkedIds = new Set<string>();
-  let canBookmark = false;
-  if (session?.user?.id) {
-    const student = await db.student.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true, isBlocked: true },
-    });
-    if (student && !student.isBlocked) {
-      canBookmark = true;
-      const bms = await db.bookmark.findMany({
-        where: { studentId: student.id, lessonId: { in: dbCalendarLessons.map((l) => l.id) } },
-        select: { lessonId: true },
-      });
-      bookmarkedIds = new Set(bms.map((b) => b.lessonId));
-    }
-  }
-
+  // bookmarks נטענים בצד הלקוח דרך /api/bookmarks/me — לא חוסם ISR לדף הראשי.
   const calendarLessons = dbCalendarLessons.map((l) => ({
     id: l.id,
     title: l.title,
@@ -197,7 +179,7 @@ async function getHomeData() {
     language: l.language,
     broadcastType: l.broadcastType,
     isLive: l.isLive,
-    bookmarked: bookmarkedIds.has(l.id),
+    // bookmarked משלים בלקוח דרך useEffect ב-WeeklyCalendar
   }));
 
   // שיעורים פופולריים — top 8 past lessons לפי viewCount (30 יום אחרונים)
@@ -281,7 +263,6 @@ async function getHomeData() {
     live,
     nextLive,
     calendarLessons,
-    canBookmark,
     popularLessons,
     trendingTopics,
     stats: {
@@ -294,7 +275,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { sponsor, dedications, live, nextLive, stats, calendarLessons, canBookmark, popularLessons, trendingTopics } = await getHomeData();
+  const { sponsor, dedications, live, nextLive, stats, calendarLessons, popularLessons, trendingTopics } = await getHomeData();
 
   // המר את live ל-LiveBroadcast format
   const liveBroadcasts: LiveBroadcast[] = live.map((l) => ({
@@ -341,7 +322,7 @@ export default async function HomePage() {
 
       {/* === SECTION 2: לוח שיעורים (רקע נייר) === */}
       <div id="calendar" className="-mt-1">
-        <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" canBookmark={canBookmark} />
+        <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" />
       </div>
 
       {/* Divider 2→Popular — wave עדין */}

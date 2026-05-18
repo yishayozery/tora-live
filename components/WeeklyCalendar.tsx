@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Search, Filter, Printer, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -112,14 +112,43 @@ export function WeeklyCalendar({
   lessons,
   title = "לוח שיעורים",
   compact = false,
-  canBookmark = false,
+  canBookmark: canBookmarkProp,
 }: {
   lessons: CalendarLesson[];
   title?: string;
   compact?: boolean;
-  /** אם המשתמש יכול לסמן ללוח (תלמיד מחובר ולא חסום). אורח/רב לא יראו את האייקון. */
+  /**
+   * אם המשתמש יכול לסמן ללוח (תלמיד מחובר ולא חסום).
+   * undefined → נקבע בצד הלקוח דרך /api/bookmarks/me (תומך ב-ISR בדף האב).
+   */
   canBookmark?: boolean;
 }) {
+  // מצב לקוחי של bookmarks — נטען אחרי mount כדי לא לכפות דינמיות על דף הבית ISR.
+  // אם הפרופ הועבר (true/false) — מנצחים אותו (תאימות אחורה).
+  const [clientBookmarks, setClientBookmarks] = useState<{ ids: Set<string>; canBookmark: boolean } | null>(null);
+  useEffect(() => {
+    if (typeof canBookmarkProp === "boolean") return; // הוזרק מהשרת, אין צורך לטעון
+    let cancelled = false;
+    fetch("/api/bookmarks/me", { cache: "no-store" })
+      .then((r) => r.ok ? r.json() : { ids: [], canBookmark: false })
+      .then((data: { ids: string[]; canBookmark: boolean }) => {
+        if (cancelled) return;
+        setClientBookmarks({ ids: new Set(data.ids), canBookmark: !!data.canBookmark });
+      })
+      .catch(() => {
+        if (!cancelled) setClientBookmarks({ ids: new Set(), canBookmark: false });
+      });
+    return () => { cancelled = true; };
+  }, [canBookmarkProp]);
+
+  const canBookmark = typeof canBookmarkProp === "boolean" ? canBookmarkProp : (clientBookmarks?.canBookmark ?? false);
+
+  // ממזגים את ה-bookmarks הלקוחיים לתוך השיעורים
+  const enrichedLessons = useMemo(() => {
+    if (!clientBookmarks) return lessons;
+    return lessons.map((l) => ({ ...l, bookmarked: l.bookmarked ?? clientBookmarks.ids.has(l.id) }));
+  }, [lessons, clientBookmarks]);
+
   const [weekOffset, setWeekOffset] = useState(0);
   const [filter, setFilter] = useState("");
   const [viewMode, setViewMode] = useState<"day" | "week" | "2weeks" | "month">("2weeks");
@@ -131,19 +160,19 @@ export function WeeklyCalendar({
   // אפשרויות פילטר מתוך הלוח
   const rabbiOptions = useMemo(() => {
     const map = new Map<string, number>();
-    lessons.forEach((l) => map.set(l.rabbiName, (map.get(l.rabbiName) ?? 0) + 1));
+    enrichedLessons.forEach((l) => map.set(l.rabbiName, (map.get(l.rabbiName) ?? 0) + 1));
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [lessons]);
+  }, [enrichedLessons]);
   const categoryOptions = useMemo(() => {
     const map = new Map<string, number>();
-    lessons.forEach((l) => { if (l.category) map.set(l.category, (map.get(l.category) ?? 0) + 1); });
+    enrichedLessons.forEach((l) => { if (l.category) map.set(l.category, (map.get(l.category) ?? 0) + 1); });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [lessons]);
+  }, [enrichedLessons]);
   const availableLanguages = useMemo(() => {
     const set = new Set<string>();
-    lessons.forEach((l) => { if (l.language) set.add(l.language); });
+    enrichedLessons.forEach((l) => { if (l.language) set.add(l.language); });
     return Array.from(set);
-  }, [lessons]);
+  }, [enrichedLessons]);
 
   const hasActiveFilter = !!(filter || rabbiFilter || categoryFilter || typeFilter || languageFilter);
   const clearAll = () => { setFilter(""); setRabbiFilter(""); setCategoryFilter(""); setTypeFilter(""); setLanguageFilter(""); };
@@ -181,7 +210,7 @@ export function WeeklyCalendar({
   // סינון שיעורים — חיפוש + פילטרים
   const filteredLessons = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    return lessons.filter((l) => {
+    return enrichedLessons.filter((l) => {
       if (q) {
         const match = l.title.toLowerCase().includes(q) ||
           l.rabbiName.toLowerCase().includes(q) ||
@@ -194,7 +223,7 @@ export function WeeklyCalendar({
       if (languageFilter && l.language !== languageFilter) return false;
       return true;
     });
-  }, [lessons, filter, rabbiFilter, categoryFilter, typeFilter, languageFilter]);
+  }, [enrichedLessons, filter, rabbiFilter, categoryFilter, typeFilter, languageFilter]);
 
   /** מיפוי dateString -> שיעורים */
   const lessonsByDate = useMemo(() => {
