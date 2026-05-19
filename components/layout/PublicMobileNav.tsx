@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, Users, Calendar, Heart, Phone, UserPlus, LogIn, HandHeart, Sparkles } from "lucide-react";
+import { Menu, X, BookOpen, Users, Calendar, Heart, Phone, UserPlus, LogIn, HandHeart, Sparkles, Radio, Archive } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -23,9 +23,12 @@ export function PublicMobileNav({ isLoggedIn, isRabbi }: Props) {
   }, [open]);
 
   const items = [
+    // המיקוד: שיעורים חיים → לוח → ארכיון → רבנים
+    { href: "/#live", icon: Radio, label: "שידור חי" },
+    { href: "/#calendar", icon: Calendar, label: "לוח שיעורים" },
+    { href: "/lessons", icon: Archive, label: "ארכיון השיעורים" },
     { href: "/rabbis", icon: Users, label: "רבנים" },
-    { href: "/lessons", icon: BookOpen, label: "שיעורים" },
-    ...(isLoggedIn && !isRabbi ? [{ href: "/my/schedule", icon: Calendar, label: "הלוח שלי" }] : []),
+    ...(isLoggedIn && !isRabbi ? [{ href: "/my/schedule", icon: BookOpen, label: "הלוח שלי" }] : []),
     ...(isLoggedIn ? [{ href: "/propose-event", icon: Sparkles, label: "הצעת יום עיון" }] : []),
     { href: "/donate", icon: HandHeart, label: "תרומה" },
     { href: "/contact", icon: Phone, label: "צור קשר" },

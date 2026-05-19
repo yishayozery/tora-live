@@ -9,7 +9,7 @@
 // Libre בגדול, הרבה whitespace, **CTA ראשי אחד** בולט (לא 5 שמתחרים).
 
 import Link from "next/link";
-import { Play, ChevronLeft, Mic, Sparkles } from "lucide-react";
+import { Play, ChevronLeft, Sparkles } from "lucide-react";
 
 export type HeroLive = {
   id: string;
@@ -87,7 +87,9 @@ export function HomeHero({
       />
 
       {/* === תוכן === */}
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-28 lg:py-36 text-center">
+      {/* Hero קומפקטי: השידורים החיים חייבים להופיע מתחת ללא גלילה.
+          מובייל py-12, דסקטופ py-16. אם רוצים יותר אוויר — נוסיף mt למטה. */}
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-14 lg:py-16 text-center">
         {/* Eyebrow chip — מצב נוכחי */}
         {isLive && live && (
           <Link
@@ -110,21 +112,20 @@ export function HomeHero({
         )}
         {!isLive && !hasUpcoming && (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 backdrop-blur-sm text-sm font-medium mb-6">
-            <Mic className="w-3.5 h-3.5" />
-            <span>הבית הדיגיטלי של רבני ישראל</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>שיעורי תורה חיים — לוח, שידור, ארכיון</span>
           </div>
         )}
 
-        {/* === כותרת ראשית — Frank Ruhl Libre === */}
-        <h1 className="font-display font-bold text-white leading-[1.05] tracking-tight text-4xl sm:text-6xl lg:text-7xl">
-          כל רבני ישראל.
+        {/* === כותרת ראשית — Frank Ruhl Libre. גודל מצומצם לטובת אוויר */}
+        <h1 className="font-display font-bold text-white leading-[1.05] tracking-tight text-3xl sm:text-5xl lg:text-6xl">
+          שיעורי תורה בשידור חי.
           <br />
-          <span className="text-amber-300">מקום אחד.</span>
+          <span className="text-amber-300">לוח, ארכיון, ושידור.</span>
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-          שיעורי תורה בשידור חי, ארכיון פתוח, וחיבור ישיר לרבני הקהילות —
-          הכל באתר אחד, חינם, וללא הרשמה.
+        <p className="mt-4 text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
+          כל השיעורים החיים של רבני ישראל במקום אחד — חינם, וללא הרשמה.
         </p>
 
         {/* פרטי השיעור הנוכחי/הבא — רק כשרלוונטי */}
@@ -139,38 +140,26 @@ export function HomeHero({
           </div>
         )}
 
-        {/* === CTAs === */}
-        <div className="mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-          {/* Primary CTA — זהב, גדול, אחד */}
+        {/* === CTAs — מיקוד בשיעורים. רב מצטרף דרך /register, לא צריך CTA בולט בדף הבית === */}
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center items-center">
+          {/* Primary CTA — זהב */}
           <Link
             href={primaryCta.href}
-            className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-amber-500 hover:bg-amber-400 text-slate-900 text-base sm:text-lg font-bold shadow-card transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-5 sm:px-7 rounded-btn bg-amber-500 hover:bg-amber-400 text-slate-900 text-base font-bold shadow-card transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 w-full sm:w-auto"
           >
-            {PrimaryIcon && <PrimaryIcon className="w-5 h-5 fill-current" />}
+            {PrimaryIcon && <PrimaryIcon className="w-4 h-4 fill-current" />}
             <span>{primaryCta.label}</span>
-            {primaryCta.arrowRight && <ChevronLeft className="w-5 h-5" />}
+            {primaryCta.arrowRight && <ChevronLeft className="w-4 h-4" />}
           </Link>
-          {/* Secondary CTA — לרבנים. שיווק */}
-          <Link
-            href="/register?role=rabbi"
-            className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white text-base sm:text-lg font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 w-full sm:w-auto"
+          {/* Secondary CTA — מתמקד במוצר עצמו: לוח השיעורים השבועי */}
+          <a
+            href="#calendar"
+            className="inline-flex items-center justify-center gap-2 h-11 sm:h-12 px-5 sm:px-7 rounded-btn bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white text-base font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 w-full sm:w-auto"
           >
-            <Mic className="w-5 h-5" />
-            אני רב — צרף אותי
-          </Link>
+            <Sparkles className="w-4 h-4" />
+            לוח השיעורים השבועי
+          </a>
         </div>
-
-        {/* רמז גלילה ללוח השיעורים */}
-        <a
-          href="#calendar"
-          className="hidden sm:inline-flex items-center gap-2 mt-12 text-xs text-white/50 hover:text-white/80 transition group"
-          aria-label="גלילה ללוח השיעורים"
-        >
-          <span>לוח השיעורים השבועי</span>
-          <span className="block w-5 h-5 rounded-full border border-current animate-bounce group-hover:animate-none flex items-center justify-center" aria-hidden>
-            <span className="block w-1 h-1 rounded-full bg-current" />
-          </span>
-        </a>
       </div>
     </section>
   );

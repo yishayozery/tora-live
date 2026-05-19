@@ -159,7 +159,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
   }, [broadcasts]);
 
   return (
-    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 min-h-[calc(100vh-100px)] flex flex-col">
+    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 flex flex-col">
       {/* רקע מבוסס gradient — נקי, בלי תלות בתמונה חיצונית */}
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-white to-primary-soft/40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex-1 flex flex-col">
@@ -347,20 +347,21 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <button onClick={clearAll} className="text-primary hover:underline">נקה סינון</button>
           </div>
         ) : view === "grid" ? (
-          // הקוביות שומרות על יחס 16:9. הגריד ממורכז אנכית באזור האפור.
-          <div className="flex-1 flex items-center justify-center w-full py-2">
-            <div className={`w-full grid gap-3 sm:gap-4 ${
+          // Grid מודולרי: מותאם לעשרות שידורים. ככל שיש יותר, הגריד צפוף יותר.
+          // יחס תאים: 16:9 (LiveCardGrid). מטרה: כמה שיותר על מסך ללא גלילה.
+          <div className="flex-1 flex items-start justify-center w-full py-2">
+            <div className={`w-full grid gap-2 sm:gap-3 ${
               filtered.length === 1
-                ? "grid-cols-1 max-w-2xl mx-auto"
+                ? "grid-cols-1 max-w-3xl mx-auto"
                 : filtered.length === 2
-                  ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
-                  : filtered.length === 3
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                    : filtered.length === 4
-                      ? "grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto"
-                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  ? "grid-cols-1 sm:grid-cols-2 max-w-5xl mx-auto"
+                  : filtered.length <= 4
+                    ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto"
+                    : filtered.length <= 9
+                      ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                      : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
             }`}>
-              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} />)}
+              {filtered.map((b) => <LiveCardGrid key={b.id} b={b} dense={filtered.length > 4} />)}
             </div>
           </div>
         ) : (
@@ -376,7 +377,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 }
 
 /* ============= GRID VIEW ============= */
-function LiveCardGrid({ b }: { b: LiveBroadcast }) {
+function LiveCardGrid({ b, dense = false }: { b: LiveBroadcast; dense?: boolean }) {
   const { embedUrl, platform } = resolveEmbed(b);
   const dur = durationSince(b.liveStartedAt);
   const lessonHref = `/lesson/${b.id}`;
@@ -470,27 +471,35 @@ function LiveCardGrid({ b }: { b: LiveBroadcast }) {
         )}
       </div>
 
-      <div className="p-3">
-        <Link href={lessonHref} className="block">
-          <h3 className="font-bold text-ink line-clamp-1 group-hover:text-primary transition">{b.title}</h3>
-          <div className="text-xs text-ink-muted mt-1">
-            {b.rabbiSlug ? (
-              <Link href={`/rabbi/${b.rabbiSlug}`} className="hover:text-primary">{b.rabbiName}</Link>
-            ) : <span>{b.rabbiName}</span>}
-          </div>
+      {/* === מצב dense: רק כותרת קצרה + רב, ללא כפתור. הקליק על הכרטיס עצמו === */}
+      {dense ? (
+        <Link href={lessonHref} className="block p-2 group/info">
+          <h3 className="font-semibold text-ink text-xs sm:text-sm line-clamp-1 group-hover/info:text-primary transition">{b.title}</h3>
+          <div className="text-[10px] sm:text-xs text-ink-muted truncate mt-0.5">{b.rabbiName}</div>
         </Link>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <Link
-            href={lessonHref}
-            className="inline-flex items-center gap-1 h-8 px-3 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition"
-          >
-            <Radio className="w-3 h-3" />
-            לדף השיעור
-            <ChevronLeft className="w-3 h-3" />
+      ) : (
+        <div className="p-3">
+          <Link href={lessonHref} className="block">
+            <h3 className="font-bold text-ink line-clamp-1 group-hover:text-primary transition">{b.title}</h3>
+            <div className="text-xs text-ink-muted mt-1">
+              {b.rabbiSlug ? (
+                <Link href={`/rabbi/${b.rabbiSlug}`} className="hover:text-primary">{b.rabbiName}</Link>
+              ) : <span>{b.rabbiName}</span>}
+            </div>
           </Link>
-          <ReportLessonButton lessonId={b.id} />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <Link
+              href={lessonHref}
+              className="inline-flex items-center gap-1 h-8 px-3 rounded-btn bg-primary text-white text-xs font-semibold hover:bg-primary-hover transition"
+            >
+              <Radio className="w-3 h-3" />
+              לדף השיעור
+              <ChevronLeft className="w-3 h-3" />
+            </Link>
+            <ReportLessonButton lessonId={b.id} />
+          </div>
         </div>
-      </div>
+      )}
     </article>
   );
 }
