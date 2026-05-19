@@ -1,6 +1,6 @@
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
 import { DonationTicker, type DedicationEntry } from "@/components/DonationTicker";
-import { HomeHero, type HeroLive, type HeroUpcoming } from "@/components/HomeHero";
+import { HomeHero } from "@/components/HomeHero";
 import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@/components/LiveBroadcastsSection";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { db } from "@/lib/db";
@@ -221,30 +221,15 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* === Hero קומפקטי — first impression. ממוזג עם LIVE/UPCOMING/DEFAULT === */}
-      <HomeHero
-        live={
-          liveBroadcasts[0]
-            ? ({ id: liveBroadcasts[0].id, title: liveBroadcasts[0].title, rabbiName: liveBroadcasts[0].rabbiName } as HeroLive)
-            : null
-        }
-        upcoming={
-          nextBroadcast
-            ? ({
-                id: nextBroadcast.id,
-                title: nextBroadcast.title,
-                rabbiName: nextBroadcast.rabbiName,
-                scheduledAt: nextBroadcast.scheduledAt,
-              } as HeroUpcoming)
-            : null
-        }
-      />
-
-      {/* === שידורים חיים — קדמת הדף. מודולרי לעשרות שידורים === */}
-      {hasLiveSection && (
+      {/* === הגישה: כשנכנסים לאתר ויש שידורים חיים → מציגים אותם **מיד** ללא Hero חוצץ.
+          רק כשאין כלום — מציגים Hero (welcome). זה מסיר את הצורך בגלילה לכל שידור פעיל. === */}
+      {hasLiveSection ? (
         <div id="live">
           <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
         </div>
+      ) : (
+        // ב-else branch — hasLiveSection=false, אז nextBroadcast=null. אין צורך לבדוק.
+        <HomeHero live={null} upcoming={null} />
       )}
 
       {/* === לוח שיעורים אינטראקטיבי === */}
