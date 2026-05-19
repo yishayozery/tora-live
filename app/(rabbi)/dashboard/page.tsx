@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { formatHebrewDateLetters } from "@/lib/utils";
+import { OnboardingBanner } from "@/components/rabbi/OnboardingBanner";
 
 /** סוגי שידור שנחשבים "אירוע אישי" (לא שיעור רגיל) */
 const EVENT_BROADCAST_TYPES = new Set([
@@ -122,6 +123,8 @@ export default async function RabbiDashboardPage() {
 
   return (
     <div className="space-y-8">
+      <OnboardingBanner rabbiName={rabbi.name} />
+
       {profileIncomplete && (
         <Link
           href="/dashboard/settings"
