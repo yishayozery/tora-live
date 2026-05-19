@@ -5,8 +5,7 @@ import { HomeHero, type HeroLive, type HeroUpcoming } from "@/components/HomeHer
 import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@/components/LiveBroadcastsSection";
 import { LessonsCounter } from "@/components/LessonsCounter";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
-import { PopularLessonsStrip } from "@/components/PopularLessonsStrip";
-import { TestimonialsStrip } from "@/components/TestimonialsStrip";
+import { HomeStudyAndVoices } from "@/components/HomeStudyAndVoices";
 import { LANGUAGES, BROADCAST_TYPES } from "@/lib/enums";
 import { db } from "@/lib/db";
 // ISR — מתרענן כל 30 שניות בצד השרת, אבל מוגש מהמטמון בין לבין.
@@ -301,6 +300,9 @@ export default async function HomePage() {
     posterUrl: nextLive.posterUrl,
   } : null;
 
+  // האם להציג סקציית שידורים חיים. הסתרה מלאה כשאין שיעור חי וגם אין הבא — Hero כבר מכסה מצב ברירת מחדל.
+  const hasLiveSection = liveBroadcasts.length > 0 || !!nextBroadcast;
+
   return (
     <>
       {/* 0. Hero — first impression. ממוזג עם מצב LIVE/UPCOMING/DEFAULT */}
@@ -328,47 +330,25 @@ export default async function HomePage() {
       {/* 1b. לוח הקדשות מתגלגל — דסקטופ: עמודה צד שמאל. מובייל: רצועה אופקית מעל השידורים */}
       <DonationTicker donations={dedications} />
 
-      {/* === SECTION 1: שידורים חיים (רקע כהה) === */}
-      <div id="live">
-        <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
-      </div>
+      {/* === שידורים חיים — מוצג רק כשיש פעיל או הבא === */}
+      {hasLiveSection && (
+        <div id="live">
+          <LiveBroadcastsSection broadcasts={liveBroadcasts} nextBroadcast={nextBroadcast} />
+        </div>
+      )}
 
-      {/* Divider 1→2 — wave מלבן לנייר חם */}
-      <div className="relative -mt-1 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 60" className="w-full block text-amber-50" preserveAspectRatio="none">
-          <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
-        </svg>
-      </div>
-
-      {/* === SECTION 2: לוח שיעורים (רקע נייר) === */}
-      <div id="calendar" className="-mt-1">
+      {/* === לוח שיעורים === */}
+      <div id="calendar">
         <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" />
       </div>
 
-      {/* Divider 2→Popular — wave עדין */}
-      <div className="relative -mt-1 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 60" className="w-full block text-white" preserveAspectRatio="none">
-          <path fill="currentColor" d="M0,30 C180,60 360,0 720,25 C1080,50 1260,10 1440,30 L1440,60 L0,60 Z" />
-        </svg>
+      {/* === מה לומדים השבוע + מה אומרים תלמידים (מאוחד) === */}
+      <div id="study">
+        <HomeStudyAndVoices lessons={popularLessons} topics={trendingTopics} />
       </div>
 
-      {/* === SECTION 2.5: פופולריים + טרנדינג (אחרי הלוח) === */}
-      <div id="popular" className="-mt-1">
-        <PopularLessonsStrip lessons={popularLessons} topics={trendingTopics} />
-      </div>
-
-      {/* Divider Popular→3 — wave לכחול */}
-      <div className="relative -mt-1 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 80" className="w-full block text-primary" preserveAspectRatio="none">
-          <path fill="currentColor" d="M0,40 C240,10 480,60 720,40 C960,20 1200,70 1440,30 L1440,80 L0,80 Z" />
-        </svg>
-      </div>
-
-      {/* === Testimonials strip (לפני הדשבורד) === */}
-      <TestimonialsStrip />
-
-      {/* === SECTION 3: דשבורד (רקע כחול) === */}
-      <div id="dashboard" className="-mt-1">
+      {/* === דשבורד מספרים === */}
+      <div id="dashboard">
         <LessonsCounter
           totalLessons={stats.totalLessons}
           totalHours={stats.totalHours}
@@ -379,13 +359,15 @@ export default async function HomePage() {
 
       {/* Navigation dots — נקודות צדדיות למעבר מהיר (desktop only) */}
       <nav className="fixed right-4 top-1/2 -translate-y-1/2 z-30 hidden lg:flex flex-col gap-3 pointer-events-none" aria-label="ניווט סקציות">
-        <a href="#live" className="group pointer-events-auto" title="שידורים חיים">
-          <span className="block w-3 h-3 rounded-full bg-live/40 border border-live ring-2 ring-transparent group-hover:ring-live/30 transition" />
-        </a>
+        {hasLiveSection && (
+          <a href="#live" className="group pointer-events-auto" title="שידורים חיים">
+            <span className="block w-3 h-3 rounded-full bg-live/40 border border-live ring-2 ring-transparent group-hover:ring-live/30 transition" />
+          </a>
+        )}
         <a href="#calendar" className="group pointer-events-auto" title="לוח שיעורים">
           <span className="block w-3 h-3 rounded-full bg-gold/40 border border-gold ring-2 ring-transparent group-hover:ring-gold/30 transition" />
         </a>
-        <a href="#popular" className="group pointer-events-auto" title="פופולריים">
+        <a href="#study" className="group pointer-events-auto" title="פופולריים והמלצות">
           <span className="block w-3 h-3 rounded-full bg-danger/40 border border-danger ring-2 ring-transparent group-hover:ring-danger/30 transition" />
         </a>
         <a href="#dashboard" className="group pointer-events-auto" title="דשבורד">

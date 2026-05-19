@@ -39,12 +39,12 @@ export function PopularLessonsStrip({
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-3">
             <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
-            <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-ink leading-tight tracking-tight">
               פופולריים החודש
             </h2>
             <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
           </div>
-          <p className="text-sm sm:text-lg text-ink-muted px-2">השיעורים שצפו בהם הכי הרבה ב-30 הימים האחרונים</p>
+          <p className="text-base sm:text-lg text-ink-soft max-w-2xl mx-auto leading-relaxed">השיעורים שצפו בהם הכי הרבה ב-30 הימים האחרונים</p>
         </div>
 
         {/* טרנדינג טופיקס — chips לחיצים */}
