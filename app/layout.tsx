@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Heebo, Noto_Serif_Hebrew } from "next/font/google";
+import { Heebo, Noto_Serif_Hebrew, Frank_Ruhl_Libre } from "next/font/google";
 import "./globals.css";
 
 // Body font — Heebo (cleaner on mobile, wider counters than Assistant)
@@ -14,6 +14,15 @@ const heebo = Heebo({
 const notoSerif = Noto_Serif_Hebrew({
   subsets: ["hebrew", "latin"],
   variable: "--font-noto-serif-hebrew",
+  weight: ["400", "500", "700", "900"],
+  display: "swap",
+});
+
+// Hero/display font — Frank Ruhl Libre. הפונט שמוצהר ב-CLAUDE.md ככותרת
+// "המוסמכת" של הפרויקט — אלגנטי, רגיל בעיתון הארץ ובסידורים מודרניים.
+const frankRuhl = Frank_Ruhl_Libre({
+  subsets: ["hebrew", "latin"],
+  variable: "--font-frank-ruhl",
   weight: ["400", "500", "700", "900"],
   display: "swap",
 });
@@ -65,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="he" dir="rtl" className={`${heebo.variable} ${notoSerif.variable} scroll-smooth`}>
+    <html lang="he" dir="rtl" className={`${heebo.variable} ${notoSerif.variable} ${frankRuhl.variable} scroll-smooth`}>
       <body className="font-sans">
         <a
           href="#main-content"

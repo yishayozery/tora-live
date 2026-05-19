@@ -1,252 +1,179 @@
-"use client";
+// HomeHero — חלק עליון של דף הבית, מסך מלא, "first impression" של האתר.
+// מותאם ל-3 מצבים:
+//   1. LIVE: שיעור משדר עכשיו → CTA ראשי "צפה עכשיו" + אינדיקטור LIVE pulsing.
+//   2. UPCOMING: השיעור הקרוב הבא → CTA "פרטי השיעור הבא" + countdown.
+//   3. DEFAULT: אין שידור קרוב → CTA "גלה את הרבנים".
+// בכל מצב: CTA משני "אני רב — צרף אותי" → /register?role=rabbi (חיוני לשיווק).
+//
+// עיצוב: full-bleed background image + dual gradient overlay, כותרת Frank Ruhl
+// Libre בגדול, הרבה whitespace, **CTA ראשי אחד** בולט (לא 5 שמתחרים).
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Radio, Play, ArrowLeft, Sparkles, Clock, Calendar as CalIcon, Bell, Users } from "lucide-react";
-import { LogoIcon } from "@/components/Logo";
-import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
-import { formatHebrewDateFull } from "@/lib/hebrew-dates";
+import { Play, ChevronLeft, Mic, Sparkles } from "lucide-react";
 
-export type HeroLesson = {
+export type HeroLive = {
   id: string;
   title: string;
-  description?: string;
   rabbiName: string;
-  rabbiSlug: string;
-  scheduledAt: string;
-  durationMin?: number | null;
-  posterUrl?: string | null;
-  embedUrl?: string | null;
-  externalUrl?: string | null;
-  category?: string | null;
-  liveStartedAt?: string | null;
-  viewerCount?: number | null;
 };
 
-type Props = {
-  liveLesson?: HeroLesson | null;
-  nextLesson?: HeroLesson | null;
-  recommendedLesson?: HeroLesson | null;
+export type HeroUpcoming = {
+  id: string;
+  title: string;
+  rabbiName: string;
+  scheduledAt: string; // ISO
 };
 
-function relativeFuture(iso: string): string {
-  const ms = new Date(iso).getTime() - Date.now();
-  if (ms < 0) return "כעת";
-  const min = Math.floor(ms / 60_000);
-  if (min < 60) return `בעוד ${min} דק׳`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `בעוד ${hr} ${hr === 1 ? "שעה" : "שעות"}`;
-  const days = Math.floor(hr / 24);
-  if (days === 1) return "מחר";
-  return `בעוד ${days} ימים`;
-}
+export function HomeHero({
+  live,
+  upcoming,
+}: {
+  live?: HeroLive | null;
+  upcoming?: HeroUpcoming | null;
+}) {
+  const isLive = !!live;
+  const hasUpcoming = !!upcoming && !isLive;
 
-function relativePast(iso?: string | null): string | null {
-  if (!iso) return null;
-  const ms = Date.now() - new Date(iso).getTime();
-  if (ms < 0 || ms > 24 * 3600_000) return null;
-  const min = Math.floor(ms / 60_000);
-  if (min < 1) return "החל זה עתה";
-  if (min < 60) return `החל לפני ${min} דק׳`;
-  const hr = Math.floor(min / 60);
-  const remMin = min % 60;
-  return `החל לפני ${hr}:${String(remMin).padStart(2, "0")} שע׳`;
-}
-
-function isYouTubeEmbed(url?: string | null): boolean {
-  return !!url && /youtube\.com\/embed\//.test(url);
-}
-
-export function HomeHero({ liveLesson, nextLesson, recommendedLesson }: Props) {
-  const lesson = liveLesson ?? nextLesson ?? recommendedLesson;
-  const mode: "live" | "next" | "recommended" | "empty" =
-    liveLesson ? "live" : nextLesson ? "next" : recommendedLesson ? "recommended" : "empty";
-
-  // tick every minute for relative time updates
-  const [, setTick] = useState(0);
-  useEffect(() => {
-    const i = setInterval(() => setTick((t) => t + 1), 60_000);
-    return () => clearInterval(i);
-  }, []);
-
-  const today = new Date();
-
-  if (!lesson) {
-    return (
-      <section className="relative overflow-hidden bg-gradient-to-bl from-primary via-primary-hover to-ink/90 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-20 sm:py-28 text-center">
-          <LogoIcon className="w-20 h-20 mx-auto mb-6 opacity-90" />
-          <h1 className="hebrew-serif text-4xl sm:text-6xl font-bold leading-tight">
-            הבית הדיגיטלי של רבני ישראל
-          </h1>
-          <p className="mt-4 text-lg text-white/85 max-w-2xl mx-auto">
-            שיעורי תורה חיים ומוקלטים מרבנים מובילים — חינם, בלי הרשמה
-          </p>
-          <Link
-            href="/lessons"
-            className="mt-8 inline-flex items-center gap-2 h-12 px-6 rounded-btn bg-white text-primary font-bold shadow-soft hover:bg-paper-soft transition"
-          >
-            גלו שיעורים
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
-    );
+  // CTA ראשי לפי מצב. רק אחד — מונע התלבטות
+  let primaryCta: { href: string; label: string; IconLeft: typeof Play | null; arrowRight?: boolean } = {
+    href: "/rabbis",
+    label: "גלה את הרבנים",
+    IconLeft: null,
+    arrowRight: true,
+  };
+  if (isLive && live) {
+    primaryCta = { href: `/lesson/${live.id}`, label: "צפה עכשיו", IconLeft: Play };
+  } else if (hasUpcoming && upcoming) {
+    primaryCta = { href: `/lesson/${upcoming.id}`, label: "פרטי השיעור הבא", IconLeft: null, arrowRight: true };
   }
 
-  const lessonHref = `/lesson/${lesson.id}`;
-  const isLive = mode === "live";
-  const startedAgo = isLive ? relativePast(lesson.liveStartedAt) : null;
-  const youtubeEmbed = isLive && isYouTubeEmbed(lesson.embedUrl) ? lesson.embedUrl : null;
+  // ניסוח זמן עתידי
+  let upcomingTimeLabel = "";
+  if (upcoming) {
+    const ms = new Date(upcoming.scheduledAt).getTime() - Date.now();
+    if (ms > 0) {
+      const min = Math.floor(ms / 60_000);
+      const hours = Math.floor(min / 60);
+      const days = Math.floor(hours / 24);
+      if (days >= 1) upcomingTimeLabel = `בעוד ${days} ${days === 1 ? "יום" : "ימים"}`;
+      else if (hours >= 1) upcomingTimeLabel = `בעוד ${hours} ${hours === 1 ? "שעה" : "שעות"}`;
+      else upcomingTimeLabel = "בקרוב מאוד";
+    }
+  }
+
+  const PrimaryIcon = primaryCta.IconLeft;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-bl from-ink via-ink/95 to-primary/40 text-white">
-      {/* === BACKGROUND === */}
-      {/* If LIVE YouTube — embed video as background (autoplay, muted) */}
-      {youtubeEmbed ? (
-        <div className="absolute inset-0 opacity-50 pointer-events-none">
-          {/* iframe in background */}
-          <iframe
-            src={`${youtubeEmbed}?autoplay=1&mute=1&controls=0&loop=1&modestbranding=1&playsinline=1`}
-            title=""
-            allow="autoplay; encrypted-media; picture-in-picture"
-            className="absolute inset-0 w-full h-full scale-110"
-            style={{ pointerEvents: "none" }}
-          />
-        </div>
-      ) : lesson.posterUrl ? (
-        <div className="absolute inset-0 opacity-25">
-          <Image src={lesson.posterUrl} alt="" fill sizes="100vw" className="object-cover blur-sm" priority />
-        </div>
-      ) : null}
-      {/* Dark gradient overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-tl from-ink via-ink/85 to-ink/40" />
+    <section className="relative isolate overflow-hidden" aria-label="פתיחה — הבית הדיגיטלי של רבני ישראל">
+      {/* === רקעים === */}
+      {/* תמונת אבני ירושלים / זריחה — נופך זהוב חם */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1544734037-5a3b4b7e0a3d?w=1920&q=80')",
+        }}
+        aria-hidden="true"
+      />
+      {/* gradient כהה לקריאות */}
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/75 to-slate-900/95"
+        aria-hidden="true"
+      />
+      {/* כתמי אור דקורטיביים */}
+      <div
+        className="absolute -top-32 -right-32 w-[40rem] h-[40rem] rounded-full bg-amber-500/15 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-primary/20 blur-3xl"
+        aria-hidden="true"
+      />
 
-      <div className="relative max-w-6xl mx-auto px-4 py-12 sm:py-16">
-        {/* Top: Hebrew date + status badges */}
-        <div className="flex items-center justify-between mb-6 text-xs sm:text-sm flex-wrap gap-2">
-          <div className="text-white/70 flex items-center gap-2">
-            <CalIcon className="w-3.5 h-3.5" />
-            {formatHebrewDateFull(today)}
+      {/* === תוכן === */}
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-28 lg:py-36 text-center">
+        {/* Eyebrow chip — מצב נוכחי */}
+        {isLive && live && (
+          <Link
+            href={`/lesson/${live.id}`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-live/15 border border-live/40 text-emerald-300 backdrop-blur-sm text-sm font-semibold hover:bg-live/25 transition mb-6 group"
+          >
+            <span className="relative flex h-2.5 w-2.5" aria-hidden>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+            </span>
+            <span>כרגע משדר: הרב {live.rabbiName}</span>
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition" />
+          </Link>
+        )}
+        {!isLive && hasUpcoming && upcoming && upcomingTimeLabel && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/15 border border-gold/40 text-amber-200 backdrop-blur-sm text-sm font-medium mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>השיעור הבא {upcomingTimeLabel}</span>
           </div>
-          {isLive ? (
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex items-center gap-2 bg-live px-3 py-1 rounded-full text-xs font-bold shadow-md">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-                </span>
-                משדרים עכשיו
-              </div>
-              {startedAgo && (
-                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">
-                  <Clock className="w-3 h-3" />
-                  {startedAgo}
-                </div>
-              )}
-              {lesson.viewerCount != null && lesson.viewerCount > 0 && (
-                <div className="inline-flex items-center gap-1.5 bg-black/40 backdrop-blur px-3 py-1 rounded-full text-xs">
-                  <Users className="w-3 h-3" />
-                  {lesson.viewerCount.toLocaleString("he-IL")} צופים
-                </div>
-              )}
-            </div>
-          ) : mode === "next" ? (
-            <div className="inline-flex items-center gap-2 bg-primary px-3 py-1 rounded-full text-xs font-bold">
-              <Clock className="w-3 h-3" />
-              מתחיל {relativeFuture(lesson.scheduledAt)}
-            </div>
-          ) : mode === "recommended" ? (
-            <div className="inline-flex items-center gap-2 bg-gold/90 text-ink px-3 py-1 rounded-full text-xs font-bold">
-              <Sparkles className="w-3 h-3" />
-              מומלץ היום
-            </div>
-          ) : null}
-        </div>
-
-        {/* Main content */}
-        <div className="grid lg:grid-cols-5 gap-8 items-center">
-          <div className="lg:col-span-3 space-y-5">
-            {lesson.category && (
-              <div className="inline-block text-xs font-semibold text-gold bg-gold/15 px-3 py-1 rounded-full">
-                {lesson.category}
-              </div>
-            )}
-            <h1 className="hebrew-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]">
-              {lesson.title}
-            </h1>
-            <div className="flex items-center gap-4 text-white/85 flex-wrap">
-              <Link href={lesson.rabbiSlug ? `/rabbi/${lesson.rabbiSlug}` : "#"} className="text-lg font-medium hover:text-gold transition">
-                {lesson.rabbiName}
-              </Link>
-              {!isLive && (
-                <>
-                  <span className="text-white/40">·</span>
-                  <span className="text-sm">
-                    {formatHebrewDate(lesson.scheduledAt)} ב-{formatHebrewTime(lesson.scheduledAt)}
-                  </span>
-                </>
-              )}
-              {lesson.durationMin && (
-                <>
-                  <span className="text-white/40">·</span>
-                  <span className="text-sm flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    {lesson.durationMin >= 60
-                      ? `${Math.floor(lesson.durationMin / 60)}:${String(lesson.durationMin % 60).padStart(2, "0")} שע׳`
-                      : `${lesson.durationMin} דק׳`}
-                  </span>
-                </>
-              )}
-            </div>
-
-            {lesson.description && (
-              <p className="text-white/80 text-base sm:text-lg leading-relaxed line-clamp-2 max-w-2xl">
-                {lesson.description}
-              </p>
-            )}
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link
-                href={lessonHref}
-                className="inline-flex items-center gap-2 h-13 px-7 rounded-btn bg-gold text-ink font-bold text-lg shadow-soft hover:bg-gold/90 hover:scale-[1.02] transition"
-              >
-                {isLive ? <Radio className="w-5 h-5" /> : <Play className="w-5 h-5 fill-ink" />}
-                {isLive ? "צפו בשידור" : mode === "next" ? "פרטים נוספים" : "צפו בשיעור"}
-              </Link>
-              {!isLive && (
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 h-13 px-5 rounded-btn bg-white/10 backdrop-blur border border-white/20 text-white font-medium hover:bg-white/20 transition"
-                >
-                  <Bell className="w-4 h-4" />
-                  הוסף ללוח שלי
-                </button>
-              )}
-            </div>
+        )}
+        {!isLive && !hasUpcoming && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 backdrop-blur-sm text-sm font-medium mb-6">
+            <Mic className="w-3.5 h-3.5" />
+            <span>הבית הדיגיטלי של רבני ישראל</span>
           </div>
+        )}
 
-          {/* Right: poster preview (hidden when video bg is playing) */}
-          {!youtubeEmbed && (
-            <div className="lg:col-span-2 hidden lg:block">
-              <Link href={lessonHref} className="block relative aspect-video rounded-card overflow-hidden shadow-card hover:shadow-soft transition group">
-                {lesson.posterUrl ? (
-                  <Image src={lesson.posterUrl} alt={lesson.title} fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover group-hover:scale-105 transition duration-500" priority />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-paper-soft to-paper-warm flex items-center justify-center">
-                    <LogoIcon className="w-32 h-32 opacity-50" />
-                  </div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition">
-                  <div className="w-20 h-20 rounded-full bg-white/95 flex items-center justify-center shadow-card group-hover:scale-110 transition">
-                    {isLive ? <Radio className="w-9 h-9 text-live" /> : <Play className="w-9 h-9 text-primary fill-primary translate-x-0.5" />}
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
+        {/* === כותרת ראשית — Frank Ruhl Libre === */}
+        <h1 className="font-display font-bold text-white leading-[1.05] tracking-tight text-4xl sm:text-6xl lg:text-7xl">
+          כל רבני ישראל.
+          <br />
+          <span className="text-amber-300">מקום אחד.</span>
+        </h1>
+
+        <p className="mt-6 text-base sm:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+          שיעורי תורה בשידור חי, ארכיון פתוח, וחיבור ישיר לרבני הקהילות —
+          הכל באתר אחד, חינם, וללא הרשמה.
+        </p>
+
+        {/* פרטי השיעור הנוכחי/הבא — רק כשרלוונטי */}
+        {(isLive || hasUpcoming) && (
+          <div className="mt-6 inline-block max-w-xl">
+            <p className="font-display text-amber-200/95 text-lg sm:text-xl font-medium">
+              {(live ?? upcoming)!.title}
+            </p>
+            <p className="text-white/60 text-sm mt-1">
+              {(live ?? upcoming)!.rabbiName}
+            </p>
+          </div>
+        )}
+
+        {/* === CTAs === */}
+        <div className="mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+          {/* Primary CTA — זהב, גדול, אחד */}
+          <Link
+            href={primaryCta.href}
+            className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-amber-500 hover:bg-amber-400 text-slate-900 text-base sm:text-lg font-bold shadow-card transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 w-full sm:w-auto"
+          >
+            {PrimaryIcon && <PrimaryIcon className="w-5 h-5 fill-current" />}
+            <span>{primaryCta.label}</span>
+            {primaryCta.arrowRight && <ChevronLeft className="w-5 h-5" />}
+          </Link>
+          {/* Secondary CTA — לרבנים. שיווק */}
+          <Link
+            href="/register?role=rabbi"
+            className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white text-base sm:text-lg font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 w-full sm:w-auto"
+          >
+            <Mic className="w-5 h-5" />
+            אני רב — צרף אותי
+          </Link>
         </div>
+
+        {/* רמז גלילה ללוח השיעורים */}
+        <a
+          href="#calendar"
+          className="hidden sm:inline-flex items-center gap-2 mt-12 text-xs text-white/50 hover:text-white/80 transition group"
+          aria-label="גלילה ללוח השיעורים"
+        >
+          <span>לוח השיעורים השבועי</span>
+          <span className="block w-5 h-5 rounded-full border border-current animate-bounce group-hover:animate-none flex items-center justify-center" aria-hidden>
+            <span className="block w-1 h-1 rounded-full bg-current" />
+          </span>
+        </a>
       </div>
     </section>
   );
