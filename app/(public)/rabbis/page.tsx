@@ -88,6 +88,13 @@ export default async function RabbisPage({
           גלה רבנים מכל גווני הקשת — מחפשי דף יומי, פרשת שבוע, הלכה יומית או
           מחשבה. כל רב והסגנון שלו.
         </p>
+        <Link
+          href="/rabbis/join"
+          className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+        >
+          הצטרף כרב
+          <span aria-hidden="true">←</span>
+        </Link>
       </header>
 
       <form
