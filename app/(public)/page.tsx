@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SponsorBanner, type SponsorInfo } from "@/components/SponsorBanner";
 import { DonationTicker, type DedicationEntry } from "@/components/DonationTicker";
+import { HomeHero, type HeroLive, type HeroUpcoming } from "@/components/HomeHero";
 import { LiveBroadcastsSection, type LiveBroadcast, type NextBroadcast } from "@/components/LiveBroadcastsSection";
 import { LessonsCounter } from "@/components/LessonsCounter";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
@@ -302,6 +303,25 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* 0. Hero — first impression. ממוזג עם מצב LIVE/UPCOMING/DEFAULT */}
+      <HomeHero
+        live={
+          liveBroadcasts[0]
+            ? ({ id: liveBroadcasts[0].id, title: liveBroadcasts[0].title, rabbiName: liveBroadcasts[0].rabbiName } as HeroLive)
+            : null
+        }
+        upcoming={
+          nextBroadcast
+            ? ({
+                id: nextBroadcast.id,
+                title: nextBroadcast.title,
+                rabbiName: nextBroadcast.rabbiName,
+                scheduledAt: nextBroadcast.scheduledAt,
+              } as HeroUpcoming)
+            : null
+        }
+      />
+
       {/* 1. שיעור מוקדש — תורם היום */}
       <SponsorBanner sponsor={sponsor} />
 

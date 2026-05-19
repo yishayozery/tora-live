@@ -7,6 +7,8 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-heebo)", "system-ui", "sans-serif"],
         serif: ["var(--font-noto-serif-hebrew)", "Georgia", "serif"],
+        // Display font לכותרות hero/landing — Frank Ruhl Libre כפי שמוצהר ב-CLAUDE.md
+        display: ["var(--font-frank-ruhl)", "var(--font-noto-serif-hebrew)", "Georgia", "serif"],
       },
       colors: {
         // בסיס נקי (כיוון 2)
