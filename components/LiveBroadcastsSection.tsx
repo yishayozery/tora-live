@@ -158,21 +158,24 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
     return Array.from(set);
   }, [broadcasts]);
 
+  // סף להצגת סרגל הפילטרים. עם מעט שידורים — לא צריך, וזה חוסך 50px above-the-fold.
+  const showFilterBar = broadcasts.length > 6;
+
   return (
-    <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 flex flex-col">
+    <section className="relative overflow-hidden py-2 sm:py-3 scroll-mt-16 flex flex-col">
       {/* רקע מבוסס gradient — נקי, בלי תלות בתמונה חיצונית */}
       <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-white to-primary-soft/40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex-1 flex flex-col">
-      <div className="max-w-6xl mx-auto px-4 flex-1 flex flex-col w-full">
-        {/* === מסגרת חיצונית — ממלאה את הגובה === */}
-        <div className="bg-white/75 backdrop-blur-md border-2 border-live/25 rounded-2xl shadow-card p-3 sm:p-4 lg:p-5 flex-1 flex flex-col">
-        {/* === כותרת === */}
-        <div className="flex items-center justify-center gap-2 mb-2 sm:mb-3">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 flex-1 flex flex-col w-full">
+        {/* === מסגרת חיצונית — קומפקטית, פחות פדינג, בלי border בולט === */}
+        <div className="bg-white/75 backdrop-blur-md border border-live/20 rounded-2xl shadow-soft p-2 sm:p-3 flex-1 flex flex-col">
+        {/* === כותרת קומפקטית === */}
+        <div className="flex items-center justify-center gap-2 mb-2">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
           </span>
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-ink leading-tight tracking-tight">שידורים חיים עכשיו</h2>
+          <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-ink leading-tight tracking-tight">שידורים חיים עכשיו</h2>
           {broadcasts.length > 0 && (
             <span className="text-sm text-ink-muted">
               · {broadcasts.length}
@@ -180,8 +183,8 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
           )}
         </div>
 
-        {/* === סרגל פילטרים בשורה אחת — מתקפל למתקדם === */}
-        {broadcasts.length > 0 && (
+        {/* === סרגל פילטרים — רק כשיש הרבה שידורים === */}
+        {broadcasts.length > 0 && showFilterBar && (
           <div className="max-w-5xl mx-auto mb-2 sm:mb-3 bg-white border-2 border-live/40 rounded-card shadow-card">
             {/* שורה אחת: אייקון + חיפוש + chips + count + מתקדם + תצוגה */}
             <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 flex-wrap">
