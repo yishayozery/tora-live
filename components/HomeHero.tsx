@@ -66,17 +66,14 @@ export function HomeHero({
   return (
     <section className="relative isolate overflow-hidden" aria-label="פתיחה — הבית הדיגיטלי של רבני ישראל">
       {/* === רקעים === */}
-      {/* תמונת אבני ירושלים / זריחה — נופך זהוב חם */}
+      {/* רקע צבעוני מבוסס gradient — ללא תמונה חיצונית. מונע שבירת תמונה ונותן מראה מכוון */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1544734037-5a3b4b7e0a3d?w=1920&q=80')",
-        }}
+        className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-primary-hover/90"
         aria-hidden="true"
       />
-      {/* gradient כהה לקריאות */}
+      {/* טקסטורת רעש עדינה דרך radial gradients — מוסיף עומק */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/75 to-slate-900/95"
+        className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(184,134,47,0.18),transparent_55%),radial-gradient(circle_at_75%_80%,rgba(30,64,175,0.25),transparent_55%)]"
         aria-hidden="true"
       />
       {/* כתמי אור דקורטיביים */}
@@ -125,7 +122,7 @@ export function HomeHero({
           <span className="text-amber-300">מקום אחד.</span>
         </h1>
 
-        <p className="mt-6 text-base sm:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-6 text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
           שיעורי תורה בשידור חי, ארכיון פתוח, וחיבור ישיר לרבני הקהילות —
           הכל באתר אחד, חינם, וללא הרשמה.
         </p>

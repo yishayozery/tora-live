@@ -248,17 +248,8 @@ export function WeeklyCalendar({
     )}>
       {!compact && (
         <>
-          {/* רקע 2: אבני ירושלים — fixed — אפקט parallax, גוון חם-זהוב שונה מסקציית השיעורים */}
-          <div
-            className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
-            aria-hidden="true"
-            style={{
-              backgroundImage: "url('https://images.unsplash.com/photo-1544734037-5a3b4b7e0a3d?w=1600&q=75'), url('https://images.unsplash.com/photo-1519817914152-22d216bb9170?w=1600&q=75')",
-            }}
-          />
-          {/* שכבת גראדיאנט חם-זהוב — מבדיל מסקציית השיעורים הבהירה */}
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-50/95 via-stone-100/90 to-amber-100/85 pointer-events-none" aria-hidden="true" />
-          <div className="absolute inset-0 bg-stone-900/[0.04] pointer-events-none" aria-hidden="true" />
+          {/* רקע מבוסס gradient — בלי תמונה חיצונית. שומר על גוון חם-זהוב מבדיל */}
+          <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-paper-soft to-paper-warm pointer-events-none" aria-hidden="true" />
         </>
       )}
       <div className={cn(compact ? "" : "relative max-w-6xl mx-auto px-4")}>
@@ -268,10 +259,10 @@ export function WeeklyCalendar({
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-4 mb-3">
             <span className="w-12 h-0.5 bg-gold/50" />
-            <h2 className="hebrew-serif text-3xl sm:text-5xl lg:text-6xl font-bold text-ink leading-[1.15] tracking-tight">{title}</h2>
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-ink leading-tight tracking-tight">{title}</h2>
             <span className="w-12 h-0.5 bg-gold/50" />
           </div>
-          <p className="text-base sm:text-lg text-ink-muted">שיעורים, תפילות ואירועים קרובים</p>
+          <p className="text-base sm:text-lg text-ink-soft max-w-2xl mx-auto leading-relaxed">שיעורים, תפילות ואירועים קרובים</p>
         </div>
       )}
 

@@ -160,16 +160,8 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
 
   return (
     <section className="relative overflow-hidden py-3 sm:py-5 scroll-mt-16 min-h-[calc(100vh-100px)] flex flex-col">
-      {/* רקע: תמונת בית מדרש/ספרייה — fixed — גוללים עליה */}
-      <div
-        className="absolute inset-0 pointer-events-none bg-fixed bg-center bg-cover"
-        aria-hidden="true"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1600&q=75')",
-        }}
-      />
-      {/* Overlay בהיר לקריאות — paper-warm semi-transparent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-paper-warm/95 via-white/90 to-primary-soft/70 pointer-events-none" aria-hidden="true" />
+      {/* רקע מבוסס gradient — נקי, בלי תלות בתמונה חיצונית */}
+      <div className="absolute inset-0 bg-gradient-to-b from-paper-warm via-white to-primary-soft/40 pointer-events-none" aria-hidden="true" />
       <div className="relative flex-1 flex flex-col">
       <div className="max-w-6xl mx-auto px-4 flex-1 flex flex-col w-full">
         {/* === מסגרת חיצונית — ממלאה את הגובה === */}
@@ -180,7 +172,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-live" />
           </span>
-          <h2 className="hebrew-serif text-lg sm:text-2xl lg:text-3xl font-bold text-ink leading-none">שידורים חיים עכשיו</h2>
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-ink leading-tight tracking-tight">שידורים חיים עכשיו</h2>
           {broadcasts.length > 0 && (
             <span className="text-sm text-ink-muted">
               · {broadcasts.length}
@@ -326,7 +318,7 @@ export function LiveBroadcastsSection({ broadcasts, nextBroadcast }: { broadcast
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">השיעור החי הבא</div>
-                  <h3 className="hebrew-serif text-xl font-bold text-ink group-hover:text-primary transition">{nextBroadcast.title}</h3>
+                  <h3 className="font-display text-xl font-bold text-ink group-hover:text-primary transition tracking-tight">{nextBroadcast.title}</h3>
                   <div className="text-sm text-ink-soft mt-1 flex items-center gap-2 flex-wrap">
                     <span className="font-medium">{nextBroadcast.rabbiName}</span>
                     <span className="text-ink-muted">·</span>
