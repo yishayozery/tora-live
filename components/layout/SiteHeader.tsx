@@ -54,10 +54,20 @@ export async function SiteHeader() {
               <NavLink href="/lessons" variant="header">צד ציבורי</NavLink>
             </>
           ) : (
-            // אורח / תלמיד — תפריט ציבורי מלא
+            // אורח / תלמיד — תפריט ציבורי מלא. המיקוד: שיעורים חיים + לוח + ארכיון.
             <>
+              <NavLink href="/#live" variant="header">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-live opacity-60 animate-ping" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-live" />
+                  </span>
+                  שידור חי
+                </span>
+              </NavLink>
+              <NavLink href="/#calendar" variant="header">לוח שיעורים</NavLink>
+              <NavLink href="/lessons" variant="header">ארכיון השיעורים</NavLink>
               <NavLink href="/rabbis" variant="header">רבנים</NavLink>
-              <NavLink href="/lessons" variant="header">שיעורים</NavLink>
               <NavLink href="/ask-rabbi" variant="header">
                 <span className="text-primary font-medium">פנייה לרב</span>
               </NavLink>
