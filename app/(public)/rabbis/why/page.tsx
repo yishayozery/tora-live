@@ -12,6 +12,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { PrintButton } from "@/components/PrintButton";
+import { DownloadLetterPdfButton } from "@/components/DownloadLetterPdfButton";
 import { formatHebrewDateLetters } from "@/lib/utils";
 
 export const metadata = {
@@ -38,7 +39,8 @@ export default function LetterToRabbiPage() {
     <main className="bg-paper-warm min-h-screen py-8 sm:py-14 print:bg-white print:py-0">
       {/* === מכתב — נראה כמו דף נייר === */}
       <article className="max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="bg-white border border-border rounded-card shadow-soft p-6 sm:p-10 lg:p-14 print:shadow-none print:border-0">
+        {/* id="letter-body" — מטרת ההורדה ל-PDF */}
+        <div id="letter-body" className="bg-white border border-border rounded-card shadow-soft p-6 sm:p-10 lg:p-14 print:shadow-none print:border-0">
           {/* === ראש המכתב === */}
           <header className="mb-8 sm:mb-10 text-center">
             <div className="text-xs sm:text-sm text-ink-muted hebrew-serif mb-1">בס&quot;ד</div>
@@ -138,28 +140,30 @@ export default function LetterToRabbiPage() {
               <span className="hebrew-serif text-lg sm:text-xl font-bold text-ink mt-2 block">צוות TORA_LIVE</span>
             </p>
           </section>
-
-          {/* === CTA === */}
-          <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center gap-3 sm:justify-between print:hidden">
+        </div>
+        {/* ה-CTA כאן — מחוץ ל-#letter-body כדי שלא ייכלל ב-PDF */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 sm:justify-between print:hidden">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/register?role=rabbi"
-              className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-btn bg-amber-500 hover:bg-amber-400 text-slate-900 text-base font-bold shadow-card transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-btn bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm sm:text-base font-bold shadow-card transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40"
             >
               <Heart className="w-4 h-4" />
               הצטרפו עכשיו — 3 דקות
               <ChevronLeft className="w-4 h-4" />
             </Link>
-            <div className="flex gap-2 text-sm text-ink-muted">
-              <Link
-                href="/rabbis/join"
-                className="inline-flex items-center gap-1 hover:text-primary"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                ראה את כל היכולות
-              </Link>
-              <span className="text-ink-muted">·</span>
-              <PrintButton />
-            </div>
+            <DownloadLetterPdfButton />
+          </div>
+          <div className="flex gap-2 text-sm text-ink-muted">
+            <Link
+              href="/rabbis/join"
+              className="inline-flex items-center gap-1 hover:text-primary"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              ראה את כל היכולות
+            </Link>
+            <span className="text-ink-muted">·</span>
+            <PrintButton />
           </div>
         </div>
 
