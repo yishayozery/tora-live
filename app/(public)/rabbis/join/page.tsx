@@ -195,6 +195,13 @@ export default async function RabbisJoinPage() {
               <span>צור חשבון רב</span>
             </Link>
             <Link
+              href="/rabbis/why"
+              className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-white/5 hover:bg-white/15 backdrop-blur border border-amber-300/50 text-amber-100 hover:text-white text-base sm:text-lg font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300/30 w-full sm:w-auto"
+            >
+              <span>קרא את המכתב לרב</span>
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+            <Link
               href={exampleHref}
               className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 px-6 sm:px-8 rounded-btn bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white text-base sm:text-lg font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 w-full sm:w-auto"
             >
