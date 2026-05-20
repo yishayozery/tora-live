@@ -39,6 +39,7 @@ export function SiteFooter() {
             </li>
             <li><Link href="/about" className="hover:text-ink transition">אודות</Link></li>
             <li><Link href="/changelog" className="hover:text-ink transition">מה חדש</Link></li>
+            <li><Link href="/rabbis/why" className="hover:text-ink transition">מכתב לרב</Link></li>
           </ul>
         </div>
       </div>
