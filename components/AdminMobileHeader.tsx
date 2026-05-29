@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Menu, X, LogOut, ShieldCheck, Users, BookOpen, Flag, Heart,
-  CalendarCheck, Youtube, Sparkles, Search,
+  CalendarCheck, Youtube, Sparkles, Search, Building2,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
@@ -39,6 +39,7 @@ export function AdminMobileHeader({
     { href: "/admin/rabbis", label: "רבנים", icon: Users },
     { href: "/admin/users", label: "תלמידים", icon: Users },
     { href: "/admin/lessons", label: "שיעורים", icon: BookOpen },
+    { href: "/admin/institutions", label: "מוסדות", icon: Building2 },
     { href: "/admin/events", label: "אירועים", icon: CalendarCheck, badge: pendingEvents },
     { href: "/admin/sources", label: "מקורות YouTube", icon: Youtube },
     { href: "/admin/sources/candidates", label: "מועמדים לסקירה", icon: Search, badge: pendingCandidates },

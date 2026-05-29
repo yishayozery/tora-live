@@ -83,6 +83,21 @@ export default async function LessonPage({ params }: { params: { id: string } })
       },
       category: true,
       sources: { orderBy: { createdAt: "asc" } },
+      // חדר + מוסד — select מפורש בלבד! לעולם לא לחשוף streamKey / deviceToken / rtmpUrl.
+      room: {
+        select: {
+          id: true,
+          name: true,
+          playbackUrl: true,
+          isBroadcasting: true,
+        },
+      },
+      institution: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
   });
   if (!lesson) notFound();
@@ -172,6 +187,31 @@ export default async function LessonPage({ params }: { params: { id: string } })
       })
     : [];
 
+  // === Institution Mode — שיעור המתקיים בחדר קבוע של מוסד ===
+  // אם השיעור משויך לחדר, והחדר משדר (או השיעור מסומן כלייב) — משתמשים ב-playbackUrl
+  // הקבוע של החדר עבור ה-iframe החי, במקום הזרם הפר-שיעורי.
+  const room = (lesson as any).room as
+    | { id: string; name: string; playbackUrl: string | null; isBroadcasting: boolean }
+    | null;
+  const institution = (lesson as any).institution as
+    | { name: string; slug: string }
+    | null;
+  const useRoomStream = !!(
+    room?.playbackUrl &&
+    (room.isBroadcasting || lesson.isLive)
+  );
+  // אובייקט lesson עבור ה-HeroBlock — דורסים playbackUrl ו-liveMethod כשמשתמשים בזרם החדר.
+  const heroLesson = useRoomStream
+    ? {
+        ...(lesson as any),
+        isLive: true,
+        liveMethod: "BROWSER",
+        playbackUrl: room!.playbackUrl,
+        // מנקים liveEmbedUrl כדי שה-iframe ישתמש ב-playbackUrl של החדר
+        liveEmbedUrl: null,
+      }
+    : (lesson as any);
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       {lesson.approvalStatus === "PENDING" && isOwner && (
@@ -239,7 +279,7 @@ export default async function LessonPage({ params }: { params: { id: string } })
         }}
       />
       {/* HERO — תצוגה מותאמת לפי מצב (LIVE/EXTERNAL/UPCOMING/ENDED_REC) */}
-      <HeroBlock lesson={lesson as any} rabbi={lesson.rabbi} />
+      <HeroBlock lesson={heroLesson} rabbi={lesson.rabbi} />
 
       {/* כותרת + מטא */}
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr,280px]">
@@ -249,6 +289,16 @@ export default async function LessonPage({ params }: { params: { id: string } })
             <span>{formatHebrewDate(lesson.scheduledAt)} · {formatHebrewTime(lesson.scheduledAt)}</span>
             {lesson.durationMin && <span>· {lesson.durationMin} דק׳</span>}
           </div>
+
+          {/* תג Institution Mode — שיעור המתקיים בחדר קבוע של מוסד */}
+          {room && institution && (
+            <div className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft bg-paper-warm border border-border-warm px-3 py-1.5 rounded-btn flex-wrap">
+              <span aria-hidden>📍</span>
+              <span>
+                מתקיים בחדר {room.name} · ישיבת {institution.name}
+              </span>
+            </div>
+          )}
 
           {/* מיקום פיזי — עם ניווט מהיר ל-Google Maps ו-Waze */}
           {(lesson as any).locationName && (
