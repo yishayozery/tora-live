@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
-import { ShieldCheck, Users, BookOpen, Flag, Heart, CalendarCheck, Youtube, Sparkles, Search } from "lucide-react";
+import { ShieldCheck, Users, BookOpen, Flag, Heart, CalendarCheck, Youtube, Sparkles, Search, Building2 } from "lucide-react";
 import { NavLink } from "@/components/layout/NavLink";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { Logo } from "@/components/Logo";
@@ -45,6 +45,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <NavLink href="/admin/rabbis"><Users className="w-4 h-4" /> רבנים</NavLink>
           <NavLink href="/admin/users"><Users className="w-4 h-4" /> תלמידים</NavLink>
           <NavLink href="/admin/lessons"><BookOpen className="w-4 h-4" /> שיעורים</NavLink>
+          <NavLink href="/admin/institutions"><Building2 className="w-4 h-4" /> מוסדות</NavLink>
           <NavLink href="/admin/events" badge={pendingEvents}><CalendarCheck className="w-4 h-4" /> אירועים</NavLink>
           <NavLink href="/admin/sources"><Youtube className="w-4 h-4" /> מקורות YouTube</NavLink>
           <NavLink href="/admin/sources/candidates" badge={pendingCandidates}><Search className="w-4 h-4" /> מועמדים לסקירה</NavLink>
