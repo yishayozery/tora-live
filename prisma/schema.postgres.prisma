@@ -24,6 +24,82 @@ model User {
   rabbi        Rabbi?
   student      Student?
   organizedLessons Lesson[] @relation("LessonOrganizer")
+  institutionMemberships InstitutionMember[]
+}
+
+// ---------- מוסד (ישיבה / כולל / מרכז תורני) ----------
+// מוסד עם כמה חדרי שיעור, כל אחד עם מצלמה/ערוץ שידור קבוע.
+// רכז (RAKAZ) מנהל את כל השיעורים והחדרים.
+model Institution {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?    @db.Text
+  address     String?
+  city        String?
+  logoUrl     String?
+  contactEmail String?
+  contactPhone String?
+  isActive    Boolean   @default(true)
+
+  rooms       Room[]
+  members     InstitutionMember[]
+  lessons     Lesson[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isActive, name])
+}
+
+// ---------- חדר שיעור (מצלמה + ערוץ שידור קבוע) ----------
+// כל חדר = Live Input אחד ב-Cloudflare. ה-credentials קבועים לכל החיים.
+model Room {
+  id            String    @id @default(cuid())
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  name          String    // "בית מדרש גדול", "חדר הראש", וכו'
+  description   String?
+
+  // Cloudflare Live Input — נוצר פעם אחת בהקמת החדר, קבוע.
+  streamInputUid String?  @unique  // UID של ה-Live Input
+  streamKey      String?           // RTMP stream key — סודי, מוצג רק לרכז
+  rtmpUrl        String?           // RTMP push URL
+  playbackUrl    String?  @db.Text // iframe playback — מוטמע בדף השיעור
+
+  // מצב שידור — הרכז מדליק/מכבה. ה-Pi עושה polling על השדה הזה.
+  isBroadcasting Boolean  @default(false)
+  // השיעור הפעיל כרגע בחדר (אם יש) — מקשר את הזרם לדף השיעור הנכון.
+  activeLessonId String?
+
+  // בריאות המצלמה — ה-Pi שולח heartbeat. ניטור אופליין.
+  lastSeenAt    DateTime?
+  deviceToken   String?  @unique   // טוקן אימות ל-Pi (Phase B)
+
+  lessons       Lesson[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([institutionId])
+}
+
+// ---------- חברות במוסד (רכז / רב / צופה) ----------
+// many-to-many: משתמש יכול להיות רכז של כמה מוסדות, רב יכול להשתייך לכמה.
+model InstitutionMember {
+  id            String    @id @default(cuid())
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role          String    @default("RABBI")  // RAKAZ | RABBI | VIEWER
+
+  createdAt     DateTime  @default(now())
+
+  @@unique([institutionId, userId])
+  @@index([userId])
+  @@index([institutionId, role])
 }
 
 // ---------- רב ----------
@@ -121,6 +197,12 @@ model Lesson {
   categoryId      String?
   category        Category? @relation(fields: [categoryId], references: [id])
 
+  // מוסד + חדר — אופציונלי. שיעור שמתקיים בישיבה משויך לחדר עם מצלמה קבועה.
+  institutionId   String?
+  institution     Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+  roomId          String?
+  room            Room?     @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
   title           String
   description     String    @db.Text
   scheduledAt     DateTime
@@ -192,6 +274,8 @@ model Lesson {
   @@index([broadcastType, scheduledAt])
   @@index([organizerUserId])
   @@index([categoryId])
+  @@index([roomId])
+  @@index([institutionId, scheduledAt])
   @@index([sourceId])
 }
 
