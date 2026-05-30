@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ObsSetupGuide } from "@/components/institution/ObsSetupGuide";
 import { Plus, Copy, Eye, EyeOff, Radio, Check } from "lucide-react";
 
 type RoomResult = {
@@ -120,6 +121,7 @@ export function CreateRoomForm({ slug }: { slug: string }) {
 // === כרטיס הגדרות — מציג RTMP URL + Stream Key לאחר יצירת החדר ===
 function RoomSetupCard({ slug, room }: { slug: string; room: RoomResult }) {
   return (
+    <div className="space-y-5">
     <Card className="border-live/30 bg-live/5">
       <div className="flex items-center gap-2 mb-3">
         <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-live/15 text-live">
@@ -148,6 +150,15 @@ function RoomSetupCard({ slug, room }: { slug: string; room: RoomResult }) {
         </Link>
       </div>
     </Card>
+
+    {room.rtmpUrl && room.streamKey && (
+      <ObsSetupGuide
+        rtmpUrl={room.rtmpUrl}
+        streamKey={room.streamKey}
+        roomName={room.name}
+      />
+    )}
+    </div>
   );
 }
 
