@@ -1,0 +1,21 @@
+[Unit]
+Description=TORA_LIVE Room Daemon (camera streaming)
+Documentation=https://github.com/yishayozery/tora-live
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=video
+WorkingDirectory=/opt/tora-room
+ExecStart=/usr/bin/python3 /opt/tora-room/pi-room-daemon.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+# Required for V4L2 / ALSA access
+SupplementaryGroups=audio video
+
+[Install]
+WantedBy=multi-user.target
