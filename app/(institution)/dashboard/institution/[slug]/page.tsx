@@ -72,6 +72,12 @@ export default async function InstitutionDashboardPage({ params }: { params: { s
             </div>
             <h1 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink mt-1">{institution.name}</h1>
             {institution.city && <p className="text-ink-muted mt-1">{institution.city}</p>}
+            <Link
+              href={`/yeshiva/${institution.slug}`}
+              className="inline-flex items-center gap-1.5 mt-2 text-sm text-primary hover:underline focus:outline-none focus-visible:underline"
+            >
+              ראה את הדף הציבורי של הישיבה ←
+            </Link>
           </div>
         </header>
 
