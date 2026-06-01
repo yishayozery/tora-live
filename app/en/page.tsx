@@ -1,10 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { Metadata } from "next";
 import { BookOpen, Radio, Users, Heart, ArrowLeft, Globe } from "lucide-react";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "TORA_LIVE — The Digital Home of Israel's Rabbis",
+  title: "TANA — The Digital Home of Israel's Rabbis",
   description:
     "Thousands of Torah lessons, live broadcasts, and class schedules from Israel's leading rabbis — free, accessible, and open to everyone.",
   alternates: {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     languages: { "he-IL": "https://tora-live.co.il/", "en-US": "https://tora-live.co.il/en" },
   },
   openGraph: {
-    title: "TORA_LIVE — The Digital Home of Israel's Rabbis",
+    title: "TANA — The Digital Home of Israel's Rabbis",
     description: "Free Torah lessons online, from Israel's leading rabbis.",
     locale: "en_US",
     alternateLocale: ["he_IL"],
@@ -118,7 +118,7 @@ export default async function EnHomePage() {
             <p className="text-base sm:text-lg text-ink-muted max-w-2xl mx-auto">
               Whether you&apos;re a student searching for a specific shiur, a rabbi looking
               to share Torah, or a donor wanting to preserve and spread Torah learning —
-              TORA_LIVE was built for you.
+              TANA was built for you.
             </p>
           </div>
 
@@ -174,7 +174,7 @@ export default async function EnHomePage() {
             Help us spread Torah to the world
           </h2>
           <p className="text-ink-soft mb-8">
-            TORA_LIVE is free for every learner and every rabbi. Your support keeps it that way.
+            TANA is free for every learner and every rabbi. Your support keeps it that way.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link

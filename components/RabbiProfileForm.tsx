@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -177,7 +177,7 @@ export function RabbiProfileForm({ initial, rabbiName }: { initial: Initial; rab
             selected={liveMode === "PLATFORM"}
             onClick={() => setLiveMode("PLATFORM")}
             icon={Video}
-            title="דרך הערוץ של TORA_LIVE"
+            title="דרך הערוץ של TANA"
             desc="גם אם אין לך ערוץ יוטיוב — נפיק לך stream key. תוכל לשדר דרך OBS / StreamYard / טלפון ישירות לערוץ המרכזי שלנו. דורש הגדרה ראשונית חד-פעמית."
             badge="בקרוב"
             disabled

@@ -6,7 +6,7 @@ import { SourcesManager } from "@/components/SourcesManager";
 import { BookOpen, ChevronRight } from "lucide-react";
 
 export const metadata = {
-  title: "מקורות לשיעור · TORA_LIVE",
+  title: "מקורות לשיעור · TANA",
   description: "ניהול דפי מקורות ל-Live PDF Follow",
 };
 

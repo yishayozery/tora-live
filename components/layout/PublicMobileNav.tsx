@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -61,7 +61,7 @@ export function PublicMobileNav({ isLoggedIn, isRabbi }: Props) {
         <div className="h-14 px-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-primary" />
-            <span className="hebrew-serif text-lg font-bold">TORA_LIVE</span>
+            <span className="hebrew-serif text-lg font-bold">TANA</span>
           </div>
           <button onClick={() => setOpen(false)} className="p-2 hover:bg-paper-soft rounded-btn" aria-label="סגור">
             <X className="w-5 h-5 text-ink" />

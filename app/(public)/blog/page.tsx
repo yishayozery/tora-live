@@ -1,23 +1,23 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Calendar, ArrowLeft } from "lucide-react";
 import { getAllBlogPosts, formatHebrewDate } from "@/lib/blog";
 
 export const metadata: Metadata = {
-  title: "מאמרים ומדריכים — TORA_LIVE",
+  title: "מאמרים ומדריכים — TANA",
   description:
     "מאמרים ומדריכים על לימוד תורה אונליין — בחירת שיעור, דף יומי, הלכה יומית, פרשת שבוע ועוד. תכנים מעמיקים לקהל הדתי-לאומי.",
   alternates: { canonical: "/blog" },
   openGraph: {
-    title: "מאמרים ומדריכים — TORA_LIVE",
+    title: "מאמרים ומדריכים — TANA",
     description: "מאמרים ומדריכים על לימוד תורה אונליין לקהל הדתי-לאומי.",
     type: "website",
     url: "/blog",
   },
   twitter: {
     card: "summary_large_image",
-    title: "מאמרים ומדריכים — TORA_LIVE",
+    title: "מאמרים ומדריכים — TANA",
     description: "מאמרים ומדריכים על לימוד תורה אונליין.",
   },
 };

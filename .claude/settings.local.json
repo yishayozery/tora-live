@@ -1,4 +1,4 @@
-{
+﻿{
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
@@ -156,7 +156,7 @@
       "Bash(curl -sS -o /dev/null -w \"%{time_total}\" --max-time 10 \"https://torah-live-rho.vercel.app/\")",
       "Bash(curl -sS --max-time 10 \"https://torah-live-rho.vercel.app/\")",
       "Bash(node --import tsx scripts/load-test.ts 8 50)",
-      "Bash(TORA_LIVE_URL=\"https://torah-live-rho.vercel.app\" node --import tsx scripts/load-test.ts 8 50)",
+      "Bash(TANA_URL=\"https://torah-live-rho.vercel.app\" node --import tsx scripts/load-test.ts 8 50)",
       "Bash(grep -n \"^    </section>\\\\|^  </section>\\\\|^      </section>\\\\|^  \\);$\\\\|^}$\" components/WeeklyCalendar.tsx)",
       "Bash(gh run *)",
       "Bash(gh secret *)",

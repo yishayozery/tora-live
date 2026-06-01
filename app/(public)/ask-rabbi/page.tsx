@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -10,7 +10,7 @@ import { AskRabbiSearch } from "@/components/AskRabbiSearch";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "פנייה לרב — TORA_LIVE",
+  title: "פנייה לרב — TANA",
   description: "שלח בקשה לרב לקבלת שיעור או ייעוץ אישי. דורש הרשמה כתלמיד.",
 };
 

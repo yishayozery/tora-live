@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: { params: { name: string } })
   const slug = decodeURIComponent(params.name);
   const label = TOPIC_LABELS[slug] ?? slug;
   return {
-    title: `שיעורי ${label} | TORA_LIVE`,
-    description: `כל שיעורי ה${label} ב-TORA_LIVE — שידורים חיים, הקלטות ושיעורים מתוזמנים מרבני המגזר`,
+    title: `שיעורי ${label} | TANA`,
+    description: `כל שיעורי ה${label} ב-TANA — שידורים חיים, הקלטות ושיעורים מתוזמנים מרבני המגזר`,
     openGraph: {
       title: `שיעורי ${label}`,
       description: `שיעורי ${label} מרבנים מובילים`,

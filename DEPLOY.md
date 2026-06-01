@@ -1,4 +1,4 @@
-# מדריך העלאה ל-Production — TORA_LIVE
+﻿# מדריך העלאה ל-Production — TANA
 
 מסלול MVP + Cloudflare. זמן משוער: 2-3 שעות לדריסה ראשונה, פלוס יום-יומיים להגדרת דומיין ומיילים.
 
@@ -53,14 +53,14 @@
 
 ### 2.1 החלפת SQLite ל-Postgres
 ```bash
-cd C:/Users/ASUS/Desktop/TORA_LIVE
+cd C:/Users/ASUS/Desktop/TANA
 cp prisma/schema.postgres.prisma prisma/schema.prisma
 ```
 
 ### 2.2 GitHub repo
 אם הקוד עוד לא ב-GitHub:
 ```bash
-cd C:/Users/ASUS/Desktop/TORA_LIVE
+cd C:/Users/ASUS/Desktop/TANA
 git init
 git add .
 git commit -m "Initial commit"
@@ -110,7 +110,7 @@ CRON_SECRET=<openssl rand -base64 24>
 
 RESEND_API_KEY=re_...
 EMAIL_FROM=onboarding@resend.dev
-EMAIL_FROM_NAME=TORA_LIVE
+EMAIL_FROM_NAME=TANA
 
 CLOUDFLARE_ACCOUNT_ID=...
 CLOUDFLARE_STREAM_TOKEN=...

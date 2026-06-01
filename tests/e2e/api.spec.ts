@@ -1,7 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 
 /**
- * E2E API tests for TORA_LIVE.
+ * E2E API tests for TANA.
  *
  * Runs serially — later tests depend on data created by earlier ones.
  * Uses the dev-seeded database (yosef@example.com, student@example.com).

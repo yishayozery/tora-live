@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Heebo, Noto_Serif_Hebrew, Frank_Ruhl_Libre } from "next/font/google";
 import "./globals.css";
 
@@ -36,10 +36,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "TORA_LIVE — שיעורי תורה אונליין בשידור חי",
+  title: "תנא TANA — בית מדרש חי",
   description:
-    "שיעורי תורה אונליין בשידור חי — מאות רבנים מהמגזר הדתי-לאומי. האזינו לשיעורים, פרשת שבוע, דף יומי והלכה יומית. חינם, ללא הרשמה.",
+    "תנא — בית מדרש חי. שיעורי תורה אונליין בשידור חי, לוח שיעורים, וארכיון. רבני ישראל במקום אחד — חינם, ללא הרשמה.",
   keywords: [
+    "תנא",
+    "TANA",
+    "בית מדרש חי",
     "שיעורי תורה אונליין",
     "שידור חי",
     "פרשת שבוע",
@@ -49,7 +52,6 @@ export const metadata: Metadata = {
     "רבנים",
     "דתי לאומי",
     "חרדל\"י",
-    "תורה לייב",
   ],
   metadataBase: new URL("https://tora-live.co.il"),
   alternates: {
@@ -60,11 +62,12 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "TORA_LIVE",
-    description: "שיעורי תורה אונליין — הבית הדיגיטלי של הרבנים.",
+    title: "תנא TANA — בית מדרש חי",
+    description: "שיעורי תורה אונליין מרבני ישראל — שידור חי, לוח, וארכיון. ללמוד וללמד.",
     locale: "he_IL",
     alternateLocale: ["en_US"],
     type: "website",
+    siteName: "תנא TANA",
   },
 };
 

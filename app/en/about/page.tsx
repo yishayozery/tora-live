@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { Metadata } from "next";
 import {
   BookOpen, Radio, Users, Heart, Target, Compass, Shield, Sparkles,
@@ -6,15 +6,15 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About TORA_LIVE — Our Mission",
+  title: "About TANA — Our Mission",
   description:
-    "TORA_LIVE is the digital home of Israel's leading rabbis — a free, accessible platform that brings Torah lessons, live broadcasts, and learning schedules to the entire Jewish world.",
+    "TANA is the digital home of Israel's leading rabbis — a free, accessible platform that brings Torah lessons, live broadcasts, and learning schedules to the entire Jewish world.",
   alternates: {
     canonical: "https://tora-live.co.il/en/about",
     languages: { "he-IL": "https://tora-live.co.il/about", "en-US": "https://tora-live.co.il/en/about" },
   },
   openGraph: {
-    title: "About TORA_LIVE",
+    title: "About TANA",
     description: "The digital home of Israel's leading rabbis.",
     locale: "en_US",
     type: "article",
@@ -36,7 +36,7 @@ export default function EnAboutPage() {
             Bringing Torah<br />to Every Home
           </h1>
           <p className="text-lg sm:text-xl text-white/85 max-w-2xl mx-auto">
-            TORA_LIVE is more than a platform. It&apos;s a commitment to
+            TANA is more than a platform. It&apos;s a commitment to
             the idea that Torah learning should be accessible,
             organized, and free — for every Jew, everywhere.
           </p>
@@ -67,7 +67,7 @@ export default function EnAboutPage() {
               central place to find them.
             </p>
             <p>
-              TORA_LIVE was built to change that.
+              TANA was built to change that.
             </p>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function EnAboutPage() {
       <section className="py-16 bg-white border-b border-border">
         <div className="max-w-5xl mx-auto px-4">
           <h2 className="hebrew-serif text-3xl sm:text-4xl font-bold text-ink mb-8 text-center">
-            What TORA_LIVE provides
+            What TANA provides
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // מדריך התקנת OBS / Raspberry Pi לחדר חדש.
 // מציג שלבים ברורים עם כפתורי העתקה ל-RTMP URL ו-Stream Key.
@@ -30,7 +30,7 @@ export function ObsSetupGuide({ rtmpUrl, streamKey, roomName }: Props) {
         </span>
         <div>
           <CardTitle className="mb-0">מדריך התקנה — {roomName}</CardTitle>
-          <p className="text-sm text-ink-muted">איך מחברים את החדר ל-TORA LIVE</p>
+          <p className="text-sm text-ink-muted">איך מחברים את החדר ל-TANA</p>
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export function ObsSetupGuide({ rtmpUrl, streamKey, roomName }: Props) {
                 לחץ <Kbd>OK</Kbd> ולאחר מכן <Kbd>Start Streaming</Kbd> כדי להתחיל בשידור.
               </Step>
               <Step number={7}>
-                הזרם יופיע בדף השיעור ב-TORA LIVE תוך 10-30 שניות.
+                הזרם יופיע בדף השיעור ב-TANA תוך 10-30 שניות.
               </Step>
             </ol>
           </div>

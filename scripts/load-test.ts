@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Simple load test — fires N concurrent requests against key pages.
  * Usage: node --env-file=.env --import tsx scripts/load-test.ts [concurrency] [total]
  */
-const BASE = process.env.TORA_LIVE_URL || "http://localhost:3000";
+const BASE = process.env.TANA_URL || "http://localhost:3000";
 const PAGES = [
   "/",
   "/lessons",

@@ -1,4 +1,4 @@
-// ניהול מוסדות (ישיבות) — אדמין בלבד. רשימה + יצירה.
+﻿// ניהול מוסדות (ישיבות) — אדמין בלבד. רשימה + יצירה.
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -7,7 +7,7 @@ import { CreateInstitutionForm } from "@/components/institution/CreateInstitutio
 import { Building2, MapPin, Radio, Users, BookOpen } from "lucide-react";
 
 export const metadata = {
-  title: "מוסדות | אדמין TORA_LIVE",
+  title: "מוסדות | אדמין TANA",
 };
 
 export default async function AdminInstitutionsPage() {

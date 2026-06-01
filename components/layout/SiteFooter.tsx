@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Accessibility, Globe } from "lucide-react";
 import { getBuildVersion } from "@/lib/version";
 
@@ -7,7 +7,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-white mt-16">
       <div className="max-w-6xl mx-auto px-4 py-10 grid gap-8 sm:grid-cols-4 text-sm text-ink-soft">
         <div>
-          <div className="hebrew-serif text-xl text-ink font-bold mb-2">TORA_LIVE</div>
+          <div className="hebrew-serif text-xl text-ink font-bold mb-2">TANA</div>
           <p>פלטפורמת שיעורי תורה אונליין — הבית הדיגיטלי של רבני ישראל.</p>
         </div>
         <div>
@@ -44,7 +44,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="flex items-center justify-center gap-4 text-xs text-ink-muted py-4 border-t border-border flex-wrap">
-        <span>© {new Date().getFullYear()} TORA_LIVE · כל הזכויות שמורות</span>
+        <span>© {new Date().getFullYear()} TANA · כל הזכויות שמורות</span>
         <Link
           href="/en"
           className="inline-flex items-center gap-1 h-7 px-2.5 rounded-btn border border-border bg-paper-soft hover:border-primary hover:text-primary transition"

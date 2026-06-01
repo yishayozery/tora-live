@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { LogoIcon } from "@/components/Logo";
 
 export function EnHeader() {
@@ -8,7 +8,7 @@ export function EnHeader() {
         <Link href="/en" className="flex items-center gap-2 group">
           <LogoIcon className="w-8 h-8 text-primary" />
           <span className="hebrew-serif text-xl font-bold text-ink group-hover:text-primary transition">
-            TORA_LIVE
+            TANA
           </span>
         </Link>
 

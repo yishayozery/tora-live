@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -30,7 +30,7 @@ export function PopularLessonsStrip({
   if (lessons.length === 0 && topics.length === 0) return null;
 
   const shareText = (l: PopularLesson) =>
-    encodeURIComponent(`שיעור מומלץ ב-TORA_LIVE:\n${l.title}\n${l.rabbiName}\nhttps://tora-live.co.il/lesson/${l.id}`);
+    encodeURIComponent(`שיעור מומלץ ב-TANA:\n${l.title}\n${l.rabbiName}\nhttps://tora-live.co.il/lesson/${l.id}`);
 
   return (
     <section className="relative overflow-hidden py-12 sm:py-16 scroll-mt-16 bg-gradient-to-b from-white via-paper-soft to-paper-warm">

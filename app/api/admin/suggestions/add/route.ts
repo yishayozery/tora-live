@@ -1,4 +1,4 @@
-/**
+﻿/**
  * הוספת suggestion ידנית מ-URL חיצוני (פייסבוק, אינסטגרם, אתר וכו').
  * שולף Open Graph tags מהדף ויוצר LessonSuggestion.
  */
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   try {
     const res = await fetch(data.url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; TORA_LIVE-bot/1.0; +https://tora-live.co.il)",
+        "User-Agent": "Mozilla/5.0 (compatible; TANA-bot/1.0; +https://tora-live.co.il)",
         "Accept": "text/html,application/xhtml+xml",
       },
       signal: AbortSignal.timeout(10000),

@@ -1,4 +1,4 @@
-# TORA_LIVE — אסטרטגיית SEO ו-AI Search
+﻿# TANA — אסטרטגיית SEO ו-AI Search
 
 **גרסה 1.0 · אפריל 2026 · קהל דתי-לאומי + חרדל"י**
 
@@ -22,11 +22,11 @@
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const rabbi = await getRabbiBySlug(params.slug);
   return {
-    title: `הרב ${rabbi.name} — שיעורי תורה בשידור חי | TORA_LIVE`,
+    title: `הרב ${rabbi.name} — שיעורי תורה בשידור חי | TANA`,
     description: `האזינו לשיעורים של הרב ${rabbi.name} — ${rabbi.shortBio?.slice(0, 80) ?? "שיעורי תורה, פרשת שבוע, הלכה ועוד"}. חינם, ללא הרשמה.`,
     alternates: { canonical: `https://tora-live.co.il/rabbi/${rabbi.slug}` },
     openGraph: {
-      title: `הרב ${rabbi.name} | TORA_LIVE`,
+      title: `הרב ${rabbi.name} | TANA`,
       images: [rabbi.imageUrl ?? "/og-default.jpg"],
     },
   };
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 ```ts
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const lesson = await getLessonById(params.id);
-  const title = `${lesson.title} — הרב ${lesson.rabbi.name} | TORA_LIVE`;
+  const title = `${lesson.title} — הרב ${lesson.rabbi.name} | TANA`;
   return {
     title: title.slice(0, 60),
     description: `האזינו לשיעור "${lesson.title}" מאת הרב ${lesson.rabbi.name}. ${lesson.description?.slice(0, 80) ?? "שיעור תורה בחינם"}`,
@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   "knowsAbout": ["תורה", "הלכה", "פרשת שבוע"],
   "memberOf": {
     "@type": "Organization",
-    "name": "TORA_LIVE",
+    "name": "TANA",
     "url": "https://tora-live.co.il"
   }
 }
@@ -116,7 +116,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   },
   "publisher": {
     "@type": "Organization",
-    "name": "TORA_LIVE",
+    "name": "TANA",
     "logo": { "@type": "ImageObject", "url": "https://tora-live.co.il/logo.png" }
   },
   "contentUrl": "[streamUrl]",
@@ -209,7 +209,7 @@ export default async function OgImage({ params }: { params: { slug: string } }) 
     <div style={{ ... }}>
       <img src={rabbi.imageUrl} />
       <h1>הרב {rabbi.name}</h1>
-      <p>TORA_LIVE</p>
+      <p>TANA</p>
     </div>
   );
 }
@@ -297,12 +297,12 @@ Next.js 14 תומך ב-`alternates.languages` ב-MetadataRoute.Sitemap.
 ### llms.txt — קובץ מוכן להעתקה
 
 ```
-# TORA_LIVE
+# TANA
 
 > פלטפורמת שיעורי תורה אונליין לקהל הדתי-לאומי וחרדל"י בישראל.
 > מאות רבנים, אלפי שיעורים, שידורים חיים — חינם, ללא הרשמה.
 
-TORA_LIVE היא פלטפורמה ישראלית המאפשרת לרבנים ומגידי שיעור לפרסם שיעורי תורה, לשדר בשידור חי ולנהל קהילת לומדים. הפלטפורמה מיועדת לקהל הדתי-לאומי והחרדי-לאומי (חרדל"י) בישראל.
+TANA היא פלטפורמה ישראלית המאפשרת לרבנים ומגידי שיעור לפרסם שיעורי תורה, לשדר בשידור חי ולנהל קהילת לומדים. הפלטפורמה מיועדת לקהל הדתי-לאומי והחרדי-לאומי (חרדל"י) בישראל.
 
 ## מה הפלטפורמה מציעה
 
@@ -354,7 +354,7 @@ https://tora-live.co.il/contact
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "TORA_LIVE",
+  "name": "TANA",
   "alternateName": "תורה לייב",
   "url": "https://tora-live.co.il",
   "logo": "https://tora-live.co.il/logo.png",
@@ -383,7 +383,7 @@ https://tora-live.co.il/contact
   "image": "[URL תמונה]",
   "description": "[ביוגרפיה קצרה]",
   "knowsAbout": ["תורה", "הלכה", "פרשת שבוע", "תלמוד"],
-  "memberOf": { "@type": "Organization", "name": "TORA_LIVE" }
+  "memberOf": { "@type": "Organization", "name": "TANA" }
 }
 ```
 
@@ -400,7 +400,7 @@ https://tora-live.co.il/contact
   "duration": "PT[X]M[Y]S",
   "inLanguage": "he",
   "author": { "@type": "Person", "name": "הרב [שם]" },
-  "publisher": { "@type": "Organization", "name": "TORA_LIVE", "url": "https://tora-live.co.il" },
+  "publisher": { "@type": "Organization", "name": "TANA", "url": "https://tora-live.co.il" },
   "contentUrl": "[URL סטרים]",
   "embedUrl": "https://tora-live.co.il/lesson/[id]",
   "isAccessibleForFree": true

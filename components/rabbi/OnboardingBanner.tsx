@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Sparkles, X, ArrowLeft } from "lucide-react";
 
-const STORAGE_KEY = "tora_live:share_kit_banner_seen";
+const STORAGE_KEY = "TANA:share_kit_banner_seen";
 
 export function OnboardingBanner({ rabbiName }: { rabbiName: string }) {
   const [show, setShow] = useState(false);

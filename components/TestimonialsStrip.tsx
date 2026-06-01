@@ -1,4 +1,4 @@
-import { Quote } from "lucide-react";
+﻿import { Quote } from "lucide-react";
 
 type Testimonial = {
   quote: string;
@@ -33,7 +33,7 @@ export function TestimonialsStrip() {
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-ink leading-tight tracking-tight">
             מה אומרים עלינו
           </h2>
-          <p className="text-base sm:text-lg text-ink-soft mt-3 max-w-2xl mx-auto leading-relaxed">רבנים ותלמידים שבחרו ב-TORA_LIVE</p>
+          <p className="text-base sm:text-lg text-ink-soft mt-3 max-w-2xl mx-auto leading-relaxed">רבנים ותלמידים שבחרו ב-TANA</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">

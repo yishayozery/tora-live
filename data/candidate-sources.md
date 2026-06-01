@@ -1,4 +1,4 @@
-# Candidate Sources for TORA_LIVE Review
+﻿# Candidate Sources for TANA Review
 Generated: 2026-04-21
 
 מסמך זה מרחיב את רשימת ה-30 הערוצים הקיימים ב-`scripts/seed-sources.ts`. כל ערוץ נבדק ב-WebSearch. פריטים ללא @handle מזוהה סומנו ב-❓ — לפני הוספה ל-seed יש לאמת ידנית ב-YouTube / להמיר channelId דרך `commentpicker.com/youtube-channel-id.php` או `scripts/resolve-channel-id.ts`.

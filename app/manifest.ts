@@ -1,9 +1,9 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "TORA_LIVE — שיעורי תורה אונליין",
-    short_name: "TORA_LIVE",
+    name: "TANA — שיעורי תורה אונליין",
+    short_name: "TANA",
     description: "פלטפורמת שיעורי תורה — שידורים חיים, רבנים, ולוח שנה",
     start_url: "/",
     display: "standalone",

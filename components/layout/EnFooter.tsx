@@ -1,11 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export function EnFooter() {
   return (
     <footer className="border-t border-border bg-white mt-16">
       <div className="max-w-6xl mx-auto px-4 py-10 grid gap-8 sm:grid-cols-4 text-sm text-ink-soft">
         <div className="sm:col-span-2">
-          <div className="hebrew-serif text-xl text-ink font-bold mb-2">TORA_LIVE</div>
+          <div className="hebrew-serif text-xl text-ink font-bold mb-2">TANA</div>
           <p className="max-w-md">
             The digital home of Israel&apos;s rabbis — thousands of Torah lessons, live broadcasts
             and schedules, accessible to everyone, free of charge.
@@ -29,7 +29,7 @@ export function EnFooter() {
         </div>
       </div>
       <div className="text-center text-xs text-ink-muted py-4 border-t border-border">
-        © {new Date().getFullYear()} TORA_LIVE · All rights reserved
+        © {new Date().getFullYear()} TANA · All rights reserved
       </div>
     </footer>
   );

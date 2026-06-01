@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // HomeStudyAndVoices — סקציה מאוחדת לדף הבית:
 //   חצי עליון — "מה לומדים השבוע" (פופולריים + טרנדינג טופיקס)
@@ -45,7 +45,7 @@ export function HomeStudyAndVoices({
   const showStudy = lessons.length > 0 || topics.length > 0;
 
   const shareText = (l: PopularLesson) =>
-    encodeURIComponent(`שיעור מומלץ ב-TORA_LIVE:\n${l.title}\n${l.rabbiName}\nhttps://tora-live.co.il/lesson/${l.id}`);
+    encodeURIComponent(`שיעור מומלץ ב-TANA:\n${l.title}\n${l.rabbiName}\nhttps://tora-live.co.il/lesson/${l.id}`);
 
   return (
     <section className="relative py-12 sm:py-16 bg-paper-soft scroll-mt-16" aria-label="מה לומדים השבוע ומה אומרים תלמידים">
@@ -175,7 +175,7 @@ export function HomeStudyAndVoices({
               מה אומרים תלמידים
             </h2>
             <p className="text-base sm:text-lg text-ink-soft mt-3 max-w-2xl mx-auto leading-relaxed">
-              רבנים ותלמידים שבחרו ב-TORA_LIVE
+              רבנים ותלמידים שבחרו ב-TANA
             </p>
           </div>
 

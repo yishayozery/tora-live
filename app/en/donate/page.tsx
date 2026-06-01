@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { Metadata } from "next";
 import {
   Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe,
@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Donate — TORA_LIVE",
+  title: "Donate — TANA",
   description:
     "Support free Torah learning for the entire Jewish world. Dedicate a shiur in memory or in merit of a loved one. Tax receipts sent automatically.",
   alternates: {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     languages: { "he-IL": "https://tora-live.co.il/donate", "en-US": "https://tora-live.co.il/en/donate" },
   },
   openGraph: {
-    title: "Donate — TORA_LIVE",
+    title: "Donate — TANA",
     description: "Help bring Torah to every home.",
     locale: "en_US",
     type: "website",
@@ -339,7 +339,7 @@ export default function EnDonatePage() {
       <section className="py-12 bg-paper-soft border-t border-border">
         <div className="max-w-3xl mx-auto px-4 text-center text-sm text-ink-soft">
           <p className="mb-2">
-            <strong>TORA_LIVE</strong> is operated as a not-for-profit initiative.
+            <strong>TANA</strong> is operated as a not-for-profit initiative.
             Israeli donations are tax-deductible under Section 46A (pending Amutah approval).
           </p>
           <p>

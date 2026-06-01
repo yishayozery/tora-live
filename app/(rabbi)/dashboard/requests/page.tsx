@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useTransition } from "react";
 import { Card, CardTitle } from "@/components/ui/Card";
@@ -90,7 +90,7 @@ function waHref(phone: string, name?: string): string {
     /* keep */
   } else if (!digits.startsWith("9")) digits = "972" + digits;
   const greeting = name ? `שלום ${name}, ` : "שלום, ";
-  return `https://wa.me/${digits}?text=${encodeURIComponent(greeting + "פנייתך התקבלה ב-TORA_LIVE.")}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(greeting + "פנייתך התקבלה ב-TANA.")}`;
 }
 
 const REQUEST_TYPE_LABELS: Record<string, string> = {

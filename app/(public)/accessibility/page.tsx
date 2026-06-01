@@ -1,9 +1,9 @@
-import { Card } from "@/components/ui/Card";
+﻿import { Card } from "@/components/ui/Card";
 import { Accessibility, Mail, Phone } from "lucide-react";
 
 export const metadata = {
-  title: "הצהרת נגישות | TORA_LIVE",
-  description: "אתר TORA_LIVE מונגש לפי תקן ישראלי 5568 (WCAG 2.1 AA). צרו קשר לדיווח בעיות נגישות.",
+  title: "הצהרת נגישות | TANA",
+  description: "אתר TANA מונגש לפי תקן ישראלי 5568 (WCAG 2.1 AA). צרו קשר לדיווח בעיות נגישות.",
 };
 
 export const revalidate = 86400; // יומי
@@ -20,7 +20,7 @@ export default function AccessibilityPage() {
         <Card>
           <h2 className="hebrew-serif text-xl font-bold text-ink mb-3">מחויבות להנגשה</h2>
           <p className="text-ink-soft leading-relaxed">
-            אנחנו ב-TORA_LIVE מחויבים להנגיש את שירותי האתר לכלל הציבור, לרבות אנשים עם מוגבלות,
+            אנחנו ב-TANA מחויבים להנגיש את שירותי האתר לכלל הציבור, לרבות אנשים עם מוגבלות,
             בהתאם לחוק שוויון זכויות לאנשים עם מוגבלות, התשנ"ח-1998, ולתקן ישראלי 5568 המבוסס על
             הנחיות WCAG 2.1 רמה AA.
           </p>

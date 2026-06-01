@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Resend } from "resend";
 
@@ -22,7 +22,7 @@ const TOPIC_LABELS: Record<string, string> = {
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
-const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TORA_LIVE";
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TANA";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@tora-live.co.il";
 
 export async function POST(req: Request) {

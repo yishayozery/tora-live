@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="TORA_LIVE — שיעורי תורה אונליין">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="TANA — שיעורי תורה אונליין">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#1E40AF"/>
@@ -59,11 +59,12 @@
     <circle cx="100" cy="-65" r="4" fill="#FFFFFF"/>
   </g>
 
-  <!-- Brand text "TORA_LIVE" (bottom) -->
-  <text x="250" y="380" font-family="Georgia, 'Frank Ruhl Libre', serif" font-size="58" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">TORA_LIVE</text>
+  <!-- Brand wordmark — תנא in Hebrew (large, prominent) -->
+  <text x="250" y="385" font-family="'Frank Ruhl Libre', Georgia, serif" font-size="92" font-weight="bold" fill="#FFFFFF" text-anchor="middle" direction="rtl">תנא</text>
 
-  <!-- Subtitle in Hebrew -->
-  <text x="250" y="425" font-family="Arial, 'Heebo', sans-serif" font-size="22" fill="#F4E5C2" text-anchor="middle" opacity="0.85" direction="rtl">שיעורי תורה אונליין</text>
+  <!-- Latin TANA + tagline below -->
+  <text x="250" y="430" font-family="Georgia, serif" font-size="20" fill="#F4E5C2" text-anchor="middle" letter-spacing="6" opacity="0.85">TANA</text>
+  <text x="250" y="455" font-family="Arial, 'Heebo', sans-serif" font-size="18" fill="#F4E5C2" text-anchor="middle" opacity="0.75" direction="rtl">בית מדרש חי</text>
 
   <!-- Decorative gold underline -->
   <rect x="190" y="445" width="120" height="3" rx="1.5" fill="url(#goldGrad)"/>

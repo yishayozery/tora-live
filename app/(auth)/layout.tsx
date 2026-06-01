@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { BookOpen, BookMarked, Radio, Users, Sparkles } from "lucide-react";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="max-w-6xl mx-auto h-full px-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-ink hover:opacity-80 transition">
             <BookOpen className="w-6 h-6 text-primary" />
-            <span className="hebrew-serif text-2xl font-bold">TORA_LIVE</span>
+            <span className="hebrew-serif text-2xl font-bold">TANA</span>
           </Link>
           <Link href="/" className="text-sm text-ink-muted hover:text-ink transition">
             ← חזרה לדף הבית

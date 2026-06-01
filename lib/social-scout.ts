@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Social Scout — סריקה יומית של מקורות פתוחים לאיתור הצעות לשיעורי תורה.
  *
  * מקורות נתמכים:
@@ -114,7 +114,7 @@ export async function scoutTelegramChannel(handle: string): Promise<SuggestionIn
   const url = `https://t.me/s/${cleanHandle}`;
   // redirect:false — אם הערוץ לא קיים, t.me עושה 302 → אנחנו לא רוצים לעקוב
   const res = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (TORA_LIVE-scout)" },
+    headers: { "User-Agent": "Mozilla/5.0 (TANA-scout)" },
     redirect: "manual",
   });
   if (res.status !== 200) return [];  // 302 = ערוץ לא קיים / פרטי
@@ -168,7 +168,7 @@ export async function runSocialScout(opts: { telegramChannels?: string[]; dryRun
   const channels = opts.telegramChannels ?? [
     // ערוצי טלגרם פומביים שאומתו (HTTP 200)
     "harbracha",     // ישוב הר ברכה — חדשות, לעיתים שיעורים
-    "torahlive",     // tora live
+    "torahlive",     // TANA
     "dailytora",     // תוכן יומי
   ];
 

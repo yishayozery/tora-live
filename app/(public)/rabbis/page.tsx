@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { Search, Users, BookOpen, Heart, Radio, Calendar, UserPlus, Sparkles, GraduationCap, Clock, ChevronLeft } from "lucide-react";
 import { db } from "@/lib/db";
@@ -6,9 +6,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export const metadata = {
-  title: "רבני TORA LIVE | כל הרבנים בפלטפורמה",
+  title: "רבני TANA | כל הרבנים בפלטפורמה",
   description:
-    "רבני TORA LIVE — מהדתי-לאומי ועד החרדי, מהקהילות ועד הישיבות. שיעורי תורה חיים ומוקלטים ישירות מהאולפן של הרבנים המובילים בישראל.",
+    "רבני TANA — מהדתי-לאומי ועד החרדי, מהקהילות ועד הישיבות. שיעורי תורה חיים ומוקלטים ישירות מהאולפן של הרבנים המובילים בישראל.",
 };
 
 // ISR — רשימת רבנים מתעדכנת כל 5 דקות
@@ -188,7 +188,7 @@ export default async function RabbisPage({
           </span>
 
           <h1 className="font-display hebrew-serif mt-6 text-4xl sm:text-6xl font-bold leading-tight">
-            רבני <span className="text-gold">TORA LIVE</span>
+            רבני <span className="text-gold">TANA</span>
           </h1>
 
           <p className="mt-5 text-base sm:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
@@ -506,7 +506,7 @@ function FeaturedRabbiCard({
 }) {
   const tagline =
     rabbi.bio?.split(/[.\n]/).find((s) => s.trim().length > 5)?.trim().slice(0, 100) ??
-    "מורה תורה ב-TORA LIVE";
+    "מורה תורה ב-TANA";
 
   return (
     <article className="relative card group flex flex-col p-6 transition border-gold/30 bg-gradient-to-br from-white to-amber-50/40 hover:border-gold/60 hover:shadow-card hover:-translate-y-1 duration-200">
@@ -627,14 +627,14 @@ function RabbiGalleryCard({
 }
 
 function ClosingCta() {
-  // WhatsApp link עם הודעה מוכנה לצוות TORA LIVE
+  // WhatsApp link עם הודעה מוכנה לצוות TANA
   const waText = encodeURIComponent(
-    "היי, יש רב שכדאי לכם להזמין ל-TORA LIVE: "
+    "היי, יש רב שכדאי לכם להזמין ל-TANA: "
   );
   // mailto fallback — שדה האימייל פותח לקוח מייל עם הנושא והגוף מוכנים
-  const mailtoSubject = encodeURIComponent("המלצה על רב ל-TORA LIVE");
+  const mailtoSubject = encodeURIComponent("המלצה על רב ל-TANA");
   const mailtoBody = encodeURIComponent(
-    "שלום, אני רוצה להמליץ על הרב הבא להצטרף ל-TORA LIVE:\n\nשם הרב:\nקהילה / ישיבה:\nאיך אפשר ליצור קשר:\n\nבאיזה אימייל לעדכן אותי כשיצטרף:\n"
+    "שלום, אני רוצה להמליץ על הרב הבא להצטרף ל-TANA:\n\nשם הרב:\nקהילה / ישיבה:\nאיך אפשר ליצור קשר:\n\nבאיזה אימייל לעדכן אותי כשיצטרף:\n"
   );
 
   return (
@@ -648,7 +648,7 @@ function ClosingCta() {
             לא מצאת את הרב שלך? אנחנו מזמינים אותו
           </h2>
           <p className="mt-3 text-white/85 text-sm sm:text-base">
-            המלץ לרב על TORA LIVE — נעדכן אותך כשיצטרף. ניתן לשלוח בוואטסאפ או באימייל.
+            המלץ לרב על TANA — נעדכן אותך כשיצטרף. ניתן לשלוח בוואטסאפ או באימייל.
           </p>
 
           <form

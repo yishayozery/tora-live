@@ -1,4 +1,4 @@
-// שכבת משלוח התראות — מייל ו-וואטסאפ.
+﻿// שכבת משלוח התראות — מייל ו-וואטסאפ.
 // המימושים כאן הם stubs: משאירים פונקציות ברורות שנתחבר אליהן מאוחר יותר
 // (Nodemailer / Twilio WhatsApp / WhatsApp Business Cloud API).
 //
@@ -17,7 +17,7 @@ const SITE_URL = process.env.NEXTAUTH_URL || "https://tora-live.co.il";
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
-const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TORA_LIVE";
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TANA";
 
 type NotifyInput = {
   studentId: string;
@@ -102,14 +102,14 @@ function buildHebrewEmailHtml({
 <body style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background:#F7F8FA; margin:0; padding:24px; color:#0F172A;">
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:28px;">
     <div style="border-bottom:1px solid #E5E7EB;padding-bottom:12px;margin-bottom:20px;">
-      <span style="font-size:20px;font-weight:bold;color:#1E40AF;">TORA_LIVE</span>
+      <span style="font-size:20px;font-weight:bold;color:#1E40AF;">TANA</span>
     </div>
     <p style="margin:0 0 6px;color:#64748B;font-size:14px;">שלום ${escape(recipientName)},</p>
     <h2 style="margin:0 0 12px;font-size:22px;color:#0F172A;">${escape(title)}</h2>
     <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#334155;white-space:pre-line;">${escape(body)}</p>
     <a href="${escape(link)}" style="display:inline-block;background:#1E40AF;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;">לצפייה ←</a>
     <p style="margin:24px 0 0;font-size:12px;color:#94A3B8;border-top:1px solid #E5E7EB;padding-top:16px;">
-      קיבלת מייל זה כי אתה רשום ל-TORA_LIVE. להפסקת התראות — כנס להגדרות הפרופיל.
+      קיבלת מייל זה כי אתה רשום ל-TANA. להפסקת התראות — כנס להגדרות הפרופיל.
     </p>
   </div>
 </body>

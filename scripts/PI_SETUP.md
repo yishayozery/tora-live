@@ -1,4 +1,4 @@
-# Pi Room Daemon — Setup
+﻿# Pi Room Daemon — Setup
 
 מדריך להתקנת ה-daemon על Raspberry Pi 5 בחדר שיעור.
 
@@ -55,7 +55,7 @@ sudo cp tora-room.service /etc/systemd/system/
 
 ### 5. קבע את הקונפיג
 
-קבל את ה-`room_id` ו-`device_token` מהרכז (נראה בדף יצירת החדר ב-TORA_LIVE).
+קבל את ה-`room_id` ו-`device_token` מהרכז (נראה בדף יצירת החדר ב-TANA).
 
 ```bash
 sudo nano /etc/tora-room.json

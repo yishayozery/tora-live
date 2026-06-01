@@ -1,11 +1,11 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Mail, Phone, MapPin, Clock, MessageCircle, Send } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "צור קשר — TORA_LIVE",
-  description: "צרו קשר עם צוות TORA_LIVE — שאלות, הצעות, בעיות טכניות ובקשות שיתוף פעולה.",
+  title: "צור קשר — TANA",
+  description: "צרו קשר עם צוות TANA — שאלות, הצעות, בעיות טכניות ובקשות שיתוף פעולה.",
 };
 
 const INFO = [
@@ -36,7 +36,7 @@ export default function ContactPage() {
         {/* Quick contact buttons — מענה מהיר */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <a
-            href="https://wa.me/972500000000?text=שלום%2C%20אני%20מעוניין%20בקשר%20עם%20TORA_LIVE"
+            href="https://wa.me/972500000000?text=שלום%2C%20אני%20מעוניין%20בקשר%20עם%20TANA"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-[#25D366] text-white font-medium hover:opacity-90 transition shadow-soft"
@@ -45,7 +45,7 @@ export default function ContactPage() {
             WhatsApp
           </a>
           <a
-            href="https://t.me/tora_live_official"
+            href="https://t.me/TANA_official"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 h-11 px-5 rounded-btn bg-[#0088cc] text-white font-medium hover:opacity-90 transition shadow-soft"

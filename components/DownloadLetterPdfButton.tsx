@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // כפתור "הורד PDF" — תופס element ספציפי ב-DOM ומייצר ממנו PDF.
 // משתמש ב-html2pdf.js (client-only, dynamic import) כדי להימנע מבעיות SSR
@@ -11,7 +11,7 @@ export function DownloadLetterPdfButton({
   /** סלקטור של ה-element שירוקם ל-PDF (ברירת מחדל: #letter-body) */
   targetSelector = "#letter-body",
   /** שם קובץ ההורדה (בלי סיומת) */
-  filename = "TORA_LIVE-letter-to-rabbi",
+  filename = "TANA-letter-to-rabbi",
   /** טקסט הכפתור */
   label = "הורד PDF",
 }: {

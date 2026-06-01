@@ -1,4 +1,4 @@
-// /rabbis/why — מכתב אישי לרב.
+﻿// /rabbis/why — מכתב אישי לרב.
 // מיועד לשיתוף ב-WhatsApp/מייל לרבנים ספציפיים בפנייה ראשונית.
 // בניגוד ל-/rabbis/join (feature list), כאן הטון נרטיבי, סינסרי, וקצר.
 
@@ -16,11 +16,11 @@ import { DownloadLetterPdfButton } from "@/components/DownloadLetterPdfButton";
 import { formatHebrewDateLetters } from "@/lib/utils";
 
 export const metadata = {
-  title: "מכתב לרב — למה להצטרף ל-TORA_LIVE",
+  title: "מכתב לרב — למה להצטרף ל-TANA",
   description:
-    "מכתב פתוח לרבני ישראל: למה בנינו את TORA_LIVE, מה אנחנו מציעים, ומה אנחנו מבטיחים. כל ההסבר במכתב אחד.",
+    "מכתב פתוח לרבני ישראל: למה בנינו את TANA, מה אנחנו מציעים, ומה אנחנו מבטיחים. כל ההסבר במכתב אחד.",
   openGraph: {
-    title: "מכתב לרב — למה להצטרף ל-TORA_LIVE",
+    title: "מכתב לרב — למה להצטרף ל-TANA",
     description:
       "מכתב פתוח לרבני ישראל: מה הצורך, מה אנחנו מציעים, ומה אנחנו מבטיחים.",
     type: "article",
@@ -62,7 +62,7 @@ export default function LetterToRabbiPage() {
               הרבה יותר אנשים היו שמחים להאזין, אם רק היו יודעים מתי, איפה, ואיך.
             </p>
             <p>
-              <strong className="font-bold">TORA_LIVE</strong> נבנתה מתוך הצורך הזה.
+              <strong className="font-bold">TANA</strong> נבנתה מתוך הצורך הזה.
               אתר אחד שמרכז את לוח השיעורים שלך, את השידור החי, ואת הארכיון —
               במקום אחד נקי, מקצועי, חינמי. תלמידיך לא יצטרכו עוד לחפש לינקים
               ב-WhatsApp או לעקוב אחרי 4 פלטפורמות שונות.
@@ -137,7 +137,7 @@ export default function LetterToRabbiPage() {
             </p>
             <p className="text-ink-muted text-base">
               בברכה,<br />
-              <span className="hebrew-serif text-lg sm:text-xl font-bold text-ink mt-2 block">צוות TORA_LIVE</span>
+              <span className="hebrew-serif text-lg sm:text-xl font-bold text-ink mt-2 block">צוות TANA</span>
             </p>
           </section>
         </div>

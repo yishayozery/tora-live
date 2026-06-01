@@ -5,7 +5,7 @@ import { CreateRoomForm } from "@/components/institution/CreateRoomForm";
 import { ChevronRight } from "lucide-react";
 
 export const metadata = {
-  title: "חדר חדש | TORA_LIVE",
+  title: "חדר חדש | TANA",
 };
 
 export default async function NewRoomPage({ params }: { params: { slug: string } }) {

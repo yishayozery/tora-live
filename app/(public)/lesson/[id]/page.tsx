@@ -18,10 +18,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     where: { id: params.id },
     include: { rabbi: { select: { name: true } } },
   });
-  if (!lesson) return { title: "שיעור לא נמצא | TORA_LIVE" };
+  if (!lesson) return { title: "שיעור לא נמצא | TANA" };
   const rabbiName = lesson.rabbi?.name ?? lesson.organizerName ?? "שיעור תורה";
-  const fullTitle = `${lesson.title} — הרב ${rabbiName} | TORA_LIVE`;
-  const title = fullTitle.length > 65 ? `${lesson.title} | TORA_LIVE`.slice(0, 65) : fullTitle;
+  const fullTitle = `${lesson.title} — הרב ${rabbiName} | TANA`;
+  const title = fullTitle.length > 65 ? `${lesson.title} | TANA`.slice(0, 65) : fullTitle;
   const shortDesc = (lesson.description ?? "").trim().slice(0, 80);
   const description = `האזינו לשיעור "${lesson.title}" מאת הרב ${rabbiName}. ${shortDesc || "שיעור תורה בחינם"}`.slice(0, 160);
   const url = `${SITE_URL}/lesson/${lesson.id}`;
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       url,
       type: lesson.isLive ? "video.other" : "article",
       images: [{ url: image, width: 1200, height: 630, alt: lesson.title }],
-      locale: "he_IL", siteName: "TORA_LIVE",
+      locale: "he_IL", siteName: "TANA",
     },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
