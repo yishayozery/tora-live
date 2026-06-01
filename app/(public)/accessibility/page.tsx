@@ -1,4 +1,4 @@
-﻿import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Accessibility, Mail, Phone } from "lucide-react";
 
 export const metadata = {

@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { Heebo, Noto_Serif_Hebrew, Frank_Ruhl_Libre } from "next/font/google";
 import "./globals.css";
 

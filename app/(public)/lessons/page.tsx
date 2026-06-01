@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
 import { LogoIcon } from "@/components/Logo";

@@ -1,4 +1,4 @@
-﻿// Cron — מייצר פוסט יומי, שומר בכל מקום נגיש, ושולח למייל של ה-founder.
+// Cron — מייצר פוסט יומי, שומר בכל מקום נגיש, ושולח למייל של ה-founder.
 // Vercel Hobby cron daily.
 
 import { NextResponse } from "next/server";

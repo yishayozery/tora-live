@@ -1,4 +1,4 @@
-﻿import { requireSession } from "@/lib/session";
+import { requireSession } from "@/lib/session";
 import { ProposeEventForm } from "@/components/ProposeEventForm";
 
 export const metadata = {

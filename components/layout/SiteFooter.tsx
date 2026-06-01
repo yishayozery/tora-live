@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Accessibility, Globe } from "lucide-react";
 import { getBuildVersion } from "@/lib/version";
 

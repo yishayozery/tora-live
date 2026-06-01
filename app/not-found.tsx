@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { LogoIcon } from "@/components/Logo";
 import { Search, Home, BookOpen } from "lucide-react";
 

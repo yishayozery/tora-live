@@ -1,4 +1,4 @@
-﻿/**
+/**
  * הוספת suggestion ידנית מ-URL חיצוני (פייסבוק, אינסטגרם, אתר וכו').
  * שולף Open Graph tags מהדף ויוצר LessonSuggestion.
  */

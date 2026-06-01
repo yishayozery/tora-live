@@ -1,4 +1,4 @@
-﻿# Pi Room Daemon — Setup
+# Pi Room Daemon — Setup
 
 מדריך להתקנת ה-daemon על Raspberry Pi 5 בחדר שיעור.
 

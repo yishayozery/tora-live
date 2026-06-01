@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // כפתור "הורד PDF" — תופס element ספציפי ב-DOM ומייצר ממנו PDF.
 // משתמש ב-html2pdf.js (client-only, dynamic import) כדי להימנע מבעיות SSR
