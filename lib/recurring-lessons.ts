@@ -1,4 +1,4 @@
-/**
+﻿/**
  * לוגיקה לייצור שיעורים מתבנית קבועה.
  * - דולג שבת אוטומטית (יום 6 ב-getDay)
  * - דולג חגים מ-hebrew-dates.ts (מכניסה ועד יציאה)
@@ -288,7 +288,7 @@ async function sendHolidayWarningEmail(
   }
   const resend = new Resend(apiKey);
   const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
-  const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TORA_LIVE";
+  const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "TANA";
 
   const { formatHebrewDateLetters } = await import("@/lib/utils");
   const conflictRows = conflicts.map((c) => {
@@ -303,7 +303,7 @@ async function sendHolidayWarningEmail(
 <body style="font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background:#F7F8FA; margin:0; padding:24px; color:#0F172A;">
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #E5E7EB;padding:28px;">
     <div style="border-bottom:1px solid #E5E7EB;padding-bottom:12px;margin-bottom:20px;">
-      <span style="font-size:20px;font-weight:bold;color:#1E40AF;">TORA_LIVE</span>
+      <span style="font-size:20px;font-weight:bold;color:#1E40AF;">TANA</span>
     </div>
     <p style="margin:0 0 6px;color:#64748B;font-size:14px;">שלום ${rabbiName},</p>
     <h2 style="margin:0 0 12px;font-size:22px;color:#0F172A;">בשבוע הקרוב יש חגים שמתנגשים עם הסדרה "${templateTitle}"</h2>

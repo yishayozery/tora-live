@@ -1,4 +1,4 @@
-name: auto-close-lessons
+﻿name: auto-close-lessons
 
 # סוגר אוטומטית שיעורי שידור שנשארו תקועים (רב לא לחץ "סיים").
 # רץ כל שעה — קל מאוד (1 שאילתת DB + עדכונים בודדים).
@@ -20,11 +20,11 @@ jobs:
     steps:
       - name: Call /api/cron/auto-close-lessons
         env:
-          URL: ${{ secrets.TORA_LIVE_URL }}
+          URL: ${{ secrets.TANA_URL }}
           SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$URL" ] || [ -z "$SECRET" ]; then
-            echo "::error::TORA_LIVE_URL או CRON_SECRET חסרים"
+            echo "::error::TANA_URL או CRON_SECRET חסרים"
             exit 1
           fi
           response=$(curl -sS -w "\n%{http_code}" \

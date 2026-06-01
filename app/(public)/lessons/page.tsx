@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 import { LessonSearch, type SearchOptions } from "@/components/LessonSearch";
 import { LogoIcon } from "@/components/Logo";
@@ -9,7 +9,7 @@ import { Clock, Calendar as CalIcon } from "lucide-react";
 import { formatHebrewDateLetters } from "@/lib/utils";
 
 export const metadata = {
-  title: "שיעורים | TORA LIVE",
+  title: "שיעורים | TANA",
   description: "חפש ומצא שיעורי תורה חיים ומוקלטים לפי רב, נושא, תאריך ושעה.",
 };
 

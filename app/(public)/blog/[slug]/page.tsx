@@ -21,11 +21,11 @@ type Props = { params: { slug: string } };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getBlogPostBySlug(params.slug);
   if (!post) {
-    return { title: "מאמר לא נמצא — TORA_LIVE" };
+    return { title: "מאמר לא נמצא — TANA" };
   }
   const url = `/blog/${post.slug}`;
   return {
-    title: `${post.title} — TORA_LIVE`,
+    title: `${post.title} — TANA`,
     description: post.description,
     keywords: post.keywords,
     alternates: { canonical: url },
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.description,
       type: "article",
       url,
-      siteName: "TORA_LIVE",
+      siteName: "TANA",
       locale: "he_IL",
       publishedTime: post.publishedAt,
     },
@@ -52,7 +52,7 @@ function pickCTA(category?: string): { href: string; title: string; desc: string
   if (cat.includes("רבנים") || cat === "לרבנים") {
     return {
       href: "/rabbi/register",
-      title: "רב? פתחו דף משלכם ב-TORA_LIVE",
+      title: "רב? פתחו דף משלכם ב-TANA",
       desc: "דף רב מלא, לוח שיעורים, שידורים חיים, תלמידים — הכל בחינם.",
       icon: "rabbis",
     };
@@ -99,12 +99,12 @@ export default function BlogPostPage({ params }: Props) {
     inLanguage: "he-IL",
     author: {
       "@type": "Organization",
-      name: "TORA_LIVE",
+      name: "TANA",
       url: SITE,
     },
     publisher: {
       "@type": "Organization",
-      name: "TORA_LIVE",
+      name: "TANA",
       url: SITE,
       logo: {
         "@type": "ImageObject",

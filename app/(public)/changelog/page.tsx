@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   Sparkles,
   Zap,
@@ -23,11 +23,11 @@ import {
 export const revalidate = 86400;
 
 export const metadata = {
-  title: "מה חדש | TORA_LIVE",
+  title: "מה חדש | TANA",
   description:
-    "כל שינוי בפלטפורמת TORA_LIVE — בשקיפות מלאה. עדכוני גרסאות, פיצ׳רים חדשים ושיפורים, מסודרים לפי תאריך.",
+    "כל שינוי בפלטפורמת TANA — בשקיפות מלאה. עדכוני גרסאות, פיצ׳רים חדשים ושיפורים, מסודרים לפי תאריך.",
   openGraph: {
-    title: "מה חדש ב-TORA_LIVE",
+    title: "מה חדש ב-TANA",
     description:
       "כל שינוי בפלטפורמה — בשקיפות מלאה. תיעוד חי של גרסאות, פיצ׳רים ושיפורים.",
     type: "article",
@@ -144,7 +144,7 @@ export default function ChangelogPage() {
       <header className="text-center mb-12 sm:mb-16">
         <span className="inline-flex items-center gap-2 text-xs font-semibold text-gold bg-gold-soft px-3 py-1.5 rounded-full">
           <Sparkles className="w-3.5 h-3.5" />
-          ב-TORA_LIVE — מה חדש
+          ב-TANA — מה חדש
         </span>
         <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink leading-tight mt-4">
           כל שינוי בפלטפורמה — <span className="text-primary">בשקיפות מלאה</span>
@@ -264,7 +264,7 @@ export default function ChangelogPage() {
       <p className="mt-10 text-center text-sm text-ink-muted">
         עוקב חדש?{" "}
         <Link href="/register" className="text-primary font-semibold hover:underline">
-          הצטרף ל-TORA_LIVE
+          הצטרף ל-TANA
         </Link>
       </p>
     </main>

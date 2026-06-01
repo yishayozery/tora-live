@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { MessageCircle, Send, Link as LinkIcon, Check, Share2 } from "lucide-react";
@@ -11,7 +11,7 @@ type Props = {
 
 export function ShareButtons({ url, title, rabbiName }: Props) {
   const [copied, setCopied] = useState(false);
-  const fullText = rabbiName ? `${title} — ${rabbiName} ב-TORA_LIVE` : title;
+  const fullText = rabbiName ? `${title} — ${rabbiName} ב-TANA` : title;
   const encoded = encodeURIComponent(`${fullText}\n${url}`);
 
   async function copyLink() {

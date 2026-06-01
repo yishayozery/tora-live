@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import {
@@ -15,19 +15,19 @@ import {
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "הסיפור שלנו | TORA_LIVE",
+  title: "הסיפור שלנו | TANA",
   description:
-    "מי בנה את TORA_LIVE — ולמה. אתר אחד שמכבד את התורה ואת הזמן של תלמידיה. פלטפורמה חינמית, נטולת פרסומות, שנבנית עם הרבנים והתלמידים הראשונים.",
+    "מי בנה את TANA — ולמה. אתר אחד שמכבד את התורה ואת הזמן של תלמידיה. פלטפורמה חינמית, נטולת פרסומות, שנבנית עם הרבנים והתלמידים הראשונים.",
   openGraph: {
-    title: "הסיפור שלנו | TORA_LIVE",
+    title: "הסיפור שלנו | TANA",
     description:
-      "אתר אחד שמכבד את התורה ואת הזמן של תלמידיה. כך נולדה TORA_LIVE.",
+      "אתר אחד שמכבד את התורה ואת הזמן של תלמידיה. כך נולדה TANA.",
     type: "article",
     locale: "he_IL",
   },
   twitter: {
     card: "summary_large_image",
-    title: "הסיפור שלנו | TORA_LIVE",
+    title: "הסיפור שלנו | TANA",
     description: "אתר אחד שמכבד את התורה ואת הזמן של תלמידיה.",
   },
 };
@@ -69,7 +69,7 @@ export default function AboutPage() {
           הסיפור שלנו
         </span>
         <h1 className="font-display font-bold text-ink leading-[1.1] tracking-tight text-4xl sm:text-5xl lg:text-6xl mt-5">
-          מי בנה את <span className="text-primary">TORA_LIVE</span> — ולמה
+          מי בנה את <span className="text-primary">TANA</span> — ולמה
         </h1>
         <p className="hebrew-serif mt-5 text-lg sm:text-xl text-ink-soft max-w-2xl mx-auto leading-relaxed">
           אתר אחד שמכבד את התורה ואת הזמן של תלמידיה.
@@ -182,7 +182,7 @@ export default function AboutPage() {
               >
                 מי עומד מאחורי האתר
               </h2>
-              <p className="text-sm text-ink-muted mt-1">הצוות של TORA_LIVE</p>
+              <p className="text-sm text-ink-muted mt-1">הצוות של TANA</p>
               <blockquote className="hebrew-serif text-lg sm:text-xl text-ink leading-relaxed mt-4 border-r-4 border-gold/50 pr-4">
                 &ldquo;פיתחנו את האתר מתוך אהבת תורה ורצון להנגיש אותה. אנחנו
                 לא חברה — אנחנו תלמידים שבנו לעצמם את המקום שתמיד חיפשנו.&rdquo;

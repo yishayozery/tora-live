@@ -1,9 +1,9 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { LogoIcon } from "@/components/Logo";
 import { Search, Home, BookOpen } from "lucide-react";
 
 export const metadata = {
-  title: "הדף לא נמצא | TORA_LIVE",
+  title: "הדף לא נמצא | TANA",
 };
 
 export default function NotFound() {

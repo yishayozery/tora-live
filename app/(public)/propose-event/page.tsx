@@ -1,8 +1,8 @@
-import { requireSession } from "@/lib/session";
+﻿import { requireSession } from "@/lib/session";
 import { ProposeEventForm } from "@/components/ProposeEventForm";
 
 export const metadata = {
-  title: "הצעת יום עיון | TORA LIVE",
+  title: "הצעת יום עיון | TANA",
   description: "הצע יום עיון חדש — כל משתמש רשום יכול להציע אירוע תורני לאישור האדמין.",
 };
 

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 624" width="1640" height="624" role="img" aria-label="TORA_LIVE — שיעורי תורה אונליין | Cover">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1640 624" width="1640" height="624" role="img" aria-label="TANA — שיעורי תורה אונליין | Cover">
   <defs>
     <linearGradient id="bgWide" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1E40AF"/>
@@ -59,14 +59,17 @@
     <line x1="20" y1="50"  x2="95" y2="50"  stroke="#1E40AF" stroke-width="2.4" stroke-linecap="round" opacity="0.55"/>
   </g>
 
-  <!-- Brand: TORA_LIVE (large, right) -->
-  <text x="600" y="320" font-family="Georgia, 'Frank Ruhl Libre', serif" font-size="130" font-weight="bold" fill="#FFFFFF" letter-spacing="6">TORA_LIVE</text>
+  <!-- Brand wordmark — תנא (Hebrew, dominant) -->
+  <text x="600" y="320" font-family="'Frank Ruhl Libre', Georgia, serif" font-size="180" font-weight="bold" fill="#FFFFFF" direction="rtl">תנא</text>
+
+  <!-- Latin TANA — small, below Hebrew -->
+  <text x="600" y="365" font-family="Georgia, serif" font-size="32" fill="#F4E5C2" letter-spacing="10" opacity="0.85">TANA</text>
 
   <!-- Hebrew tagline -->
-  <text x="600" y="395" font-family="Arial, 'Heebo', sans-serif" font-size="44" fill="#F4E5C2" opacity="0.92" direction="rtl">שיעורי תורה אונליין מהרבנים המובילים</text>
+  <text x="600" y="425" font-family="Arial, 'Heebo', sans-serif" font-size="42" fill="#F4E5C2" opacity="0.92" direction="rtl">בית מדרש חי</text>
 
   <!-- Sub-tagline -->
-  <text x="600" y="450" font-family="Arial, sans-serif" font-size="26" fill="#94A3B8" letter-spacing="2" direction="rtl">חינם · ללא הרשמה · שידורים חיים</text>
+  <text x="600" y="475" font-family="Arial, sans-serif" font-size="24" fill="#94A3B8" letter-spacing="2" direction="rtl">שידורי תורה חיים · לוח שיעורים · ארכיון</text>
 
   <!-- Gold underline -->
   <rect x="600" y="480" width="220" height="4" rx="2" fill="url(#goldWide)"/>

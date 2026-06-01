@@ -1,7 +1,7 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "תנאי שימוש — TORA_LIVE",
+  title: "תנאי שימוש — TANA",
 };
 
 export default function TermsPage() {
@@ -11,7 +11,7 @@ export default function TermsPage() {
       <p className="text-ink-muted">עודכן לאחרונה: אפריל 2026</p>
 
       <h2>1. כללי</h2>
-      <p>ברוכים הבאים ל-TORA_LIVE. השימוש באתר ובשירותיו כפוף לתנאים אלה. גלישה באתר מהווה הסכמה לתנאים.</p>
+      <p>ברוכים הבאים ל-TANA. השימוש באתר ובשירותיו כפוף לתנאים אלה. גלישה באתר מהווה הסכמה לתנאים.</p>
 
       <h2>2. שירותי האתר</h2>
       <p>האתר מאפשר צפייה בשיעורי תורה, שידורים חיים, שליחת שאלות ותרומות. הצפייה פתוחה לכולם ללא הרשמה. חלק מהפעולות (שאלות, תזכורות) דורשות הרשמה חינם.</p>

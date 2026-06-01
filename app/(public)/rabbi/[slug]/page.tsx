@@ -11,10 +11,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     where: { slug: params.slug },
     select: { name: true, bio: true, photoUrl: true, _count: { select: { lessons: true } } },
   });
-  if (!rabbi) return { title: "רב לא נמצא | TORA_LIVE" };
+  if (!rabbi) return { title: "רב לא נמצא | TANA" };
 
   const shortBio = (rabbi.bio ?? "").trim().slice(0, 80);
-  const title = `הרב ${rabbi.name} — שיעורי תורה בשידור חי | TORA_LIVE`.slice(0, 70);
+  const title = `הרב ${rabbi.name} — שיעורי תורה בשידור חי | TANA`.slice(0, 70);
   const description = `האזינו לשיעורים של הרב ${rabbi.name} — ${shortBio || "שיעורי תורה, פרשת שבוע, הלכה ועוד"}. חינם, ללא הרשמה.`.slice(0, 160);
   const url = `${SITE}/rabbi/${params.slug}`;
   const image = rabbi.photoUrl || `${SITE}/og-default.png`;
@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       },
     },
     openGraph: {
-      title: `הרב ${rabbi.name} | TORA_LIVE`,
+      title: `הרב ${rabbi.name} | TANA`,
       description,
       url,
       type: "profile",
       images: [{ url: image, alt: `הרב ${rabbi.name}` }],
       locale: "he_IL",
-      siteName: "TORA_LIVE",
+      siteName: "TANA",
     },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
@@ -244,7 +244,7 @@ export default async function RabbiPage({
 
   // === Share URL ===
   const rabbiUrl = `${SITE}/rabbi/${rabbi.slug}`;
-  const shareText = encodeURIComponent(`שיעורי תורה של ${rabbi.name} ב-TORA_LIVE:\n${rabbiUrl}`);
+  const shareText = encodeURIComponent(`שיעורי תורה של ${rabbi.name} ב-TANA:\n${rabbiUrl}`);
 
   // === JSON-LD (Person + Teacher + ProfilePage) ===
   const personSchema: any = {
@@ -258,7 +258,7 @@ export default async function RabbiPage({
     knowsAbout: ["תורה", "הלכה", "פרשת שבוע", "תלמוד", "מחשבת ישראל"],
     memberOf: {
       "@type": "Organization",
-      name: "TORA_LIVE",
+      name: "TANA",
       url: SITE,
     },
   };
@@ -267,7 +267,7 @@ export default async function RabbiPage({
     "@context": "https://schema.org",
     "@type": "ProfilePage",
     url: rabbiUrl,
-    name: `הרב ${rabbi.name} — דף הרב ב-TORA_LIVE`,
+    name: `הרב ${rabbi.name} — דף הרב ב-TANA`,
     inLanguage: "he-IL",
     mainEntity: personSchema,
   };

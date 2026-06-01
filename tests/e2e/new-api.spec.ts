@@ -1,7 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 
 /**
- * E2E API tests for TORA_LIVE — new endpoints:
+ * E2E API tests for TANA — new endpoints:
  *  - POST /api/events
  *  - POST /api/admin/events/[id]
  *  - POST /api/lessons/[id]/report

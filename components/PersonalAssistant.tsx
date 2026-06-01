@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ type QuickAction = {
 
 const ACTIONS_BY_ROLE: Record<Role, { greeting: string; actions: QuickAction[] }> = {
   guest: {
-    greeting: "ברוכים הבאים ל-TORA_LIVE 🙏",
+    greeting: "ברוכים הבאים ל-TANA 🙏",
     actions: [
       { label: "חפש שיעור", icon: Search, href: "/lessons" },
       { label: "גלה רבנים", icon: BookOpen, href: "/rabbis" },
@@ -55,7 +55,7 @@ const ACTIONS_BY_ROLE: Record<Role, { greeting: string; actions: QuickAction[] }
   },
 };
 
-const WHATSAPP_HREF = "https://wa.me/972500000000?text=שלום%2C%20אני%20צריך%20עזרה%20עם%20TORA_LIVE";
+const WHATSAPP_HREF = "https://wa.me/972500000000?text=שלום%2C%20אני%20צריך%20עזרה%20עם%20TANA";
 
 export function PersonalAssistant({ role = "guest", userName }: { role?: Role; userName?: string | null }) {
   const [open, setOpen] = useState(false);
@@ -119,7 +119,7 @@ export function PersonalAssistant({ role = "guest", userName }: { role?: Role; u
                 <Sparkles className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base">העוזר של TORA_LIVE</h3>
+                <h3 className="font-bold text-base">העוזר של TANA</h3>
                 <p className="text-xs text-white/80 truncate">{config.greeting}{userName ? `, ${userName}` : ""}</p>
               </div>
             </div>

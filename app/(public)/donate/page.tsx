@@ -1,8 +1,8 @@
-import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe, HandHeart } from "lucide-react";
+﻿import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe, HandHeart } from "lucide-react";
 import { DedicationDateField } from "@/components/DedicationDateField";
 
 export const metadata = {
-  title: "תרומה | TORA LIVE",
+  title: "תרומה | TANA",
   description: "תרום שיעור תורה לעילוי נשמה, לזכות או לתמיכה כללית בפלטפורמה. קבלה מס׳ 46 נשלחת אוטומטית למייל.",
 };
 

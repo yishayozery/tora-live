@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getServerSession } from "next-auth";
@@ -10,7 +10,7 @@ import { BookmarkButton } from "@/components/BookmarkButton";
 import { formatHebrewDate, formatHebrewTime } from "@/lib/utils";
 import { Bookmark, Calendar, Clock, Bell, BookmarkX } from "lucide-react";
 
-export const metadata = { title: "השיעורים שסימנתי | TORA_LIVE" };
+export const metadata = { title: "השיעורים שסימנתי | TANA" };
 
 export default async function MyBookmarksPage() {
   const session = await getServerSession(authOptions);

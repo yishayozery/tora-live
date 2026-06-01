@@ -18,11 +18,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     select: { name: true, description: true, logoUrl: true, city: true, isActive: true },
   });
   if (!institution || !institution.isActive) {
-    return { title: "ישיבה לא נמצאה | TORA_LIVE" };
+    return { title: "ישיבה לא נמצאה | TANA" };
   }
 
   const shortDesc = (institution.description ?? "").trim().slice(0, 80);
-  const title = `ישיבת ${institution.name} | TORA_LIVE`.slice(0, 70);
+  const title = `ישיבת ${institution.name} | TANA`.slice(0, 70);
   const description = `שיעורי תורה בשידור חי מישיבת ${institution.name}${institution.city ? ` ב${institution.city}` : ""}. ${shortDesc || "צפו בשיעורים מכל חדרי בית המדרש."}`.slice(0, 160);
   const url = `${SITE}/yeshiva/${params.slug}`;
   const image = institution.logoUrl || `${SITE}/og-default.png`;
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       type: "website",
       images: [{ url: image, alt: `ישיבת ${institution.name}` }],
       locale: "he_IL",
-      siteName: "TORA_LIVE",
+      siteName: "TANA",
     },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
@@ -171,7 +171,7 @@ export default async function YeshivaPublicPage({ params }: { params: { slug: st
         <header className="space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center h-7 px-3 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">
-              ישיבה ב-TORA LIVE
+              ישיבה ב-TANA
             </span>
             {liveCount > 0 ? (
               <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-live/10 text-live border border-live/30 text-xs font-semibold">

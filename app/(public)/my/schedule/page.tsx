@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
@@ -9,7 +9,7 @@ import { Bell, Users, Sparkles } from "lucide-react";
 function buildStudentWaShare(lessons: Array<{ id: string; title: string; scheduledAt: string; rabbiName: string }>): string {
   const sorted = [...lessons].sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
   const lines = [
-    "📚 השיעורים שלי ב-TORA_LIVE:",
+    "📚 השיעורים שלי ב-TANA:",
     "",
     ...sorted.map((l) => {
       const d = new Date(l.scheduledAt);

@@ -1,4 +1,4 @@
-type Lesson = {
+﻿type Lesson = {
   id: string;
   title: string;
   description: string;
@@ -20,7 +20,7 @@ const SITE = "https://tora-live.co.il";
  * Live broadcasts → BroadcastEvent. Recordings → VideoObject. Events → Event.
  */
 export function LessonStructuredData({ lesson }: { lesson: Lesson }) {
-  const rabbiName = lesson.rabbi?.name ?? lesson.organizerName ?? "TORA_LIVE";
+  const rabbiName = lesson.rabbi?.name ?? lesson.organizerName ?? "TANA";
   const url = `${SITE}/lesson/${lesson.id}`;
   const startTime = lesson.scheduledAt.toISOString();
   const endTime = lesson.durationMin
@@ -52,7 +52,7 @@ export function LessonStructuredData({ lesson }: { lesson: Lesson }) {
     data.isAccessibleForFree = true;
     data.publisher = {
       "@type": "Organization",
-      name: "TORA_LIVE",
+      name: "TANA",
       url: SITE,
       logo: {
         "@type": "ImageObject",

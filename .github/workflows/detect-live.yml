@@ -1,4 +1,4 @@
-name: detect-live-broadcasts
+﻿name: detect-live-broadcasts
 
 # זיהוי מהיר של שידורים חיים — רץ כל 15 דקות בשעות פעילות (17:00-23:00 UTC+2 = 14:00-20:00 UTC).
 # המטרה: לזהות תוך דקות שרב התחיל/סיים שידור חי ב-YouTube ולעדכן אצלנו.
@@ -6,7 +6,7 @@ name: detect-live-broadcasts
 #
 # דרישות:
 #   1. ב-Settings → Secrets and variables → Actions להוסיף:
-#      - TORA_LIVE_URL           = https://torah-live-rho.vercel.app  (או הדומיין המותאם)
+#      - TANA_URL           = https://torah-live-rho.vercel.app  (או הדומיין המותאם)
 #      - CRON_SECRET             = ערך מ-Vercel env (זהה לזה ש-`/api/cron/*` דורש)
 #   2. Default: 05:00-21:00 Israel (= 03:00-19:00 UTC קיץ / 02:00-18:00 חורף).
 #      אם צריך יותר — לערוך את ה-cron schedule למטה.
@@ -29,11 +29,11 @@ jobs:
     steps:
       - name: Call /api/cron/detect-live
         env:
-          URL: ${{ secrets.TORA_LIVE_URL }}
+          URL: ${{ secrets.TANA_URL }}
           SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$URL" ] || [ -z "$SECRET" ]; then
-            echo "::error::TORA_LIVE_URL או CRON_SECRET חסרים ב-GitHub Secrets"
+            echo "::error::TANA_URL או CRON_SECRET חסרים ב-GitHub Secrets"
             exit 1
           fi
 

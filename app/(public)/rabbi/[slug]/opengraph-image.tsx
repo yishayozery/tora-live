@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
-export const alt = "TORA_LIVE — דף הרב";
+export const alt = "TANA — דף הרב";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -88,7 +88,7 @@ export default async function OgImage({ params }: { params: { slug: string } }) 
             fontWeight: 600,
           }}
         >
-          TORA_LIVE
+          TANA
         </div>
       </div>
     ),

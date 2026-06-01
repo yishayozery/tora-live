@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -13,7 +13,7 @@ import { Share2, Sparkles, Eye, QrCode } from "lucide-react";
 const SITE = "https://tora-live.co.il";
 
 export const metadata = {
-  title: "ערכת שיתוף — TORA LIVE",
+  title: "ערכת שיתוף — TANA",
   description: "ערכת שיתוף מוכנה לרבנים — הודעות, קישורים ו-QR להפצת הדף שלך.",
 };
 
@@ -28,15 +28,15 @@ export default async function ShareKitPage() {
   const url = `${SITE}/rabbi/${rabbi.slug}`;
   const shortUrl = `tora-live.co.il/rabbi/${rabbi.slug}`;
 
-  const whatsappText = `שלום! פתחתי דף ב-TORA LIVE — פלטפורמת שיעורי תורה.
+  const whatsappText = `שלום! פתחתי דף ב-TANA — פלטפורמת שיעורי תורה.
 כל השיעורים שלי במקום אחד, עם לוח שבועי + שידור חי + ארכיון.
 לכתובת שלי: ${shortUrl}
 נשמח שתעקבו ותפיצו 🙏`;
 
-  const emailSubject = `הדף החדש שלי ב-TORA LIVE — ${rabbi.name}`;
+  const emailSubject = `הדף החדש שלי ב-TANA — ${rabbi.name}`;
   const emailBody = `שלום וברכה,
 
-שמח לבשר שפתחתי דף חדש בפלטפורמת TORA LIVE — מקום אחד שמרכז את כל השיעורים שלי:
+שמח לבשר שפתחתי דף חדש בפלטפורמת TANA — מקום אחד שמרכז את כל השיעורים שלי:
 לוח שבועי של שיעורים, שידור חי בזמן אמת, וארכיון מסודר לצפייה חוזרת.
 
 הקישור לדף שלי:
@@ -48,7 +48,7 @@ ${url}
 בברכת התורה,
 ${rabbi.name}`;
 
-  const tagline = `השיעורים שלי ב-TORA LIVE → ${shortUrl}`;
+  const tagline = `השיעורים שלי ב-TANA → ${shortUrl}`;
 
   // OG image — ננסה את ה-route ה-API אם קיים, אחרת fallback לתמונת הרב.
   const ogImage = rabbi.photoUrl || null;
@@ -183,7 +183,7 @@ ${rabbi.name}`;
               </div>
             </div>
             <div className="p-3 text-xs text-ink-muted bg-white border-t border-border">
-              <div className="font-medium text-ink truncate">{rabbi.name} — TORA LIVE</div>
+              <div className="font-medium text-ink truncate">{rabbi.name} — TANA</div>
               <div className="truncate">{shortUrl}</div>
             </div>
           </div>

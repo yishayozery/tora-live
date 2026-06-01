@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Daily Post — מייצר פוסטים שיווקיים (WhatsApp/Telegram/Blog) לשיעורי היום והמחר.
  *
  * Usage:
@@ -60,7 +60,7 @@ function lessonUrl(l: LessonWithRabbi): string {
 
 function buildWhatsApp(today: LessonWithRabbi[], tomorrow: LessonWithRabbi[]): string {
   const lines: string[] = [];
-  lines.push("🎓 *שיעורי תורה היום ב-TORA_LIVE*", "");
+  lines.push("🎓 *שיעורי תורה היום ב-TANA*", "");
 
   const liveNow = today.filter((l) => l.isLive);
   if (liveNow.length) {
@@ -134,12 +134,12 @@ function buildBlog(today: LessonWithRabbi[], tomorrow: LessonWithRabbi[]): strin
   const count = today.length + tomorrow.length;
   const lines: string[] = [];
   lines.push(`---`);
-  lines.push(`title: "שיעורי התורה של ${dateLabel} | TORA_LIVE"`);
+  lines.push(`title: "שיעורי התורה של ${dateLabel} | TANA"`);
   lines.push(`description: "${count} שיעורי תורה בשידור חי ובמתוזמן היום ומחר — דף יומי, פרשת שבוע, הלכה ומחשבה"`);
   lines.push(`date: "${new Date().toISOString().slice(0, 10)}"`);
   lines.push(`---`, "");
   lines.push(`# שיעורי התורה של ${dateLabel}`, "");
-  lines.push(`ב-TORA_LIVE אנחנו מרכזים את שיעורי התורה של רבני המגזר הדתי-לאומי והחרדל״י — בשידור חי, במתוזמן ובהקלטה. הנה השיעורים הבולטים להיום ולמחר:`, "");
+  lines.push(`ב-TANA אנחנו מרכזים את שיעורי התורה של רבני המגזר הדתי-לאומי והחרדל״י — בשידור חי, במתוזמן ובהקלטה. הנה השיעורים הבולטים להיום ולמחר:`, "");
 
   if (today.length) {
     lines.push(`## שיעורי היום`, "");
@@ -160,7 +160,7 @@ function buildBlog(today: LessonWithRabbi[], tomorrow: LessonWithRabbi[]): strin
   }
 
   lines.push(`---`, "");
-  lines.push(`**TORA_LIVE** — פלטפורמה חינמית לשיעורי תורה אונליין. הצטרפו בחינם: [${SITE}](${SITE})`);
+  lines.push(`**TANA** — פלטפורמה חינמית לשיעורי תורה אונליין. הצטרפו בחינם: [${SITE}](${SITE})`);
   return lines.join("\n");
 }
 

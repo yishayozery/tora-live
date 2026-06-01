@@ -1,4 +1,4 @@
-// Cron — מייצר פוסט יומי, שומר בכל מקום נגיש, ושולח למייל של ה-founder.
+﻿// Cron — מייצר פוסט יומי, שומר בכל מקום נגיש, ושולח למייל של ה-founder.
 // Vercel Hobby cron daily.
 
 import { NextResponse } from "next/server";
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
   }
 
   const rabbiLabel = (l: any) => l.rabbi?.name ?? l.organizerName ?? "רב";
-  const whatsappLines: string[] = [`🎓 *שיעורי תורה היום ב-TORA_LIVE*`, ""];
+  const whatsappLines: string[] = [`🎓 *שיעורי תורה היום ב-TANA*`, ""];
   const live = today.filter((l) => l.isLive);
   if (live.length) {
     whatsappLines.push("🔴 *עכשיו בשידור חי:*");
@@ -71,7 +71,7 @@ export async function GET(req: Request) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from: `${process.env.EMAIL_FROM_NAME || "TORA_LIVE"} <${process.env.EMAIL_FROM || "noreply@tora-live.co.il"}>`,
+        from: `${process.env.EMAIL_FROM_NAME || "TANA"} <${process.env.EMAIL_FROM || "noreply@tora-live.co.il"}>`,
         to: founderEmail,
         subject: `📬 פוסט יומי — ${formatHebrewDate(now)}`,
         text: `העתק ל-WhatsApp:\n\n${whatsappText}\n\n---\nנוצר אוטומטית ע"י cron.`,

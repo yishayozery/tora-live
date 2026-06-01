@@ -10,7 +10,7 @@ import { ChevronRight, Users, Shield, BookOpen, Eye } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "ניהול חברים | TORA_LIVE",
+  title: "ניהול חברים | TANA",
 };
 
 type Role = "RAKAZ" | "RABBI" | "VIEWER";

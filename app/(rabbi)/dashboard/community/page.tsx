@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { requireApprovedRabbi } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription } from "@/components/ui/Card";
@@ -7,7 +7,7 @@ import { formatHebrewDate } from "@/lib/utils";
 import { Users, ShieldCheck, Search, Bell, BellOff, Eye, ExternalLink } from "lucide-react";
 
 export const metadata = {
-  title: "הקהילה שלי · TORA_LIVE",
+  title: "הקהילה שלי · TANA",
   description: "ניהול עוקבים ועוזרי שידור",
 };
 
