@@ -221,6 +221,9 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* === סרט הקדשה — תמיד ראשון, מיד מתחת ל-header === */}
+      <SponsorBanner sponsor={sponsor} />
+
       {/* === הגישה: כשנכנסים לאתר ויש שידורים חיים → מציגים אותם **מיד** ללא Hero חוצץ.
           רק כשאין כלום — מציגים Hero (welcome). זה מסיר את הצורך בגלילה לכל שידור פעיל. === */}
       {hasLiveSection ? (
@@ -237,8 +240,7 @@ export default async function HomePage() {
         <WeeklyCalendar lessons={calendarLessons} title="לוח שיעורים" />
       </div>
 
-      {/* === תורם היום + לוח הקדשות — צד עדין, לא מתחרה === */}
-      <SponsorBanner sponsor={sponsor} />
+      {/* === לוח הקדשות === */}
       <DonationTicker donations={dedications} />
 
       {/* === נקודות ניווט צדדיות (דסקטופ בלבד) === */}
