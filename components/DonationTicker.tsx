@@ -99,7 +99,7 @@ export function DonationTickerVertical({ donations }: { donations: DedicationEnt
 
   return (
     <aside
-      className="hidden xl:block fixed left-4 top-32 z-20 w-60 max-h-[calc(100vh-10rem)] overflow-hidden"
+      className="hidden lg:block fixed left-4 top-32 z-20 w-60 max-h-[calc(100vh-10rem)] overflow-hidden"
       aria-label="לוח הקדשות מתגלגל"
     >
       <div className="rounded-card border-2 border-gold/40 bg-white shadow-card overflow-hidden">
@@ -132,12 +132,13 @@ export function DonationTickerVertical({ donations }: { donations: DedicationEnt
             ))}
           </div>
         </div>
-        <footer className="border-t border-border bg-paper-soft px-3 py-2 text-center">
+        <footer className="border-t border-border bg-paper-soft px-3 py-2.5 text-center">
           <a
             href="/donate"
-            className="text-xs font-semibold text-gold hover:text-ink hover:underline underline-offset-4"
+            className="inline-flex items-center gap-1.5 w-full justify-center bg-gold text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-amber-600 transition shadow-sm"
           >
-            הוסף הקדשה ←
+            <Heart className="w-3 h-3 fill-white" />
+            הקדש שיעור
           </a>
         </footer>
       </div>
@@ -157,8 +158,9 @@ export function DonationTickerVertical({ donations }: { donations: DedicationEnt
 }
 
 /**
- * רצועה אופקית — מובייל ודסקטופ צר.
+ * רצועה אופקית — כל המסכים.
  * זרימה מימין לשמאל (RTL), עצירה ב-hover.
+ * בסוף הרצועה: כפתור CTA לתרומה.
  */
 export function DonationTickerHorizontal({ donations }: { donations: DedicationEntry[] }) {
   if (donations.length === 0) return null;
@@ -167,22 +169,26 @@ export function DonationTickerHorizontal({ donations }: { donations: DedicationE
 
   return (
     <section
-      className="xl:hidden bg-gradient-to-l from-gold-soft via-amber-50 to-gold-soft border-y border-gold/30 py-3"
+      className="bg-gradient-to-l from-gold-soft via-amber-50 to-gold-soft border-y border-gold/30 py-3"
       aria-label="הקדשות תורמים"
     >
+      {/* כותרת + מונה + CTA */}
       <div className="max-w-6xl mx-auto px-4 mb-2 flex items-center gap-2">
-        <Heart className="w-4 h-4 text-gold fill-gold" />
+        <Heart className="w-4 h-4 text-gold fill-gold shrink-0" />
         <h3 className="hebrew-serif font-bold text-sm text-ink">לוח הקדשות</h3>
-        <span className="text-[10px] bg-gold/15 text-gold border border-gold/30 px-2 py-0.5 rounded-full font-bold">
+        <span className="text-[10px] bg-gold/15 text-gold border border-gold/30 px-2 py-0.5 rounded-full font-bold shrink-0">
           {donations.length}
         </span>
         <a
           href="/donate"
-          className="mr-auto text-xs font-semibold text-gold hover:text-ink hover:underline underline-offset-4"
+          className="mr-auto shrink-0 inline-flex items-center gap-1.5 bg-gold text-white text-xs font-bold px-3 py-1 rounded-full hover:bg-amber-600 transition shadow-sm"
         >
-          הוסף הקדשה ←
+          <Heart className="w-3 h-3 fill-white" />
+          הקדש שיעור
         </a>
       </div>
+
+      {/* רצועה נעה */}
       <div
         className="relative overflow-hidden ticker-mask-h"
         onMouseEnter={(e) => {
@@ -198,7 +204,6 @@ export function DonationTickerHorizontal({ donations }: { donations: DedicationE
           className="flex gap-3 px-4 will-change-transform"
           style={{
             animation: `ticker-horizontal ${durationSec}s linear infinite`,
-            // RTL: זזים שמאלה אבל הכרטיס הראשון מימין
             direction: "ltr",
           }}
         >
