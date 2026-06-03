@@ -1,4 +1,4 @@
-﻿---
+---
 name: daily-post
 description: סוכן שמכין מדי יום פוסט שיווקי על שיעורי TANA של היום והמחר. סורק את ה-DB, מוצא שיעורים מעניינים (לפי פופולריות, שידורים חיים, רבנים מרכזיים), ומייצר פוסט מוכן להפצה ב-WhatsApp, Telegram, Email Newsletter. מחזיר 3 גרסאות: קצרה (WhatsApp), בינונית (Telegram + Email), ארוכה (פוסט בלוג/Facebook). הפעל אותו כל בוקר ב-07:00.
 tools: Read, Write, Edit, Glob, Grep, Bash

@@ -1,4 +1,4 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import { ContactForm } from "@/components/ContactForm";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Mail, Phone, MapPin, Clock, MessageCircle, Send } from "lucide-react";

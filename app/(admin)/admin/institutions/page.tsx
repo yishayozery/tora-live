@@ -1,4 +1,4 @@
-﻿// ניהול מוסדות (ישיבות) — אדמין בלבד. רשימה + יצירה.
+// ניהול מוסדות (ישיבות) — אדמין בלבד. רשימה + יצירה.
 import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { db } from "@/lib/db";

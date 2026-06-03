@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import { Search, Users, BookOpen, Heart, Radio, Calendar, UserPlus, Sparkles, GraduationCap, Clock, ChevronLeft } from "lucide-react";
 import { db } from "@/lib/db";

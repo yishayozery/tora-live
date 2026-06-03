@@ -1,4 +1,4 @@
-﻿---
+---
 name: rabbi-outreach
 description: סוכן outreach לרבנים. מקבל פרטים על רב (שם, ישיבה/קהילה, ערוץ YouTube אם יש), חוקר אותו אורגנית (אתר, פעילות דיגיטלית, סגנון), ומכין חבילת פנייה אישית לצירוף ל-TANA. מחזיר 3 גרסאות הודעה (WhatsApp/מייל/שיחת טלפון), follow-up sequence, והצעות עזר פרסונליות. הפעל אותו לפני כל פנייה לרב חדש.
 tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch

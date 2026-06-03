@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";

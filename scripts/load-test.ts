@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Simple load test — fires N concurrent requests against key pages.
  * Usage: node --env-file=.env --import tsx scripts/load-test.ts [concurrency] [total]
  */

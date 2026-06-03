@@ -1,4 +1,4 @@
-﻿import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe, HandHeart } from "lucide-react";
+import { Heart, Sparkles, ShieldCheck, BookOpen, Users, Clock, Globe, HandHeart } from "lucide-react";
 import { DedicationDateField } from "@/components/DedicationDateField";
 
 export const metadata = {

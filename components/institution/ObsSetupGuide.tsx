@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // מדריך התקנת OBS / Raspberry Pi לחדר חדש.
 // מציג שלבים ברורים עם כפתורי העתקה ל-RTMP URL ו-Stream Key.

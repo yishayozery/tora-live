@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { BookOpen, BookMarked, Radio, Users, Sparkles } from "lucide-react";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Daily Post — מייצר פוסטים שיווקיים (WhatsApp/Telegram/Blog) לשיעורי היום והמחר.
  *
  * Usage:
